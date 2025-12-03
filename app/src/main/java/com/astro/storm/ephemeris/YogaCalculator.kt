@@ -384,7 +384,7 @@ object YogaCalculator {
                     val strength = calculateYogaStrength(chart, listOf(pos1, pos2))
                     yogas.add(
                         Yoga(
-                            name = "Dhana Yoga",
+                            name = "${lord1.displayName}-${lord2.displayName} Dhana Yoga",
                             sanskritName = "Dhana Yoga",
                             category = YogaCategory.DHANA_YOGA,
                             planets = listOf(lord1, lord2),
@@ -1202,7 +1202,7 @@ object YogaCalculator {
                 val strength = calculateYogaStrength(chart, listOf(pos)) * 1.1
                 yogas.add(
                     Yoga(
-                        name = "Vargottama Strength",
+                        name = "${pos.planet.displayName} Vargottama Strength",
                         sanskritName = "Vargottama Bala",
                         category = YogaCategory.SPECIAL_YOGA,
                         planets = listOf(pos.planet),
@@ -1270,7 +1270,7 @@ object YogaCalculator {
                 val strength = calculateYogaStrength(chart, listOf(beneficPos))
                 yogas.add(
                     Yoga(
-                        name = "Amala Yoga",
+                        name = "${beneficPos.planet.displayName} Amala Yoga",
                         sanskritName = "Amala Yoga",
                         category = YogaCategory.SPECIAL_YOGA,
                         planets = listOf(beneficPos.planet),
