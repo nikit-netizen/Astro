@@ -38,15 +38,15 @@ class DebugActivity : ComponentActivity() {
                 DebugScreen(
                     stackTrace = stackTrace,
                     onCopy = {
-                        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        val clipboard = this@DebugActivity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                         val clip = ClipData.newPlainText("Crash Log", stackTrace)
                         clipboard.setPrimaryClip(clip)
                     },
                     onRestart = {
-                        val intent = Intent(this, MainActivity::class.java)
+                        val intent = Intent(this@DebugActivity, MainActivity::class.java)
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                        startActivity(intent)
-                        finish()
+                        this@DebugActivity.startActivity(intent)
+                        this@DebugActivity.finish()
                     }
                 )
             }
