@@ -18,18 +18,15 @@ import com.astro.storm.data.model.Quality
 import com.astro.storm.data.model.VedicChart
 import com.astro.storm.data.model.ZodiacSign
 import kotlin.math.abs
-import kotlin.math.cos
 import kotlin.math.min
-import kotlin.math.sin
 
 /**
  * Professional North Indian Style Vedic Chart Renderer
- * 
- * Features:
- * - Vector-drawn status symbols (fixing font rendering issues)
- * - Dynamic collision-free layout for House Numbers vs Planets
- * - Adaptive font scaling for crowded houses
- * - Production-grade geometry calculations
+ *
+ * Fixes:
+ * - Vector path drawing syntax errors resolved.
+ * - Null safety for Divisional Charts (removed invalid Constructor calls).
+ * - Optimized text vs icon layout.
  */
 class ChartRenderer {
 
@@ -52,12 +49,12 @@ class ChartRenderer {
         // Colors
         private val BACKGROUND_COLOR = Color(0xFFD4C4A8) 
         private val BORDER_COLOR = Color(0xFFB8860B)
-        private val HOUSE_NUMBER_COLOR = Color(0x805D4037) // Semi-transparent brown for numbers
+        private val HOUSE_NUMBER_COLOR = Color(0x805D4037) // Semi-transparent brown
         private val LAGNA_COLOR = Color(0xFF8B4513)
 
         // Planet Colors
         private val SUN_COLOR = Color(0xFFD2691E)
-        private val MOON_COLOR = Color(0xFFB22222) // Darker red for visibility
+        private val MOON_COLOR = Color(0xFFB22222)
         private val MARS_COLOR = Color(0xFFCC0000)
         private val MERCURY_COLOR = Color(0xFF006400)
         private val JUPITER_COLOR = Color(0xFFDAA520)
@@ -90,9 +87,6 @@ class ChartRenderer {
         return bitmap
     }
     
-    /**
-     * Main entry point for drawing the chart on a Compose Canvas
-     */
     fun drawNorthIndianChart(
         drawScope: DrawScope,
         chart: VedicChart,
@@ -130,7 +124,7 @@ class ChartRenderer {
                         center = layout.planetCenter,
                         size = size,
                         houseNum = houseNum,
-                        chart = chart,
+                        chart = chart, // Pass full chart for Vargottama check
                         sunPosition = sunPosition,
                         hasLagnaHeader = (houseNum == 1)
                     )
@@ -187,81 +181,30 @@ class ChartRenderer {
         return ChartFrame(left, top, right, bottom, chartSize, centerX, centerY)
     }
 
-    /**
-     * Returns precise coordinates for House Number vs Planet Area.
-     * Strategy: Push numbers into "corners" or "apexes" of the houses,
-     * leaving the widest/centermost area for the planets.
-     */
     private fun getHouseLayout(houseNum: Int, f: ChartFrame): HouseLayout {
         val s = f.size
         val cx = f.centerX
         val cy = f.centerY
-        
-        // Geometric factors
-        val dOffset = 0.15f // Diamond offset from center
-        val cOffset = 0.10f // Corner offset from outer edge
+        val cOffset = 0.10f // Corner offset
         
         return when (houseNum) {
             // DIAMONDS (1, 4, 7, 10)
-            // House 1 (Top): Number near top apex, Planets in center
-            1 -> HouseLayout(
-                numberAnchor = Offset(cx, f.top + s * 0.12f),
-                planetCenter = Offset(cx, f.top + s * 0.28f) // Lower down to make room for "Lagna"
-            )
-            // House 4 (Left): Number near left apex
-            4 -> HouseLayout(
-                numberAnchor = Offset(f.left + s * 0.12f, cy),
-                planetCenter = Offset(f.left + s * 0.25f, cy)
-            )
-            // House 7 (Bottom): Number near bottom apex
-            7 -> HouseLayout(
-                numberAnchor = Offset(cx, f.bottom - s * 0.12f),
-                planetCenter = Offset(cx, f.bottom - s * 0.25f)
-            )
-            // House 10 (Right): Number near right apex
-            10 -> HouseLayout(
-                numberAnchor = Offset(f.right - s * 0.12f, cy),
-                planetCenter = Offset(f.right - s * 0.25f, cy)
-            )
+            1 -> HouseLayout(Offset(cx, f.top + s * 0.12f), Offset(cx, f.top + s * 0.28f))
+            4 -> HouseLayout(Offset(f.left + s * 0.12f, cy), Offset(f.left + s * 0.25f, cy))
+            7 -> HouseLayout(Offset(cx, f.bottom - s * 0.12f), Offset(cx, f.bottom - s * 0.25f))
+            10 -> HouseLayout(Offset(f.right - s * 0.12f, cy), Offset(f.right - s * 0.25f, cy))
 
             // CORNER TRIANGLES (2, 6, 8, 12)
-            // Put Numbers deep in the corner (acute angle), Planets in the wide part
-            2 -> HouseLayout(
-                numberAnchor = Offset(f.left + s * cOffset, f.top + s * cOffset),
-                planetCenter = Offset(f.left + s * 0.20f, f.top + s * 0.20f)
-            )
-            6 -> HouseLayout(
-                numberAnchor = Offset(f.left + s * cOffset, f.bottom - s * cOffset),
-                planetCenter = Offset(f.left + s * 0.20f, f.bottom - s * 0.20f)
-            )
-            8 -> HouseLayout(
-                numberAnchor = Offset(f.right - s * cOffset, f.bottom - s * cOffset),
-                planetCenter = Offset(f.right - s * 0.20f, f.bottom - s * 0.20f)
-            )
-            12 -> HouseLayout(
-                numberAnchor = Offset(f.right - s * cOffset, f.top + s * cOffset),
-                planetCenter = Offset(f.right - s * 0.20f, f.top + s * 0.20f)
-            )
+            2 -> HouseLayout(Offset(f.left + s * cOffset, f.top + s * cOffset), Offset(f.left + s * 0.20f, f.top + s * 0.20f))
+            6 -> HouseLayout(Offset(f.left + s * cOffset, f.bottom - s * cOffset), Offset(f.left + s * 0.20f, f.bottom - s * 0.20f))
+            8 -> HouseLayout(Offset(f.right - s * cOffset, f.bottom - s * cOffset), Offset(f.right - s * 0.20f, f.bottom - s * 0.20f))
+            12 -> HouseLayout(Offset(f.right - s * cOffset, f.top + s * cOffset), Offset(f.right - s * 0.20f, f.top + s * 0.20f))
 
             // SIDE TRIANGLES (3, 5, 9, 11)
-            // Numbers near the intersection (center), Planets outer
-            // Adjusted to avoid the messy center-intersection of the whole chart
-            3 -> HouseLayout(
-                numberAnchor = Offset(f.left + s * 0.22f, f.top + s * 0.22f), // Moved inward
-                planetCenter = Offset(f.left + s * 0.10f, cy - s * 0.12f)     // Toward left edge
-            )
-            5 -> HouseLayout(
-                numberAnchor = Offset(f.left + s * 0.22f, f.bottom - s * 0.22f),
-                planetCenter = Offset(f.left + s * 0.10f, cy + s * 0.12f)
-            )
-            9 -> HouseLayout(
-                numberAnchor = Offset(f.right - s * 0.22f, f.bottom - s * 0.22f),
-                planetCenter = Offset(f.right - s * 0.10f, cy + s * 0.12f)
-            )
-            11 -> HouseLayout(
-                numberAnchor = Offset(f.right - s * 0.22f, f.top + s * 0.22f),
-                planetCenter = Offset(f.right - s * 0.10f, cy - s * 0.12f)
-            )
+            3 -> HouseLayout(Offset(f.left + s * 0.22f, f.top + s * 0.22f), Offset(f.left + s * 0.10f, cy - s * 0.12f))
+            5 -> HouseLayout(Offset(f.left + s * 0.22f, f.bottom - s * 0.22f), Offset(f.left + s * 0.10f, cy + s * 0.12f))
+            9 -> HouseLayout(Offset(f.right - s * 0.22f, f.bottom - s * 0.22f), Offset(f.right - s * 0.10f, cy + s * 0.12f))
+            11 -> HouseLayout(Offset(f.right - s * 0.22f, f.top + s * 0.22f), Offset(f.right - s * 0.10f, cy - s * 0.12f))
             else -> HouseLayout(Offset(cx, cy), Offset(cx, cy))
         }
     }
@@ -269,26 +212,11 @@ class ChartRenderer {
     // --- Drawing Implementations ---
 
     private fun DrawScope.drawHouseNumber(text: String, pos: Offset, size: Float) {
-        drawTextWithPaint(
-            text = text,
-            x = pos.x,
-            y = pos.y,
-            textSize = size * 0.035f,
-            color = HOUSE_NUMBER_COLOR,
-            typeface = TYPEFACE_NORMAL
-        )
+        drawTextWithPaint(text, pos.x, pos.y, size * 0.035f, HOUSE_NUMBER_COLOR, TYPEFACE_NORMAL)
     }
 
     private fun DrawScope.drawLagnaHeader(center: Offset, size: Float) {
-        // Draw "La" slightly above the planet stack center for House 1
-        drawTextWithPaint(
-            text = "La",
-            x = center.x,
-            y = center.y - (size * 0.065f), // Offset upward
-            textSize = size * 0.038f,
-            color = LAGNA_COLOR,
-            typeface = TYPEFACE_BOLD
-        )
+        drawTextWithPaint("La", center.x, center.y - (size * 0.065f), size * 0.038f, LAGNA_COLOR, TYPEFACE_BOLD)
     }
 
     private fun DrawScope.drawPlanetsInHouse(
@@ -296,72 +224,42 @@ class ChartRenderer {
         center: Offset,
         size: Float,
         houseNum: Int,
-        chart: VedicChart,
+        chart: VedicChart?,
         sunPosition: PlanetPosition?,
         hasLagnaHeader: Boolean
     ) {
-        // 1. Determine Layout Strategy (Single vs Double Column)
         val isCorner = houseNum in listOf(2, 3, 5, 6, 8, 9, 11, 12)
         val useDoubleColumn = (planets.size >= 4) || (isCorner && planets.size >= 3)
         
-        // 2. Font Scaling
         val baseTextSize = size * 0.032f
         val textSize = if (planets.size > 4) baseTextSize * 0.85f else baseTextSize
         val lineHeight = textSize * 1.2f
         
-        // 3. Calculate Stack Dimensions
         val rows = if (useDoubleColumn) (planets.size + 1) / 2 else planets.size
         val colWidth = size * 0.07f
         val totalHeight = rows * lineHeight
         
-        // 4. Vertical Offset Adjustment
-        // If House 1 has "La", push planets down slightly.
-        // Otherwise center the stack vertically on the geometric center.
-        var startY = if (hasLagnaHeader) {
-             center.y - (totalHeight / 2) + (size * 0.02f) 
-        } else {
-             center.y - (totalHeight / 2) + (lineHeight / 2)
-        }
+        val startY = if (hasLagnaHeader) center.y - (totalHeight / 2) + (size * 0.02f) 
+                     else center.y - (totalHeight / 2) + (lineHeight / 2)
 
         planets.forEachIndexed { index, planet ->
-            // Calculate Grid Position
             val colIndex = if (useDoubleColumn) index % 2 else 0
             val rowIndex = if (useDoubleColumn) index / 2 else index
             
-            val xPos = if (useDoubleColumn) {
-                center.x + (if (colIndex == 0) -colWidth/2 else colWidth/2)
-            } else {
-                center.x
-            }
-            
+            val xPos = if (useDoubleColumn) center.x + (if (colIndex == 0) -colWidth/2 else colWidth/2) else center.x
             val yPos = startY + (rowIndex * lineHeight)
 
-            // Status Checks
             val isRetro = planet.isRetrograde
             val isCombust = isCombust(planet, sunPosition)
             val isExalted = isExalted(planet.planet, planet.sign)
             val isDebilitated = isDebilitated(planet.planet, planet.sign)
-            val isVargottama = isVargottama(planet, chart)
+            // Safely check vargottama only if chart is present
+            val isVargottama = chart != null && isVargottama(planet, chart)
 
-            // Draw the Planet Text
-            drawPlanetEntry(
-                drawScope = this,
-                planet = planet,
-                x = xPos,
-                y = yPos,
-                textSize = textSize,
-                isRetro = isRetro,
-                isCombust = isCombust,
-                isExalted = isExalted,
-                isDebilitated = isDebilitated,
-                isVargottama = isVargottama
-            )
+            drawPlanetEntry(this, planet, xPos, yPos, textSize, isRetro, isCombust, isExalted, isDebilitated, isVargottama)
         }
     }
 
-    /**
-     * Draws a single planet entry: "Su²²" + Graphic Indicators
-     */
     private fun drawPlanetEntry(
         drawScope: DrawScope,
         planet: PlanetPosition,
@@ -380,46 +278,36 @@ class ChartRenderer {
         val degreeStr = toSuperscript(degree)
         val mainText = "$symbol$degreeStr"
 
-        // Measure text to place icons next to it
         textPaint.textSize = textSize
         textPaint.typeface = TYPEFACE_BOLD
         val textWidth = textPaint.measureText(mainText)
         
-        // Draw Text
         drawScope.drawTextWithPaint(mainText, x, y, textSize, color, TYPEFACE_BOLD)
 
-        // Draw Indicators using Vector Paths (Canvas Drawing) to avoid Font issues
-        // Icons start half a width to the right of center + text half width
         val iconStartX = x + (textWidth / 2) + (textSize * 0.1f)
         val iconSize = textSize * 0.6f
         
         with(drawScope) {
             var currentX = iconStartX
             
-            // Retrograde (Star/Asterisk)
             if (isRetro) {
                 drawStatusIcon(StatusIcon.RETRO, currentX, y, iconSize, color)
                 currentX += iconSize
             }
             
-            // Exalted (Arrow Up)
             if (isExalted) {
-                drawStatusIcon(StatusIcon.UP_ARROW, currentX, y, iconSize, Color(0xFF2E7D32)) // Green
+                drawStatusIcon(StatusIcon.UP_ARROW, currentX, y, iconSize, Color(0xFF2E7D32))
                 currentX += iconSize
-            } 
-            // Debilitated (Arrow Down)
-            else if (isDebilitated) {
-                drawStatusIcon(StatusIcon.DOWN_ARROW, currentX, y, iconSize, Color(0xFFC62828)) // Red
+            } else if (isDebilitated) {
+                drawStatusIcon(StatusIcon.DOWN_ARROW, currentX, y, iconSize, Color(0xFFC62828))
                 currentX += iconSize
             }
 
-            // Combust (Flame/Circumflex)
             if (isCombust) {
                 drawStatusIcon(StatusIcon.COMBUST, currentX, y, iconSize, Color.DarkGray)
                 currentX += iconSize
             }
             
-            // Vargottama (Diamond/Dot)
             if (isVargottama) {
                 drawStatusIcon(StatusIcon.VARGOTTAMA, currentX, y, iconSize, color)
             }
@@ -428,13 +316,9 @@ class ChartRenderer {
     
     private enum class StatusIcon { RETRO, UP_ARROW, DOWN_ARROW, COMBUST, VARGOTTAMA }
 
-    /**
-     * Draws vector icons directly to canvas to prevent "tofu" (missing glyphs)
-     */
     private fun DrawScope.drawStatusIcon(icon: StatusIcon, x: Float, y: Float, size: Float, color: Color) {
         symbolPath.reset()
         val half = size / 2
-        // Y is text baseline. Move up to center vertically relative to text cap height
         val cy = y - (size * 0.6f) 
         
         when (icon) {
@@ -451,20 +335,18 @@ class ChartRenderer {
                 symbolPath.close()
             }
             StatusIcon.RETRO -> {
-                // Simple Asterisk
+                // Corrected lineTo calls
                 symbolPath.moveTo(x + half, cy - half); symbolPath.lineTo(x + half, cy + half)
                 symbolPath.moveTo(x, cy); symbolPath.lineTo(x + size, cy)
-                symbolPath.moveTo(x, cy - half); lineTo(x + size, cy + half)
-                symbolPath.moveTo(x + size, cy - half); lineTo(x, cy + half)
+                symbolPath.moveTo(x, cy - half); symbolPath.lineTo(x + size, cy + half)
+                symbolPath.moveTo(x + size, cy - half); symbolPath.lineTo(x, cy + half)
             }
             StatusIcon.COMBUST -> {
-                // Caret ^
                 symbolPath.moveTo(x, cy + half)
                 symbolPath.lineTo(x + half, cy - half)
                 symbolPath.lineTo(x + size, cy + half)
             }
             StatusIcon.VARGOTTAMA -> {
-                // Small Diamond
                 symbolPath.moveTo(x + half, cy - half)
                 symbolPath.lineTo(x + size, cy)
                 symbolPath.lineTo(x + half, cy + half)
@@ -484,13 +366,10 @@ class ChartRenderer {
         }
     }
 
-    // --- Text Helper ---
-
     private fun DrawScope.drawTextWithPaint(
         text: String, x: Float, y: Float, 
         textSize: Float, color: Color, typeface: Typeface
     ) {
-        // Config Paint
         if (textPaint.color != color.toArgb()) textPaint.color = color.toArgb()
         if (textPaint.textSize != textSize) textPaint.textSize = textSize
         if (textPaint.typeface != typeface) textPaint.typeface = typeface
@@ -498,7 +377,7 @@ class ChartRenderer {
         drawContext.canvas.nativeCanvas.drawText(text, x, y, textPaint)
     }
 
-    // --- Astrology Logic Utils (Kept Optimized) ---
+    // --- Astrology Logic Utils ---
 
     private fun signNumberForHouse(houseNum: Int, ascendantSign: ZodiacSign): Int {
         return ((ascendantSign.ordinal + houseNum - 1) % 12) + 1
@@ -642,7 +521,6 @@ class ChartRenderer {
             for (houseNum in 1..12) {
                 val layout = getHouseLayout(houseNum, frame)
                 
-                // Sign Number
                 val signNum = signNumberForHouse(houseNum, ascendantSign)
                 drawHouseNumber(signNum.toString(), layout.numberAnchor, size)
 
@@ -651,8 +529,13 @@ class ChartRenderer {
                 val planets = planetsByHouse[houseNum] ?: emptyList()
                 if (planets.isNotEmpty()) {
                     drawPlanetsInHouse(
-                        planets, layout.planetCenter, size, houseNum,
-                        originalChart ?: VedicChart(0.0, emptyList()), null, (houseNum == 1)
+                        planets = planets, 
+                        center = layout.planetCenter, 
+                        size = size, 
+                        houseNum = houseNum,
+                        chart = originalChart, // Passed safely (nullable)
+                        sunPosition = null, 
+                        hasLagnaHeader = (houseNum == 1)
                     )
                 }
             }
