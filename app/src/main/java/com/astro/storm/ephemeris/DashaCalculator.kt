@@ -3,67 +3,48 @@ package com.astro.storm.ephemeris
 import com.astro.storm.data.model.Nakshatra
 import com.astro.storm.data.model.Planet
 import com.astro.storm.data.model.VedicChart
+import com.astro.storm.data.model.ZodiacSign
+import java.math.BigDecimal
+import java.math.MathContext
+import java.math.RoundingMode
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
-/**
- * Days per year for dasha calculations.
- */
-private const val DAYS_PER_YEAR = 365.25
-private const val NAKSHATRA_SPAN = 360.0 / 27.0
+private val MATH_CONTEXT = MathContext(20, RoundingMode.HALF_EVEN)
+private val DAYS_PER_YEAR_BD = BigDecimal("365.25")
+private val NAKSHATRA_SPAN_BD = BigDecimal("13.333333333333333333")
+private val TOTAL_CYCLE_YEARS_BD = BigDecimal("120")
 
-/**
- * Convert years to days with proper rounding to avoid cumulative precision loss.
- * Uses banker's rounding (round half to even) for consistent results.
- */
 private fun yearsToRoundedDays(years: Double): Long {
-    val yearsBd = years.toBigDecimal()
-    val daysPerYearBd = DAYS_PER_YEAR.toBigDecimal()
-    return (yearsBd * daysPerYearBd).toLong()
+    return BigDecimal(years.toString())
+        .multiply(DAYS_PER_YEAR_BD, MATH_CONTEXT)
+        .setScale(0, RoundingMode.HALF_EVEN)
+        .toLong()
+        .coerceAtLeast(1L)
 }
 
-/**
- * Vimshottari Dasha Calculator
- *
- * The Vimshottari Dasha is the most widely used timing system in Vedic astrology.
- * It is a 120-year cycle based on the Moon's Nakshatra at birth.
- *
- * Each Nakshatra is ruled by a planet, and the Dasha sequence follows:
- * Ketu (7) → Venus (20) → Sun (6) → Moon (10) → Mars (7) →
- * Rahu (18) → Jupiter (16) → Saturn (19) → Mercury (17) = 120 years
- *
- * The birth Nakshatra determines the starting Mahadasha, and the
- * precise Moon position within the Nakshatra determines how much
- * of that first Dasha has already elapsed at birth.
- *
- * This calculator provides:
- * - Accurate Mahadasha periods
- * - Antardasha (Bhukti) sub-periods
- * - Pratyantardasha (sub-sub-periods)
- * - Current Dasha determination
- * - Complete Dasha timeline
- */
+private fun yearsToRoundedDays(years: BigDecimal): Long {
+    return years
+        .multiply(DAYS_PER_YEAR_BD, MATH_CONTEXT)
+        .setScale(0, RoundingMode.HALF_EVEN)
+        .toLong()
+        .coerceAtLeast(1L)
+}
+
 object DashaCalculator {
 
-    /**
-     * Dasha duration for each planet in years
-     */
-    private val DASHA_YEARS = mapOf(
-        Planet.KETU to 7.0,
-        Planet.VENUS to 20.0,
-        Planet.SUN to 6.0,
-        Planet.MOON to 10.0,
-        Planet.MARS to 7.0,
-        Planet.RAHU to 18.0,
-        Planet.JUPITER to 16.0,
-        Planet.SATURN to 19.0,
-        Planet.MERCURY to 17.0
+    private val DASHA_YEARS: Map<Planet, BigDecimal> = mapOf(
+        Planet.KETU to BigDecimal("7"),
+        Planet.VENUS to BigDecimal("20"),
+        Planet.SUN to BigDecimal("6"),
+        Planet.MOON to BigDecimal("10"),
+        Planet.MARS to BigDecimal("7"),
+        Planet.RAHU to BigDecimal("18"),
+        Planet.JUPITER to BigDecimal("16"),
+        Planet.SATURN to BigDecimal("19"),
+        Planet.MERCURY to BigDecimal("17")
     )
 
-    /**
-     * Dasha sequence (Vimshottari order)
-     */
     private val DASHA_SEQUENCE = listOf(
         Planet.KETU,
         Planet.VENUS,
@@ -76,14 +57,10 @@ object DashaCalculator {
         Planet.MERCURY
     )
 
-    /**
-     * Total Vimshottari cycle duration in years
-     */
-    private const val TOTAL_CYCLE_YEARS = 120.0
+    fun getDashaYears(planet: Planet): Double {
+        return DASHA_YEARS[planet]?.toDouble() ?: 0.0
+    }
 
-/**
- * Mahadasha period
-     */
     data class Mahadasha(
         val planet: Planet,
         val startDate: LocalDate,
@@ -91,20 +68,38 @@ object DashaCalculator {
         val durationYears: Double,
         val antardashas: List<Antardasha>
     ) {
+        fun isActiveOn(date: LocalDate): Boolean {
+            return !date.isBefore(startDate) && !date.isAfter(endDate)
+        }
+
         val isActive: Boolean
-            get() {
-                val today = LocalDate.now()
-                return !today.isBefore(startDate) && today.isBefore(endDate)
-            }
+            get() = isActiveOn(LocalDate.now())
 
         fun getActiveAntardasha(): Antardasha? {
-            return antardashas.find { it.isActive }
+            return getAntardashaOn(LocalDate.now())
+        }
+
+        fun getAntardashaOn(date: LocalDate): Antardasha? {
+            return antardashas.find { it.isActiveOn(date) }
+        }
+
+        fun getElapsedYears(asOf: LocalDate = LocalDate.now()): Double {
+            if (asOf.isBefore(startDate)) return 0.0
+            if (asOf.isAfter(endDate)) return durationYears
+            val elapsedDays = ChronoUnit.DAYS.between(startDate, asOf)
+            return elapsedDays / 365.25
+        }
+
+        fun getRemainingYears(asOf: LocalDate = LocalDate.now()): Double {
+            return (durationYears - getElapsedYears(asOf)).coerceAtLeast(0.0)
+        }
+
+        fun getProgressPercent(asOf: LocalDate = LocalDate.now()): Double {
+            if (durationYears <= 0) return 0.0
+            return ((getElapsedYears(asOf) / durationYears) * 100).coerceIn(0.0, 100.0)
         }
     }
 
-    /**
-     * Antardasha (Bhukti) sub-period
-     */
     data class Antardasha(
         val planet: Planet,
         val mahadashaPlanet: Planet,
@@ -113,140 +108,268 @@ object DashaCalculator {
         val durationDays: Long,
         val pratyantardashas: List<Pratyantardasha> = emptyList()
     ) {
+        val durationYears: Double
+            get() = durationDays / 365.25
+
+        fun isActiveOn(date: LocalDate): Boolean {
+            return !date.isBefore(startDate) && !date.isAfter(endDate)
+        }
+
         val isActive: Boolean
-            get() {
-                val today = LocalDate.now()
-                return !today.isBefore(startDate) && today.isBefore(endDate)
-            }
+            get() = isActiveOn(LocalDate.now())
 
         fun getActivePratyantardasha(): Pratyantardasha? {
-            return pratyantardashas.find { it.isActive }
+            return getPratyantardashaOn(LocalDate.now())
+        }
+
+        fun getPratyantardashaOn(date: LocalDate): Pratyantardasha? {
+            return pratyantardashas.find { it.isActiveOn(date) }
+        }
+
+        fun getElapsedDays(asOf: LocalDate = LocalDate.now()): Long {
+            if (asOf.isBefore(startDate)) return 0
+            if (asOf.isAfter(endDate)) return durationDays
+            return ChronoUnit.DAYS.between(startDate, asOf)
+        }
+
+        fun getRemainingDays(asOf: LocalDate = LocalDate.now()): Long {
+            return (durationDays - getElapsedDays(asOf)).coerceAtLeast(0)
+        }
+
+        fun getProgressPercent(asOf: LocalDate = LocalDate.now()): Double {
+            if (durationDays <= 0) return 0.0
+            return ((getElapsedDays(asOf).toDouble() / durationDays) * 100).coerceIn(0.0, 100.0)
         }
     }
 
-    /**
-     * Pratyantardasha (sub-sub-period)
-     */
     data class Pratyantardasha(
         val planet: Planet,
-        val antardashaplanet: Planet,
+        val antardashaPlanet: Planet,
+        val mahadashaPlanet: Planet,
+        val startDate: LocalDate,
+        val endDate: LocalDate,
+        val durationDays: Long,
+        val sookshmadashas: List<Sookshmadasha> = emptyList()
+    ) {
+        val durationYears: Double
+            get() = durationDays / 365.25
+
+        fun isActiveOn(date: LocalDate): Boolean {
+            return !date.isBefore(startDate) && !date.isAfter(endDate)
+        }
+
+        val isActive: Boolean
+            get() = isActiveOn(LocalDate.now())
+
+        fun getActiveSookshmadasha(): Sookshmadasha? {
+            return getSookshmadashaOn(LocalDate.now())
+        }
+
+        fun getSookshmadashaOn(date: LocalDate): Sookshmadasha? {
+            return sookshmadashas.find { it.isActiveOn(date) }
+        }
+    }
+
+    data class Sookshmadasha(
+        val planet: Planet,
+        val pratyantardashaPlanet: Planet,
+        val antardashaPlanet: Planet,
         val mahadashaPlanet: Planet,
         val startDate: LocalDate,
         val endDate: LocalDate,
         val durationDays: Long
     ) {
+        fun isActiveOn(date: LocalDate): Boolean {
+            return !date.isBefore(startDate) && !date.isAfter(endDate)
+        }
+
         val isActive: Boolean
-            get() {
-                val today = LocalDate.now()
-                return !today.isBefore(startDate) && today.isBefore(endDate)
-            }
+            get() = isActiveOn(LocalDate.now())
     }
 
-    /**
-     * Complete Dasha timeline
-     */
+    data class DashaSandhi(
+        val fromPlanet: Planet,
+        val toPlanet: Planet,
+        val transitionDate: LocalDate,
+        val level: DashaLevel,
+        val sandhiStartDate: LocalDate,
+        val sandhiEndDate: LocalDate
+    ) {
+        fun isWithinSandhi(date: LocalDate): Boolean {
+            return !date.isBefore(sandhiStartDate) && !date.isAfter(sandhiEndDate)
+        }
+    }
+
+    enum class DashaLevel {
+        MAHADASHA,
+        ANTARDASHA,
+        PRATYANTARDASHA,
+        SOOKSHMADASHA
+    }
+
     data class DashaTimeline(
         val birthDate: LocalDate,
         val birthNakshatra: Nakshatra,
+        val birthNakshatraPada: Int,
         val birthNakshatraLord: Planet,
-        val nakshatraProgress: Double,       // How far into nakshatra (0-1)
-        val balanceOfFirstDasha: Double,     // Remaining years of first dasha
+        val nakshatraProgress: Double,
+        val balanceOfFirstDasha: Double,
         val mahadashas: List<Mahadasha>,
         val currentMahadasha: Mahadasha?,
         val currentAntardasha: Antardasha?,
-        val currentPratyantardasha: Pratyantardasha?
+        val currentPratyantardasha: Pratyantardasha?,
+        val currentSookshmadasha: Sookshmadasha?,
+        val upcomingSandhis: List<DashaSandhi>
     ) {
-        /**
-         * Get current period description
-         */
         fun getCurrentPeriodDescription(): String {
             return buildString {
                 currentMahadasha?.let { md ->
                     append("${md.planet.displayName} Mahadasha")
                     currentAntardasha?.let { ad ->
-                        append(" / ${ad.planet.displayName} Bhukti")
+                        append(" → ${ad.planet.displayName} Bhukti")
                         currentPratyantardasha?.let { pd ->
-                            append(" / ${pd.planet.displayName} Pratyantar")
+                            append(" → ${pd.planet.displayName} Pratyantar")
+                            currentSookshmadasha?.let { sd ->
+                                append(" → ${sd.planet.displayName} Sookshma")
+                            }
                         }
                     }
-                } ?: append("No active Dasha")
+                } ?: append("No active Dasha period")
+            }
+        }
+
+        fun getShortDescription(): String {
+            return buildString {
+                currentMahadasha?.let { md ->
+                    append(md.planet.symbol)
+                    currentAntardasha?.let { ad ->
+                        append("-${ad.planet.symbol}")
+                        currentPratyantardasha?.let { pd ->
+                            append("-${pd.planet.symbol}")
+                        }
+                    }
+                } ?: append("--")
+            }
+        }
+
+        fun getDashaAtDate(date: LocalDate): DashaPeriodInfo {
+            val mahadasha = mahadashas.find { it.isActiveOn(date) }
+            val antardasha = mahadasha?.getAntardashaOn(date)
+            val pratyantardasha = antardasha?.getPratyantardashaOn(date)
+            val sookshmadasha = pratyantardasha?.getSookshmadashaOn(date)
+
+            return DashaPeriodInfo(
+                date = date,
+                mahadasha = mahadasha,
+                antardasha = antardasha,
+                pratyantardasha = pratyantardasha,
+                sookshmadasha = sookshmadasha
+            )
+        }
+
+        fun getNextMahadasha(): Mahadasha? {
+            val today = LocalDate.now()
+            return mahadashas.find { it.startDate.isAfter(today) }
+        }
+
+        fun getUpcomingSandhisWithin(days: Int): List<DashaSandhi> {
+            val today = LocalDate.now()
+            val futureDate = today.plusDays(days.toLong())
+            return upcomingSandhis.filter { sandhi ->
+                !sandhi.transitionDate.isBefore(today) && !sandhi.transitionDate.isAfter(futureDate)
             }
         }
     }
 
-    /**
-     * Calculate complete Vimshottari Dasha timeline for a chart
-     */
+    data class DashaPeriodInfo(
+        val date: LocalDate,
+        val mahadasha: Mahadasha?,
+        val antardasha: Antardasha?,
+        val pratyantardasha: Pratyantardasha?,
+        val sookshmadasha: Sookshmadasha?
+    )
+
     fun calculateDashaTimeline(chart: VedicChart): DashaTimeline {
         val birthDate = chart.birthData.dateTime.toLocalDate()
         val moonPosition = chart.planetPositions.find { it.planet == Planet.MOON }
-            ?: throw IllegalArgumentException("Moon position not found in chart")
+            ?: throw IllegalArgumentException("Moon position not found in chart. Cannot calculate Vimshottari Dasha.")
 
         val moonLongitude = moonPosition.longitude
         val (birthNakshatra, pada) = Nakshatra.fromLongitude(moonLongitude)
         val nakshatraLord = birthNakshatra.ruler
 
-        // High-precision calculation for nakshatra progress
-        val nakshatraStartDegree = birthNakshatra.startDegree.toBigDecimal()
-        val moonLongitudeBd = moonLongitude.toBigDecimal()
-        val nakshatraSpanBd = NAKSHATRA_SPAN.toBigDecimal()
+        val moonLongitudeBd = BigDecimal(moonLongitude.toString())
+        val nakshatraStartBd = BigDecimal(birthNakshatra.startDegree.toString())
 
-        var degreesIntoNakshatra = (moonLongitudeBd - nakshatraStartDegree) % nakshatraSpanBd
-        if (degreesIntoNakshatra < java.math.BigDecimal.ZERO) {
-            degreesIntoNakshatra += nakshatraSpanBd
+        var degreesIntoNakshatra = moonLongitudeBd.subtract(nakshatraStartBd, MATH_CONTEXT)
+            .remainder(NAKSHATRA_SPAN_BD, MATH_CONTEXT)
+
+        if (degreesIntoNakshatra < BigDecimal.ZERO) {
+            degreesIntoNakshatra = degreesIntoNakshatra.add(NAKSHATRA_SPAN_BD, MATH_CONTEXT)
         }
 
-        val nakshatraProgress = (degreesIntoNakshatra / nakshatraSpanBd).toDouble().coerceIn(0.0, 1.0)
+        val nakshatraProgressBd = degreesIntoNakshatra.divide(NAKSHATRA_SPAN_BD, MATH_CONTEXT)
+        val nakshatraProgress = nakshatraProgressBd.toDouble().coerceIn(0.0, 1.0)
 
-        // Calculate remaining balance of first Mahadasha
-        val firstDashaYears = DASHA_YEARS[nakshatraLord] ?: 0.0
-        val elapsedInFirstDasha = nakshatraProgress * firstDashaYears
-        val balanceOfFirstDasha = firstDashaYears - elapsedInFirstDasha
+        val firstDashaYearsBd = DASHA_YEARS[nakshatraLord] ?: BigDecimal.ZERO
+        val elapsedInFirstDashaBd = nakshatraProgressBd.multiply(firstDashaYearsBd, MATH_CONTEXT)
+        val balanceOfFirstDashaBd = firstDashaYearsBd.subtract(elapsedInFirstDashaBd, MATH_CONTEXT)
+        val balanceOfFirstDasha = balanceOfFirstDashaBd.toDouble().coerceAtLeast(0.0)
 
-        // Calculate all Mahadashas
-        val mahadashas = calculateAllMahadashas(birthDate, nakshatraLord, balanceOfFirstDasha)
+        val mahadashas = calculateAllMahadashas(
+            birthDate = birthDate,
+            startingDashaLord = nakshatraLord,
+            balanceOfFirstDashaBd = balanceOfFirstDashaBd,
+            includeSookshmadasha = true
+        )
 
-        // Find current periods
-        val currentMahadasha = mahadashas.find { it.isActive }
-        val currentAntardasha = currentMahadasha?.getActiveAntardasha()
-        val currentPratyantardasha = currentAntardasha?.getActivePratyantardasha()
+        val today = LocalDate.now()
+        val currentMahadasha = mahadashas.find { it.isActiveOn(today) }
+        val currentAntardasha = currentMahadasha?.getAntardashaOn(today)
+        val currentPratyantardasha = currentAntardasha?.getPratyantardashaOn(today)
+        val currentSookshmadasha = currentPratyantardasha?.getSookshmadashaOn(today)
+
+        val upcomingSandhis = calculateUpcomingSandhis(mahadashas, today, lookAheadDays = 365)
 
         return DashaTimeline(
             birthDate = birthDate,
             birthNakshatra = birthNakshatra,
+            birthNakshatraPada = pada,
             birthNakshatraLord = nakshatraLord,
             nakshatraProgress = nakshatraProgress,
             balanceOfFirstDasha = balanceOfFirstDasha,
             mahadashas = mahadashas,
             currentMahadasha = currentMahadasha,
             currentAntardasha = currentAntardasha,
-            currentPratyantardasha = currentPratyantardasha
+            currentPratyantardasha = currentPratyantardasha,
+            currentSookshmadasha = currentSookshmadasha,
+            upcomingSandhis = upcomingSandhis
         )
     }
 
-    /**
-     * Calculate all Mahadashas starting from birth
-     */
     private fun calculateAllMahadashas(
         birthDate: LocalDate,
         startingDashaLord: Planet,
-        balanceOfFirstDasha: Double
+        balanceOfFirstDashaBd: BigDecimal,
+        includeSookshmadasha: Boolean = false
     ): List<Mahadasha> {
         val mahadashas = mutableListOf<Mahadasha>()
         var currentStartDate = birthDate
 
-        // Find starting index in sequence
         val startIndex = DASHA_SEQUENCE.indexOf(startingDashaLord)
+        if (startIndex == -1) {
+            throw IllegalArgumentException("Invalid starting dasha lord: $startingDashaLord")
+        }
 
-        // Calculate first (partial) Mahadasha with proper rounding to minimize precision loss
-        val firstDashaDays = yearsToRoundedDays(balanceOfFirstDasha)
+        val firstDashaDays = yearsToRoundedDays(balanceOfFirstDashaBd)
         val firstDashaEndDate = currentStartDate.plusDays(firstDashaDays)
 
         val firstAntardashas = calculateAntardashas(
-            startingDashaLord,
-            currentStartDate,
-            firstDashaEndDate,
-            balanceOfFirstDasha
+            mahadashaPlanet = startingDashaLord,
+            mahadashaStart = currentStartDate,
+            mahadashaEnd = firstDashaEndDate,
+            mahadashaDurationYearsBd = balanceOfFirstDashaBd,
+            includeSookshmadasha = includeSookshmadasha
         )
 
         mahadashas.add(
@@ -254,28 +377,33 @@ object DashaCalculator {
                 planet = startingDashaLord,
                 startDate = currentStartDate,
                 endDate = firstDashaEndDate,
-                durationYears = balanceOfFirstDasha,
+                durationYears = balanceOfFirstDashaBd.toDouble(),
                 antardashas = firstAntardashas
             )
         )
         currentStartDate = firstDashaEndDate
 
-        // Calculate remaining Mahadashas (3 full cycles = 360 years to cover any lifespan)
         repeat(27) { cycle ->
             val planetIndex = (startIndex + 1 + cycle) % DASHA_SEQUENCE.size
             val planet = DASHA_SEQUENCE[planetIndex]
-            val dashaYears = DASHA_YEARS[planet] ?: 0.0
-            val dashaDays = yearsToRoundedDays(dashaYears)
+            val dashaYearsBd = DASHA_YEARS[planet] ?: BigDecimal.ZERO
+            val dashaDays = yearsToRoundedDays(dashaYearsBd)
             val endDate = currentStartDate.plusDays(dashaDays)
 
-            val antardashas = calculateAntardashas(planet, currentStartDate, endDate, dashaYears)
+            val antardashas = calculateAntardashas(
+                mahadashaPlanet = planet,
+                mahadashaStart = currentStartDate,
+                mahadashaEnd = endDate,
+                mahadashaDurationYearsBd = dashaYearsBd,
+                includeSookshmadasha = includeSookshmadasha
+            )
 
             mahadashas.add(
                 Mahadasha(
                     planet = planet,
                     startDate = currentStartDate,
                     endDate = endDate,
-                    durationYears = dashaYears,
+                    durationYears = dashaYearsBd.toDouble(),
                     antardashas = antardashas
                 )
             )
@@ -285,41 +413,37 @@ object DashaCalculator {
         return mahadashas
     }
 
-    /**
-     * Calculate Antardashas (Bhuktis) within a Mahadasha
-     *
-     * The Antardasha sequence starts with the Mahadasha lord itself,
-     * then follows the Vimshottari sequence.
-     */
     private fun calculateAntardashas(
         mahadashaPlanet: Planet,
         mahadashaStart: LocalDate,
         mahadashaEnd: LocalDate,
-        mahadashaDurationYears: Double
+        mahadashaDurationYearsBd: BigDecimal,
+        includeSookshmadasha: Boolean = false
     ): List<Antardasha> {
         val antardashas = mutableListOf<Antardasha>()
         var currentStart = mahadashaStart
 
-        // Start from Mahadasha lord, then follow sequence
         val startIndex = DASHA_SEQUENCE.indexOf(mahadashaPlanet)
 
         for (i in 0 until 9) {
             val planetIndex = (startIndex + i) % DASHA_SEQUENCE.size
             val antarPlanet = DASHA_SEQUENCE[planetIndex]
 
-            // Antardasha duration is proportional to planet's years
-            val antarYears = DASHA_YEARS[antarPlanet] ?: 0.0
-            val proportionalDuration = (antarYears / TOTAL_CYCLE_YEARS) * mahadashaDurationYears
-            val antarDays = yearsToRoundedDays(proportionalDuration)
+            val antarYearsBd = DASHA_YEARS[antarPlanet] ?: BigDecimal.ZERO
+            val proportionalDurationBd = antarYearsBd
+                .divide(TOTAL_CYCLE_YEARS_BD, MATH_CONTEXT)
+                .multiply(mahadashaDurationYearsBd, MATH_CONTEXT)
+
+            val antarDays = yearsToRoundedDays(proportionalDurationBd)
             val antarEnd = currentStart.plusDays(antarDays)
 
-            // Calculate Pratyantardashas
             val pratyantardashas = calculatePratyantardashas(
-                mahadashaPlanet,
-                antarPlanet,
-                currentStart,
-                antarEnd,
-                proportionalDuration
+                mahadashaPlanet = mahadashaPlanet,
+                antardashaPlanet = antarPlanet,
+                antarStart = currentStart,
+                antarEnd = antarEnd,
+                antarDurationYearsBd = proportionalDurationBd,
+                includeSookshmadasha = includeSookshmadasha
             )
 
             antardashas.add(
@@ -338,40 +462,53 @@ object DashaCalculator {
         return antardashas
     }
 
-    /**
-     * Calculate Pratyantardashas within an Antardasha
-     */
     private fun calculatePratyantardashas(
         mahadashaPlanet: Planet,
-        antardashaplanet: Planet,
+        antardashaPlanet: Planet,
         antarStart: LocalDate,
         antarEnd: LocalDate,
-        antarDurationYears: Double
+        antarDurationYearsBd: BigDecimal,
+        includeSookshmadasha: Boolean = false
     ): List<Pratyantardasha> {
         val pratyantardashas = mutableListOf<Pratyantardasha>()
         var currentStart = antarStart
 
-        // Start from Antardasha lord
-        val startIndex = DASHA_SEQUENCE.indexOf(antardashaplanet)
+        val startIndex = DASHA_SEQUENCE.indexOf(antardashaPlanet)
 
         for (i in 0 until 9) {
             val planetIndex = (startIndex + i) % DASHA_SEQUENCE.size
             val pratyantarPlanet = DASHA_SEQUENCE[planetIndex]
 
-            // Pratyantardasha duration is proportional
-            val pratyantarYears = DASHA_YEARS[pratyantarPlanet] ?: 0.0
-            val proportionalDuration = (pratyantarYears / TOTAL_CYCLE_YEARS) * antarDurationYears
-            val pratyantarDays = yearsToRoundedDays(proportionalDuration)
+            val pratyantarYearsBd = DASHA_YEARS[pratyantarPlanet] ?: BigDecimal.ZERO
+            val proportionalDurationBd = pratyantarYearsBd
+                .divide(TOTAL_CYCLE_YEARS_BD, MATH_CONTEXT)
+                .multiply(antarDurationYearsBd, MATH_CONTEXT)
+
+            val pratyantarDays = yearsToRoundedDays(proportionalDurationBd)
             val pratyantarEnd = currentStart.plusDays(pratyantarDays)
+
+            val sookshmadashas = if (includeSookshmadasha) {
+                calculateSookshmadashas(
+                    mahadashaPlanet = mahadashaPlanet,
+                    antardashaPlanet = antardashaPlanet,
+                    pratyantardashaPlanet = pratyantarPlanet,
+                    pratyantarStart = currentStart,
+                    pratyantarEnd = pratyantarEnd,
+                    pratyantarDurationYearsBd = proportionalDurationBd
+                )
+            } else {
+                emptyList()
+            }
 
             pratyantardashas.add(
                 Pratyantardasha(
                     planet = pratyantarPlanet,
-                    antardashaplanet = antardashaplanet,
+                    antardashaPlanet = antardashaPlanet,
                     mahadashaPlanet = mahadashaPlanet,
                     startDate = currentStart,
                     endDate = pratyantarEnd,
-                    durationDays = pratyantarDays
+                    durationDays = pratyantarDays,
+                    sookshmadashas = sookshmadashas
                 )
             )
             currentStart = pratyantarEnd
@@ -380,84 +517,198 @@ object DashaCalculator {
         return pratyantardashas
     }
 
-    /**
-     * Get Dasha periods active at a specific date
-     */
+    private fun calculateSookshmadashas(
+        mahadashaPlanet: Planet,
+        antardashaPlanet: Planet,
+        pratyantardashaPlanet: Planet,
+        pratyantarStart: LocalDate,
+        pratyantarEnd: LocalDate,
+        pratyantarDurationYearsBd: BigDecimal
+    ): List<Sookshmadasha> {
+        val sookshmadashas = mutableListOf<Sookshmadasha>()
+        var currentStart = pratyantarStart
+
+        val startIndex = DASHA_SEQUENCE.indexOf(pratyantardashaPlanet)
+
+        for (i in 0 until 9) {
+            val planetIndex = (startIndex + i) % DASHA_SEQUENCE.size
+            val sookshmaPlanet = DASHA_SEQUENCE[planetIndex]
+
+            val sookshmaYearsBd = DASHA_YEARS[sookshmaPlanet] ?: BigDecimal.ZERO
+            val proportionalDurationBd = sookshmaYearsBd
+                .divide(TOTAL_CYCLE_YEARS_BD, MATH_CONTEXT)
+                .multiply(pratyantarDurationYearsBd, MATH_CONTEXT)
+
+            val sookshmaDays = yearsToRoundedDays(proportionalDurationBd).coerceAtLeast(1L)
+            val sookshmaEnd = currentStart.plusDays(sookshmaDays)
+
+            sookshmadashas.add(
+                Sookshmadasha(
+                    planet = sookshmaPlanet,
+                    pratyantardashaPlanet = pratyantardashaPlanet,
+                    antardashaPlanet = antardashaPlanet,
+                    mahadashaPlanet = mahadashaPlanet,
+                    startDate = currentStart,
+                    endDate = sookshmaEnd,
+                    durationDays = sookshmaDays
+                )
+            )
+            currentStart = sookshmaEnd
+        }
+
+        return sookshmadashas
+    }
+
+    private fun calculateUpcomingSandhis(
+        mahadashas: List<Mahadasha>,
+        fromDate: LocalDate,
+        lookAheadDays: Int
+    ): List<DashaSandhi> {
+        val sandhis = mutableListOf<DashaSandhi>()
+        val endDate = fromDate.plusDays(lookAheadDays.toLong())
+
+        for (i in 0 until mahadashas.size - 1) {
+            val currentMd = mahadashas[i]
+            val nextMd = mahadashas[i + 1]
+
+            if (currentMd.endDate.isAfter(fromDate) && currentMd.endDate.isBefore(endDate)) {
+                val sandhiDays = calculateSandhiDuration(DashaLevel.MAHADASHA, currentMd.durationYears)
+                sandhis.add(
+                    DashaSandhi(
+                        fromPlanet = currentMd.planet,
+                        toPlanet = nextMd.planet,
+                        transitionDate = currentMd.endDate,
+                        level = DashaLevel.MAHADASHA,
+                        sandhiStartDate = currentMd.endDate.minusDays(sandhiDays / 2),
+                        sandhiEndDate = currentMd.endDate.plusDays(sandhiDays / 2)
+                    )
+                )
+            }
+
+            if (currentMd.isActiveOn(fromDate) || (currentMd.startDate.isAfter(fromDate) && currentMd.startDate.isBefore(endDate))) {
+                for (j in 0 until currentMd.antardashas.size - 1) {
+                    val currentAd = currentMd.antardashas[j]
+                    val nextAd = currentMd.antardashas[j + 1]
+
+                    if (currentAd.endDate.isAfter(fromDate) && currentAd.endDate.isBefore(endDate)) {
+                        val sandhiDays = calculateSandhiDuration(DashaLevel.ANTARDASHA, currentAd.durationYears)
+                        sandhis.add(
+                            DashaSandhi(
+                                fromPlanet = currentAd.planet,
+                                toPlanet = nextAd.planet,
+                                transitionDate = currentAd.endDate,
+                                level = DashaLevel.ANTARDASHA,
+                                sandhiStartDate = currentAd.endDate.minusDays(sandhiDays / 2),
+                                sandhiEndDate = currentAd.endDate.plusDays(sandhiDays / 2)
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
+        return sandhis.sortedBy { it.transitionDate }
+    }
+
+    private fun calculateSandhiDuration(level: DashaLevel, periodDurationYears: Double): Long {
+        val sandhiPercentage = when (level) {
+            DashaLevel.MAHADASHA -> 0.05
+            DashaLevel.ANTARDASHA -> 0.10
+            DashaLevel.PRATYANTARDASHA -> 0.15
+            DashaLevel.SOOKSHMADASHA -> 0.20
+        }
+
+        val sandhiYears = periodDurationYears * sandhiPercentage
+        return yearsToRoundedDays(sandhiYears).coerceIn(1L, 30L)
+    }
+
     fun getDashaAtDate(
         timeline: DashaTimeline,
         date: LocalDate
-    ): Triple<Mahadasha?, Antardasha?, Pratyantardasha?> {
-        val mahadasha = timeline.mahadashas.find { md ->
-            !date.isBefore(md.startDate) && date.isBefore(md.endDate)
-        }
-
-        val antardasha = mahadasha?.antardashas?.find { ad ->
-            !date.isBefore(ad.startDate) && date.isBefore(ad.endDate)
-        }
-
-        val pratyantardasha = antardasha?.pratyantardashas?.find { pd ->
-            !date.isBefore(pd.startDate) && date.isBefore(pd.endDate)
-        }
-
-        return Triple(mahadasha, antardasha, pratyantardasha)
+    ): DashaPeriodInfo {
+        return timeline.getDashaAtDate(date)
     }
 
-    /**
-     * Format Dasha period for display
-     */
     fun formatDashaPeriod(mahadasha: Mahadasha): String {
         return buildString {
             appendLine("${mahadasha.planet.displayName} Mahadasha")
             appendLine("Duration: ${String.format("%.2f", mahadasha.durationYears)} years")
-            appendLine("${mahadasha.startDate} to ${mahadasha.endDate}")
+            appendLine("Period: ${mahadasha.startDate} to ${mahadasha.endDate}")
             if (mahadasha.isActive) {
-                appendLine("** CURRENTLY ACTIVE **")
+                appendLine("Status: CURRENTLY ACTIVE")
+                appendLine("Progress: ${String.format("%.1f", mahadasha.getProgressPercent())}%")
+                appendLine("Remaining: ${String.format("%.2f", mahadasha.getRemainingYears())} years")
             }
+        }
+    }
+
+    fun formatCurrentPeriod(timeline: DashaTimeline): String {
+        return buildString {
+            timeline.currentMahadasha?.let { md ->
+                appendLine("Mahadasha: ${md.planet.displayName}")
+                appendLine("  Progress: ${String.format("%.1f", md.getProgressPercent())}%")
+                appendLine("  Remaining: ${String.format("%.1f", md.getRemainingYears())} years")
+
+                timeline.currentAntardasha?.let { ad ->
+                    appendLine("\nAntardasha: ${ad.planet.displayName}")
+                    appendLine("  Progress: ${String.format("%.1f", ad.getProgressPercent())}%")
+                    appendLine("  Remaining: ${ad.getRemainingDays()} days")
+
+                    timeline.currentPratyantardasha?.let { pd ->
+                        appendLine("\nPratyantardasha: ${pd.planet.displayName}")
+                        appendLine("  Period: ${pd.startDate} to ${pd.endDate}")
+
+                        timeline.currentSookshmadasha?.let { sd ->
+                            appendLine("\nSookshmadasha: ${sd.planet.displayName}")
+                            appendLine("  Period: ${sd.startDate} to ${sd.endDate}")
+                        }
+                    }
+                }
+            } ?: appendLine("No active Dasha period found")
         }
     }
 }
 
-/**
- * Conditional Dasha Systems
- *
- * Beyond Vimshottari, Vedic astrology uses several conditional Dasha systems
- * that are applied when specific planetary configurations exist at birth.
- */
 object ConditionalDashaCalculator {
 
-    /**
-     * Yogini Dasha - An alternative 36-year cycle
-     * Used as a secondary timing system
-     */
     data class YoginiDasha(
         val yogini: Yogini,
         val startDate: LocalDate,
         val endDate: LocalDate,
         val durationYears: Double
     ) {
+        fun isActiveOn(date: LocalDate): Boolean {
+            return !date.isBefore(startDate) && !date.isAfter(endDate)
+        }
+
         val isActive: Boolean
-            get() {
-                val today = LocalDate.now()
-                return !today.isBefore(startDate) && today.isBefore(endDate)
-            }
+            get() = isActiveOn(LocalDate.now())
     }
 
-    enum class Yogini(val displayName: String, val planet: Planet, val years: Int) {
-        MANGALA("Mangala", Planet.MOON, 1),
-        PINGALA("Pingala", Planet.SUN, 2),
-        DHANYA("Dhanya", Planet.JUPITER, 3),
-        BHRAMARI("Bhramari", Planet.MARS, 4),
-        BHADRIKA("Bhadrika", Planet.MERCURY, 5),
-        ULKA("Ulka", Planet.SATURN, 6),
-        SIDDHA("Siddha", Planet.VENUS, 7),
-        SANKATA("Sankata", Planet.RAHU, 8)
+    enum class Yogini(
+        val displayName: String,
+        val deity: String,
+        val planet: Planet,
+        val years: Int,
+        val nature: YoginiNature
+    ) {
+        MANGALA("Mangala", "Chandra (Moon)", Planet.MOON, 1, YoginiNature.BENEFIC),
+        PINGALA("Pingala", "Surya (Sun)", Planet.SUN, 2, YoginiNature.MIXED),
+        DHANYA("Dhanya", "Guru (Jupiter)", Planet.JUPITER, 3, YoginiNature.BENEFIC),
+        BHRAMARI("Bhramari", "Mangal (Mars)", Planet.MARS, 4, YoginiNature.MALEFIC),
+        BHADRIKA("Bhadrika", "Budha (Mercury)", Planet.MERCURY, 5, YoginiNature.BENEFIC),
+        ULKA("Ulka", "Shani (Saturn)", Planet.SATURN, 6, YoginiNature.MALEFIC),
+        SIDDHA("Siddha", "Shukra (Venus)", Planet.VENUS, 7, YoginiNature.BENEFIC),
+        SANKATA("Sankata", "Rahu", Planet.RAHU, 8, YoginiNature.MALEFIC)
     }
 
-    private const val YOGINI_CYCLE_YEARS = 36.0
+    enum class YoginiNature {
+        BENEFIC, MALEFIC, MIXED
+    }
 
-    /**
-     * Calculate Yogini Dasha timeline
-     */
+    private const val YOGINI_CYCLE_YEARS = 36
+    private val NAKSHATRA_SPAN = 360.0 / 27.0
+
     fun calculateYoginiDasha(chart: VedicChart): List<YoginiDasha> {
         val birthDate = chart.birthData.dateTime.toLocalDate()
         val moonPosition = chart.planetPositions.find { it.planet == Planet.MOON }
@@ -466,19 +717,15 @@ object ConditionalDashaCalculator {
         val moonLongitude = moonPosition.longitude
         val (nakshatra, _) = Nakshatra.fromLongitude(moonLongitude)
 
-        // Yogini is determined by (Nakshatra number + 3) mod 8
-        // The formula ensures proper cycling through the 8 yoginis (0-7 indexed)
         val yoginiIndex = ((nakshatra.number - 1 + 3) % Yogini.entries.size)
         val startingYogini = Yogini.entries[yoginiIndex]
 
-        // Calculate progress in nakshatra to determine balance
         val nakshatraStart = nakshatra.startDegree
         val progressInNakshatra = ((moonLongitude - nakshatraStart) / NAKSHATRA_SPAN).coerceIn(0.0, 1.0)
 
         val yoginis = mutableListOf<YoginiDasha>()
         var currentStart = birthDate
 
-        // First (partial) Yogini
         val firstYoginiYears = startingYogini.years.toDouble()
         val balanceOfFirst = firstYoginiYears * (1.0 - progressInNakshatra)
         val firstDays = yearsToRoundedDays(balanceOfFirst)
@@ -494,7 +741,6 @@ object ConditionalDashaCalculator {
         )
         currentStart = firstEnd
 
-        // Calculate 10 complete cycles (360 years)
         repeat(80) { cycle ->
             val yoginiIdx = (yoginiIndex + 1 + cycle) % Yogini.entries.size
             val yogini = Yogini.entries[yoginiIdx]
@@ -516,29 +762,132 @@ object ConditionalDashaCalculator {
         return yoginis
     }
 
-    /**
-     * Ashtottari Dasha - 108-year cycle
-     * Applied when Rahu is in Kendra (1, 4, 7, 10) or Trikona (1, 5, 9) from Lagna lord
-     */
-    fun shouldApplyAshtottari(chart: VedicChart): Boolean {
-        // Validate chart has required planet positions
-        if (chart.planetPositions.isEmpty()) {
-            return false
+    fun getCurrentYoginiDasha(yoginiDashas: List<YoginiDasha>): YoginiDasha? {
+        return yoginiDashas.find { it.isActive }
+    }
+
+    data class AshtottariDasha(
+        val planet: Planet,
+        val startDate: LocalDate,
+        val endDate: LocalDate,
+        val durationYears: Double
+    ) {
+        fun isActiveOn(date: LocalDate): Boolean {
+            return !date.isBefore(startDate) && !date.isAfter(endDate)
         }
 
-        // Find Lagna lord
-        val ascendantSign = com.astro.storm.data.model.ZodiacSign.fromLongitude(chart.ascendant)
+        val isActive: Boolean
+            get() = isActiveOn(LocalDate.now())
+    }
+
+    private val ASHTOTTARI_YEARS: Map<Planet, Int> = mapOf(
+        Planet.SUN to 6,
+        Planet.MOON to 15,
+        Planet.MARS to 8,
+        Planet.MERCURY to 17,
+        Planet.SATURN to 10,
+        Planet.JUPITER to 19,
+        Planet.RAHU to 12,
+        Planet.VENUS to 21
+    )
+
+    private val ASHTOTTARI_SEQUENCE = listOf(
+        Planet.SUN,
+        Planet.MOON,
+        Planet.MARS,
+        Planet.MERCURY,
+        Planet.SATURN,
+        Planet.JUPITER,
+        Planet.RAHU,
+        Planet.VENUS
+    )
+
+    private const val ASHTOTTARI_CYCLE_YEARS = 108
+
+    private val ASHTOTTARI_NAKSHATRA_LORDS: Map<Int, Planet> = mapOf(
+        1 to Planet.SUN,      // Ashwini -> Ardra (6)
+        2 to Planet.MOON,     // Bharani -> Punarvasu (7)
+        3 to Planet.MARS,     // Krittika -> Pushya (8)
+        4 to Planet.MERCURY,  // Rohini -> Ashlesha (9)
+        5 to Planet.SATURN,   // Mrigashira -> Magha (10)
+        6 to Planet.JUPITER,  // Ardra -> Purva Phalguni (11)
+        7 to Planet.RAHU,     // Punarvasu -> Uttara Phalguni (12)
+        8 to Planet.VENUS     // Pushya -> Hasta (13)
+    )
+
+    fun shouldApplyAshtottari(chart: VedicChart): Boolean {
+        if (chart.planetPositions.isEmpty()) return false
+
+        val ascendantSign = ZodiacSign.fromLongitude(chart.ascendant)
         val lagnaLord = ascendantSign.ruler
         val lagnaLordPosition = chart.planetPositions.find { it.planet == lagnaLord }
         val rahuPosition = chart.planetPositions.find { it.planet == Planet.RAHU }
 
         if (lagnaLordPosition == null || rahuPosition == null) return false
 
-        // Calculate house distance from Lagna lord to Rahu
-        val houseDistance = (rahuPosition.house - lagnaLordPosition.house + 12) % 12 + 1
+        val lagnaLordSign = ZodiacSign.fromLongitude(lagnaLordPosition.longitude)
+        val rahuSign = ZodiacSign.fromLongitude(rahuPosition.longitude)
 
-        // Kendra houses: 1, 4, 7, 10
-        // Trikona houses: 1, 5, 9
+        val houseDistance = ((rahuSign.ordinal - lagnaLordSign.ordinal + 12) % 12) + 1
+
         return houseDistance in listOf(1, 4, 5, 7, 9, 10)
+    }
+
+    fun calculateAshtottariDasha(chart: VedicChart): List<AshtottariDasha>? {
+        if (!shouldApplyAshtottari(chart)) return null
+
+        val birthDate = chart.birthData.dateTime.toLocalDate()
+        val moonPosition = chart.planetPositions.find { it.planet == Planet.MOON }
+            ?: return null
+
+        val moonLongitude = moonPosition.longitude
+        val (nakshatra, _) = Nakshatra.fromLongitude(moonLongitude)
+
+        val nakshatraGroup = ((nakshatra.number - 6 + 27) % 27) / 3
+        val startingLord = ASHTOTTARI_NAKSHATRA_LORDS[nakshatraGroup % 8 + 1] ?: Planet.SUN
+
+        val nakshatraStart = nakshatra.startDegree
+        val nakshatraSpan = 360.0 / 27.0
+        val progressInNakshatra = ((moonLongitude - nakshatraStart) / nakshatraSpan).coerceIn(0.0, 1.0)
+
+        val dashas = mutableListOf<AshtottariDasha>()
+        var currentStart = birthDate
+
+        val startIndex = ASHTOTTARI_SEQUENCE.indexOf(startingLord)
+        val firstDashaYears = (ASHTOTTARI_YEARS[startingLord] ?: 0).toDouble()
+        val balanceOfFirst = firstDashaYears * (1.0 - progressInNakshatra)
+
+        val firstDays = yearsToRoundedDays(balanceOfFirst)
+        val firstEnd = currentStart.plusDays(firstDays)
+
+        dashas.add(
+            AshtottariDasha(
+                planet = startingLord,
+                startDate = currentStart,
+                endDate = firstEnd,
+                durationYears = balanceOfFirst
+            )
+        )
+        currentStart = firstEnd
+
+        repeat(24) { cycle ->
+            val planetIndex = (startIndex + 1 + cycle) % ASHTOTTARI_SEQUENCE.size
+            val planet = ASHTOTTARI_SEQUENCE[planetIndex]
+            val years = (ASHTOTTARI_YEARS[planet] ?: 0).toDouble()
+            val days = yearsToRoundedDays(years)
+            val endDate = currentStart.plusDays(days)
+
+            dashas.add(
+                AshtottariDasha(
+                    planet = planet,
+                    startDate = currentStart,
+                    endDate = endDate,
+                    durationYears = years
+                )
+            )
+            currentStart = endDate
+        }
+
+        return dashas
     }
 }
