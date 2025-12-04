@@ -38,7 +38,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.ripple
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -653,7 +653,7 @@ private fun MahadashaCard(
             .clip(RoundedCornerShape(16.dp))
             .clickable(
                 interactionSource = interactionSource,
-                indication = ripple(color = planetColor.copy(alpha = 0.3f))
+                indication = rememberRipple(color = planetColor.copy(alpha = 0.3f))
             ) { onToggleExpand(!isExpanded) },
         shape = RoundedCornerShape(16.dp),
         color = if (isCurrentMahadasha) {
@@ -887,7 +887,7 @@ private fun DashaInfoCard(
             .clip(RoundedCornerShape(16.dp))
             .clickable(
                 interactionSource = interactionSource,
-                indication = ripple()
+                indication = rememberRipple()
             ) { onToggleExpand(!isExpanded) },
         shape = RoundedCornerShape(16.dp),
         color = ChartDetailColors.CardBackground,
