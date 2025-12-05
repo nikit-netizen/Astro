@@ -34,13 +34,13 @@ import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.Stars
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.Timeline
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -191,6 +191,7 @@ private fun FeatureGrid(
     }
 }
 
+@Suppress("DEPRECATION")
 @Composable
 private fun FeatureCard(
     feature: InsightFeature,
@@ -217,6 +218,7 @@ private fun FeatureCard(
     }
 
     val interactionSource = remember { MutableInteractionSource() }
+    val rippleIndication = rememberRipple(color = feature.color)
 
     Card(
         modifier = modifier
@@ -233,7 +235,7 @@ private fun FeatureCard(
                 enabled = !isDisabled,
                 role = Role.Button,
                 interactionSource = interactionSource,
-                indication = ripple(color = feature.color),
+                indication = rippleIndication,
                 onClick = onClick
             ),
         colors = CardDefaults.cardColors(containerColor = containerColor),
