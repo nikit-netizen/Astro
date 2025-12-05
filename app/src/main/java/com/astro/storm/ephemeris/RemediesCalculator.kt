@@ -568,8 +568,8 @@ object RemediesCalculator {
     )
 
     fun calculateRemedies(chart: VedicChart): RemediesResult {
-        // Explicitly type as ZodiacSign to prevent Type Mismatch {Comparable & Serializable} inference error
-        val ascendantSign: ZodiacSign = chart.ascendant ?: ZodiacSign.ARIES
+        val ascendantLongitude = chart.ascendant ?: 0.0
+val ascendantSign: ZodiacSign = ZodiacSign.values()[(ascendantLongitude / 30.0).toInt() % 12]
         val moonPosition = chart.planetPositions.find { it.planet == Planet.MOON }
         val moonSign = moonPosition?.sign ?: ZodiacSign.ARIES
 
