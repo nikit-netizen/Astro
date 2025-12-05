@@ -11,6 +11,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -449,9 +450,9 @@ private fun DateSelectorBar(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
                     .clickable(
-                        interactionSource = interactionSource,
-                        indication = androidx.compose.material3.ripple(bounded = true, color = AppTheme.AccentPrimary)
-                    ) { onShowDatePicker() }
+    interactionSource = interactionSource,
+    indication = LocalIndication.current
+) { onShowDatePicker() }
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
