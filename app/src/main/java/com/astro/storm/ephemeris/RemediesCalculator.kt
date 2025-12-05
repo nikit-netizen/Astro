@@ -560,7 +560,7 @@ object RemediesCalculator {
         Nakshatra.PURVA_ASHADHA to "Apas (Waters)",
         Nakshatra.UTTARA_ASHADHA to "Vishvadevas",
         Nakshatra.SHRAVANA to "Vishnu",
-        Nakshatra.DHANISHTA to "Vasus",
+        Nakshatra.DHANISHTHA to "Vasus",
         Nakshatra.SHATABHISHA to "Varuna",
         Nakshatra.PURVA_BHADRAPADA to "Aja Ekapad",
         Nakshatra.UTTARA_BHADRAPADA to "Ahir Budhnya",
@@ -1158,11 +1158,11 @@ object RemediesCalculator {
         val navamshaSize = 3.333333
         val navamshaIndex = (signDegree / navamshaSize).toInt()
 
-        val pushkaraNavamshas = when (sign.element) {
-            ZodiacSign.Element.FIRE -> listOf(2, 5, 8)
-            ZodiacSign.Element.EARTH -> listOf(1, 4, 7)
-            ZodiacSign.Element.AIR -> listOf(0, 3, 6)
-            ZodiacSign.Element.WATER -> listOf(2, 5, 8)
+        val pushkaraNavamshas = when (sign) {
+            ZodiacSign.ARIES, ZodiacSign.LEO, ZodiacSign.SAGITTARIUS -> listOf(2, 5, 8)
+            ZodiacSign.TAURUS, ZodiacSign.VIRGO, ZodiacSign.CAPRICORN -> listOf(1, 4, 7)
+            ZodiacSign.GEMINI, ZodiacSign.LIBRA, ZodiacSign.AQUARIUS -> listOf(0, 3, 6)
+            ZodiacSign.CANCER, ZodiacSign.SCORPIO, ZodiacSign.PISCES -> listOf(2, 5, 8)
         }
 
         return navamshaIndex in pushkaraNavamshas
@@ -1863,7 +1863,7 @@ object RemediesCalculator {
             Nakshatra.PURVA_ASHADHA -> "Worship Apas (water deities), stay near water, practice purification"
             Nakshatra.UTTARA_ASHADHA -> "Worship Vishvadevas, practice universal service, be helpful to all"
             Nakshatra.SHRAVANA -> "Worship Lord Vishnu, practice listening and learning, chant Vishnu mantras"
-            Nakshatra.DHANISHTA -> "Worship Vasus, practice music, donate musical instruments"
+            Nakshatra.DHANISHTHA -> "Worship Vasus, practice music, donate musical instruments"
             Nakshatra.SHATABHISHA -> "Worship Varuna, practice healing, work with herbs and medicines"
             Nakshatra.PURVA_BHADRAPADA -> "Worship Aja Ekapad, practice yoga and meditation, seek spiritual liberation"
             Nakshatra.UTTARA_BHADRAPADA -> "Worship Ahir Budhnya, practice deep meditation, seek wisdom"
