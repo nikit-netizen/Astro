@@ -44,42 +44,37 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun DashasScreen(
     chart: VedicChart?,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    viewModel: DashaViewModel = viewModel()
 ) {
-    if (chart == null) {
-        EmptyChartScreen(
-            title = "Dashas",
-            message = "No chart data available. Please select or create a profile first.",
-            onBack = onBack
-        )
-        return
+    LaunchedEffect(chart) {
+        viewModel.loadDashaTimeline(chart)
     }
 
-    val dashaTimeline = remember(chart) {
-        DashaCalculator.calculateDashaTimeline(chart)
-    }
-
-    val currentPeriodSummary = remember(dashaTimeline) {
-        buildString {
-            dashaTimeline.currentMahadasha?.let { md ->
-                append(md.planet.displayName)
-                dashaTimeline.currentAntardasha?.let { ad ->
-                    append(" → ${ad.planet.displayName}")
-                }
-            } ?: append("Calculating...")
-        }
-    }
+    val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         containerColor = AppTheme.ScreenBackground,
         topBar = {
-            DashasTopBar(
-                chartName = chart.birthData.name,
-                currentPeriod = currentPeriodSummary,
-                onBack = onBack,
-                onJumpToToday = {
-                    // Scroll to current period (handled by content)
+            val currentPeriod = when (val state = uiState) {
+                is DashaUiState.Success -> {
+                    val timeline = state.timeline
+                    buildString {
+                        timeline.currentMahadasha?.let { md ->
+                            append(md.planet.displayName)
+                            timeline.currentAntardasha?.let { ad ->
+                                append(" → ${ad.planet.displayName}")
+                            }
+                        } ?: append("Current period")
+                    }
                 }
+                else -> "Calculating..."
+            }
+            DashasTopBar(
+                chartName = chart?.birthData?.name ?: "Dashas",
+                currentPeriod = currentPeriod,
+                onBack = onBack,
+                onJumpToToday = { /* TODO */ }
             )
         }
     ) { paddingValues ->
@@ -89,7 +84,26 @@ fun DashasScreen(
                 .padding(paddingValues)
                 .background(AppTheme.ScreenBackground)
         ) {
-            DashasTabContent(chart = chart)
+            when (val state = uiState) {
+                is DashaUiState.Loading -> {
+                    // Indeterminate loading indicator
+                }
+                is DashaUiState.Success -> {
+                    DashasTabContent(timeline = state.timeline)
+                }
+                is DashaUiState.Error -> {
+                    // Error state
+                }
+                is DashaUiState.Idle -> {
+                    if (chart == null) {
+                        EmptyChartScreen(
+                            title = "Dashas",
+                            message = "No chart data available. Please select or create a profile first.",
+                            onBack = onBack
+                        )
+                    }
+                }
+            }
         }
     }
 }

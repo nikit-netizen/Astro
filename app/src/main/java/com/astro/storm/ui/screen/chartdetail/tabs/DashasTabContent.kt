@@ -93,10 +93,8 @@ private val VIMSHOTTARI_SEQUENCE: List<Pair<Planet, Int>> = listOf(
 )
 
 @Composable
-fun DashasTabContent(chart: VedicChart) {
-    val dashaTimeline = remember(chart) {
-        DashaCalculator.calculateDashaTimeline(chart)
-    }
+fun DashasTabContent(timeline: DashaCalculator.DashaTimeline) {
+    val dashaTimeline = timeline
 
     val expandedMahadashaSymbols = rememberSaveable(
         saver = listSaver(

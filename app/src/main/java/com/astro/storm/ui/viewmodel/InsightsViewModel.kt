@@ -59,82 +59,88 @@ class InsightsViewModel(application: Application) : AndroidViewModel(application
         }
 
         val today = LocalDate.now()
-        if (cachedData?.chart == chart && cachedData?.todayHoroscope?.date == today) {
+        if (cachedData?.chart == chart && cachedData?.todayHoroscope?.date == today && cachedData?.weeklyHoroscope != null) {
             _uiState.value = InsightsUiState.Success(cachedData!!)
             return
         }
 
         _uiState.value = InsightsUiState.Loading
         viewModelScope.launch {
+            val calculator = HoroscopeCalculator(getApplication())
             try {
-                val insights = calculateInsights(chart)
-                cachedData = insights
-                _uiState.value = InsightsUiState.Success(insights)
+                val errors = mutableListOf<InsightError>()
+
+                // Stage 1: Load essential data concurrently in the background
+                val (dashaTimeline, todayHoroscope) = withContext(Dispatchers.Default) {
+                    val dashaAsync = async {
+                        try { DashaCalculator.calculateDashaTimeline(chart) }
+                        catch (e: Exception) {
+                            errors.add(InsightError(InsightErrorType.DASHA, "Dasha calculation failed"))
+                            null
+                        }
+                    }
+                    val todayAsync = async {
+                        try { calculator.calculateDailyHoroscope(chart, today) }
+                        catch (e: Exception) {
+                            errors.add(InsightError(InsightErrorType.TODAY_HOROSCOIPE, "Today's horoscope failed"))
+                            null
+                        }
+                    }
+                    dashaAsync.await() to todayAsync.await()
+                }
+
+                if (todayHoroscope == null || dashaTimeline == null) {
+                    _uiState.value = InsightsUiState.Error("Failed to load essential insights.")
+                    return@launch
+                }
+
+                val initialData = InsightsData(
+                    chart = chart,
+                    dashaTimeline = dashaTimeline,
+                    planetaryInfluences = todayHoroscope.planetaryInfluences,
+                    todayHoroscope = todayHoroscope,
+                    tomorrowHoroscope = null,
+                    weeklyHoroscope = null,
+                    errors = errors
+                )
+                _uiState.value = InsightsUiState.Success(initialData)
+
+                // Stage 2: Load secondary data concurrently and update UI
+                supervisorScope {
+                    val tomorrowDeferred = async(Dispatchers.Default) {
+                        try {
+                            calculator.calculateDailyHoroscope(chart, today.plusDays(1))
+                        } catch (e: Exception) {
+                            errors.add(InsightError(InsightErrorType.TOMORROW_HOROSCOPE, "Failed to load tomorrow's horoscope."))
+                            null
+                        }
+                    }
+
+                    val weeklyDeferred = async(Dispatchers.Default) {
+                        try {
+                            calculator.calculateWeeklyHoroscope(chart, today)
+                        } catch (e: Exception) {
+                            errors.add(InsightError(InsightErrorType.WEEKLY_HOROSCOPE, "Failed to load weekly horoscope."))
+                            null
+                        }
+                    }
+
+                    val tomorrowHoroscope = tomorrowDeferred.await()
+                    val weeklyHoroscope = weeklyDeferred.await()
+
+                    val finalData = initialData.copy(
+                        tomorrowHoroscope = tomorrowHoroscope,
+                        weeklyHoroscope = weeklyHoroscope,
+                        errors = errors
+                    )
+
+                    cachedData = finalData
+                    _uiState.value = InsightsUiState.Success(finalData)
+                }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _uiState.value = InsightsUiState.Error(e.message ?: "An error occurred")
-            }
-        }
-    }
-
-    private suspend fun calculateInsights(chart: VedicChart): InsightsData {
-        val errors = mutableListOf<InsightError>()
-        val today = LocalDate.now()
-
-        return supervisorScope {
-            val dashaDeferred = async(Dispatchers.Default) {
-                try {
-                    DashaCalculator.calculateDashaTimeline(chart)
-                } catch (e: Exception) {
-                    errors.add(InsightError(InsightErrorType.DASHA, e.message ?: "Dasha calculation failed"))
-                    null
-                }
-            }
-
-            val calculator = HoroscopeCalculator(getApplication())
-            try {
-                val todayDeferred = async(Dispatchers.Default) {
-                    try {
-                        calculator.calculateDailyHoroscope(chart, today)
-                    } catch (e: Exception) {
-                        errors.add(InsightError(InsightErrorType.TODAY_HOROSCOIPE, e.message ?: "Today's horoscope failed"))
-                        null
-                    }
-                }
-
-                val tomorrowDeferred = async(Dispatchers.Default) {
-                    try {
-                        calculator.calculateDailyHoroscope(chart, today.plusDays(1))
-                    } catch (e: Exception) {
-                        errors.add(InsightError(InsightErrorType.TOMORROW_HOROSCOPE, e.message ?: "Tomorrow's horoscope failed"))
-                        null
-                    }
-                }
-
-                val weeklyDeferred = async(Dispatchers.Default) {
-                    try {
-                        calculator.calculateWeeklyHoroscope(chart, today)
-                    } catch (e: Exception) {
-                        errors.add(InsightError(InsightErrorType.WEEKLY_HOROSCOPE, e.message ?: "Weekly horoscope failed"))
-                        null
-                    }
-                }
-
-                val todayHoroscope = todayDeferred.await()
-                val tomorrowHoroscope = tomorrowDeferred.await()
-                val weeklyHoroscope = weeklyDeferred.await()
-                val dashaTimeline = dashaDeferred.await()
-
-                InsightsData(
-                    chart = chart,
-                    dashaTimeline = dashaTimeline,
-                    planetaryInfluences = todayHoroscope?.planetaryInfluences ?: emptyList(),
-                    todayHoroscope = todayHoroscope,
-                    tomorrowHoroscope = tomorrowHoroscope,
-                    weeklyHoroscope = weeklyHoroscope,
-                    errors = errors.toList()
-                )
+                _uiState.value = InsightsUiState.Error(e.message ?: "An unexpected error occurred")
             } finally {
                 calculator.close()
             }
