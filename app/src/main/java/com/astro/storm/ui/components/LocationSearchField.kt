@@ -1,250 +1,228 @@
 package com.astro.storm.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import com.astro.storm.data.api.GeocodingService
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.astro.storm.ui.theme.AppTheme
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import java.util.Locale
 
-// Matching the theme from the Input Screen
-private object SearchTheme {
-    val CardBackground = Color(0xFF2A201A)
-    val AccentColor = Color(0xFFB8A99A)
-    val TextPrimary = Color(0xFFE8DFD6)
-    val TextSecondary = Color(0xFF9E8F85)
-    val BorderColor = Color(0xFF4A3F38)
-    val ErrorColor = Color(0xFFCF6679)
-}
-
-/**
- * Professional Location Search Component.
- * 
- * Features:
- * - Floating result list (doesn't break layout).
- * - Integration with GeocodingService structured data.
- * - Returns Timezone for Astrology calculations.
- * - Debounced network calls.
- */
+@OptIn(FlowPreview::class)
 @Composable
 fun LocationSearchField(
     value: String,
     onValueChange: (String) -> Unit,
-    onLocationSelected: (location: String, latitude: Double, longitude: Double, timezone: String?) -> Unit,
+    onLocationSelected: (location: String, latitude: Double, longitude: Double) -> Unit,
     modifier: Modifier = Modifier,
-    label: String = "Location",
-    placeholder: String = "City, Town or Village"
+    label: String = "Search location",
+    placeholder: String = "Enter city or place name"
 ) {
-    val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
 
     var searchResults by remember { mutableStateOf<List<GeocodingService.GeocodingResult>>(emptyList()) }
     var isSearching by remember { mutableStateOf(false) }
-    var isFocused by remember { mutableStateOf(false) }
-    var searchJob by remember { mutableStateOf<Job?>(null) }
-    var errorState by remember { mutableStateOf<String?>(null) }
+    var showResults by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var hasFocus by remember { mutableStateOf(false) }
 
-    // Flag to prevent search triggering when user clicks a result
-    var isProgrammaticUpdate by remember { mutableStateOf(false) }
+    val searchQueryFlow = remember { MutableStateFlow("") }
 
-    fun performSearch(query: String) {
-        searchJob?.cancel()
-        
-        if (query.length < 3) {
-            searchResults = emptyList()
-            return
-        }
+    LaunchedEffect(value) {
+        searchQueryFlow.emit(value)
+    }
 
-        searchJob = scope.launch {
-            // Debounce: wait for user to stop typing
-            delay(600) 
-            
-            isSearching = true
-            errorState = null
-            
-            val result = GeocodingService.searchLocation(query, limit = 5)
-            
-            result.onSuccess { results ->
-                searchResults = results
-                if (results.isEmpty()) {
-                    // Optional: Could show "No results" state
+    LaunchedEffect(Unit) {
+        searchQueryFlow
+            .debounce(400)
+            .distinctUntilChanged()
+            .filter { it.length >= 3 }
+            .collectLatest { query ->
+                isSearching = true
+                errorMessage = null
+
+                val result = GeocodingService.searchLocation(query, limit = 6)
+                result.onSuccess { results ->
+                    searchResults = results
+                    showResults = results.isNotEmpty() && hasFocus
+                }.onFailure { error ->
+                    errorMessage = when (error) {
+                        is GeocodingService.GeocodingError.NetworkError -> error.message
+                        is GeocodingService.GeocodingError.RateLimitExceeded -> "Too many requests. Please wait."
+                        else -> "Search failed. Please try again."
+                    }
+                    searchResults = emptyList()
+                    showResults = false
                 }
-            }.onFailure { error ->
-                errorState = "Connection failed"
-                searchResults = emptyList()
+
+                isSearching = false
             }
-            
-            isSearching = false
+    }
+
+    LaunchedEffect(value) {
+        if (value.length < 3) {
+            searchResults = emptyList()
+            showResults = false
+            errorMessage = null
         }
     }
 
-    Box(modifier = modifier.zIndex(10f)) { // zIndex ensures dropdown floats over content below
-        Column {
-            OutlinedTextField(
-                value = value,
-                onValueChange = { newValue ->
-                    onValueChange(newValue)
-                    if (!isProgrammaticUpdate) {
-                        performSearch(newValue)
-                    }
-                    isProgrammaticUpdate = false
-                },
-                label = { Text(label, color = SearchTheme.TextSecondary, fontSize = 14.sp) },
-                placeholder = { Text(placeholder, color = SearchTheme.BorderColor, fontSize = 14.sp) },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Outlined.Search,
-                        contentDescription = null,
-                        tint = if (isFocused) SearchTheme.AccentColor else SearchTheme.TextSecondary
-                    )
-                },
-                trailingIcon = {
-                    if (isSearching) {
+    Column(modifier = modifier) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            label = { Text(label, color = AppTheme.TextMuted, fontSize = 14.sp) },
+            placeholder = { Text(placeholder, color = AppTheme.TextSubtle, fontSize = 14.sp) },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Outlined.Search,
+                    contentDescription = null,
+                    tint = AppTheme.TextMuted,
+                    modifier = Modifier.size(20.dp)
+                )
+            },
+            trailingIcon = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(end = 4.dp)
+                ) {
+                    AnimatedVisibility(visible = isSearching) {
                         CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            color = SearchTheme.AccentColor,
+                            modifier = Modifier
+                                .size(20.dp)
+                                .padding(end = 8.dp),
+                            color = AppTheme.AccentGold,
                             strokeWidth = 2.dp
                         )
-                    } else if (value.isNotEmpty()) {
-                        IconButton(onClick = {
-                            onValueChange("")
-                            searchResults = emptyList()
-                            performSearch("")
-                        }) {
+                    }
+                    AnimatedVisibility(visible = value.isNotEmpty() && !isSearching) {
+                        IconButton(
+                            onClick = {
+                                onValueChange("")
+                                searchResults = emptyList()
+                                showResults = false
+                                errorMessage = null
+                            },
+                            modifier = Modifier.size(36.dp)
+                        ) {
                             Icon(
                                 imageVector = Icons.Outlined.Clear,
-                                contentDescription = "Clear",
-                                tint = SearchTheme.TextSecondary
+                                contentDescription = "Clear search",
+                                tint = AppTheme.TextMuted,
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                     }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .onFocusChanged { 
-                        isFocused = it.isFocused 
-                        // Hide results if lost focus
-                        if (!it.isFocused) {
-                            // Small delay to allow click event on list item to pass through
-                            scope.launch {
-                                delay(200) 
-                                if (!isFocused) searchResults = emptyList()
-                            }
-                        }
-                    },
-                singleLine = true,
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = SearchTheme.TextPrimary,
-                    unfocusedTextColor = SearchTheme.TextPrimary,
-                    focusedBorderColor = SearchTheme.AccentColor,
-                    unfocusedBorderColor = SearchTheme.BorderColor,
-                    cursorColor = SearchTheme.AccentColor,
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent
-                ),
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Sentences,
-                    imeAction = ImeAction.Search
-                ),
-                keyboardActions = KeyboardActions(
-                    onSearch = {
-                        performSearch(value)
-                        focusManager.clearFocus()
-                    }
-                )
-            )
-
-            // Error Text
-            AnimatedVisibility(visible = errorState != null) {
-                Row(
-                    modifier = Modifier.padding(start = 8.dp, top = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Outlined.Warning, null, tint = SearchTheme.ErrorColor, modifier = Modifier.size(12.dp))
-                    Spacer(Modifier.width(4.dp))
-                    Text(
-                        text = errorState ?: "",
-                        color = SearchTheme.ErrorColor,
-                        fontSize = 12.sp
-                    )
                 }
-            }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .onFocusChanged { focusState: FocusState ->
+                    hasFocus = focusState.isFocused
+                    if (focusState.isFocused && searchResults.isNotEmpty()) {
+                        showResults = true
+                    }
+                },
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = AppTheme.TextPrimary,
+                unfocusedTextColor = AppTheme.TextPrimary,
+                focusedBorderColor = AppTheme.AccentGold,
+                unfocusedBorderColor = AppTheme.BorderColor,
+                focusedLabelColor = AppTheme.AccentGold,
+                unfocusedLabelColor = AppTheme.TextMuted,
+                cursorColor = AppTheme.AccentGold
+            ),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(
+                onSearch = { focusManager.clearFocus() }
+            ),
+            textStyle = LocalTextStyle.current.copy(fontSize = 16.sp)
+        )
+
+        AnimatedVisibility(visible = errorMessage != null) {
+            Text(
+                text = errorMessage ?: "",
+                color = AppTheme.ErrorColor,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+            )
         }
 
-        // Dropdown Results Overlay
-        // Placed inside the Box but outside the Column to overlap subsequent UI elements
         AnimatedVisibility(
-            visible = isFocused && searchResults.isNotEmpty(),
-            enter = fadeIn() + expandVertically(),
-            exit = fadeOut() + shrinkVertically(),
-            modifier = Modifier
-                .padding(top = 68.dp) // Offset to appear below TextField
-                .fillMaxWidth()
+            visible = showResults && searchResults.isNotEmpty(),
+            enter = fadeIn() + slideInVertically { -it / 4 },
+            exit = fadeOut() + slideOutVertically { -it / 4 }
         ) {
             Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
                 shape = RoundedCornerShape(12.dp),
-                color = SearchTheme.CardBackground,
+                color = AppTheme.CardBackground,
                 shadowElevation = 8.dp,
-                border = BorderStroke(1.dp, SearchTheme.BorderColor),
-                modifier = Modifier.heightIn(max = 280.dp)
+                tonalElevation = 2.dp
             ) {
-                LazyColumn {
-                    items(searchResults) { result ->
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 280.dp)
+                ) {
+                    itemsIndexed(
+                        items = searchResults,
+                        key = { index, result -> "${result.latitude}_${result.longitude}_$index" }
+                    ) { index, result ->
                         LocationResultItem(
                             result = result,
                             onClick = {
-                                isProgrammaticUpdate = true
-                                onValueChange(result.formattedName)
-                                onLocationSelected(
-                                    result.formattedName,
-                                    result.latitude,
-                                    result.longitude,
-                                    result.timezone
-                                )
-                                searchResults = emptyList()
+                                val formattedName = result.formattedShortName
+                                onValueChange(formattedName)
+                                onLocationSelected(formattedName, result.latitude, result.longitude)
+                                showResults = false
                                 focusManager.clearFocus()
                             }
                         )
-                        // Separator
-                        if (searchResults.last() != result) {
+
+                        if (index < searchResults.lastIndex) {
                             HorizontalDivider(
-                                color = SearchTheme.BorderColor.copy(alpha = 0.5f),
+                                modifier = Modifier.padding(horizontal = 16.dp),
                                 thickness = 0.5.dp,
-                                modifier = Modifier.padding(horizontal = 16.dp)
+                                color = AppTheme.BorderColor.copy(alpha = 0.5f)
                             )
                         }
                     }
@@ -263,58 +241,111 @@ private fun LocationResultItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp)
+            .semantics { contentDescription = "Select ${result.formattedShortName}" },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Icon Box
         Box(
             modifier = Modifier
-                .size(36.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(SearchTheme.AccentColor.copy(alpha = 0.15f)),
+                .size(40.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(AppTheme.AccentGold.copy(alpha = 0.12f)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Outlined.LocationOn,
                 contentDescription = null,
-                tint = SearchTheme.AccentColor,
-                modifier = Modifier.size(20.dp)
+                tint = AppTheme.AccentGold,
+                modifier = Modifier.size(22.dp)
             )
         }
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(14.dp))
 
         Column(modifier = Modifier.weight(1f)) {
-            // Main Location (e.g., "Mumbai")
+            val parts = result.displayName.split(",").map { it.trim() }
+            val mainName = parts.firstOrNull() ?: result.displayName
+            val details = if (parts.size > 1) {
+                parts.drop(1).take(2).joinToString(", ")
+            } else ""
+
             Text(
-                text = result.formattedName.substringBefore(","),
-                color = SearchTheme.TextPrimary,
+                text = mainName,
+                color = AppTheme.TextPrimary,
                 fontSize = 15.sp,
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = FontWeight.Medium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
 
-            // Detail (e.g., "Maharashtra, India")
-            val details = result.formattedName.substringAfter(", ", "")
             if (details.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = details,
-                    color = SearchTheme.TextSecondary,
-                    fontSize = 12.sp,
+                    color = AppTheme.TextMuted,
+                    fontSize = 13.sp,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    lineHeight = 16.sp
+                    overflow = TextOverflow.Ellipsis
                 )
             }
-            
-            // Coordinates Preview
+
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = "Lat: ${String.format("%.2f", result.latitude)} • Lon: ${String.format("%.2f", result.longitude)}",
-                color = SearchTheme.TextSecondary.copy(alpha = 0.7f),
+                text = String.format(
+                    Locale.US,
+                    "%.4f°, %.4f°",
+                    result.latitude,
+                    result.longitude
+                ),
+                color = AppTheme.TextSubtle,
                 fontSize = 11.sp,
-                modifier = Modifier.padding(top = 2.dp)
+                letterSpacing = 0.3.sp
             )
         }
     }
+}
+
+@Stable
+class LocationSearchState {
+    var isSearching by mutableStateOf(false)
+        private set
+    var results by mutableStateOf<List<GeocodingService.GeocodingResult>>(emptyList())
+        private set
+    var error by mutableStateOf<String?>(null)
+        private set
+
+    suspend fun search(query: String, limit: Int = 5) {
+        if (query.length < 3) {
+            results = emptyList()
+            return
+        }
+
+        isSearching = true
+        error = null
+
+        val result = GeocodingService.searchLocation(query, limit)
+        result.onSuccess { searchResults ->
+            results = searchResults
+        }.onFailure { e ->
+            error = when (e) {
+                is GeocodingService.GeocodingError.NetworkError -> e.message
+                is GeocodingService.GeocodingError.RateLimitExceeded -> "Rate limit exceeded"
+                else -> "Search failed"
+            }
+            results = emptyList()
+        }
+
+        isSearching = false
+    }
+
+    fun clear() {
+        results = emptyList()
+        error = null
+        isSearching = false
+    }
+}
+
+@Composable
+fun rememberLocationSearchState(): LocationSearchState {
+    return remember { LocationSearchState() }
 }

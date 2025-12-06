@@ -1,11 +1,8 @@
 package com.astro.storm.ui.screen
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,24 +10,21 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.Clear
-import androidx.compose.material.icons.outlined.DateRange
-import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.PlayArrow
-import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,13 +40,12 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.TimeZone
 
-// Centralized Theme Colors
-private object ChartTheme {
+private object ChartInputTheme {
     val ScreenBackground = Color(0xFF1C1410)
     val CardBackground = Color(0xFF2A201A)
     val AccentColor = Color(0xFFB8A99A)
     val TextPrimary = Color(0xFFE8DFD6)
-    val TextSecondary = Color(0xFF9E8F85) // Slightly darkened for better contrast
+    val TextSecondary = Color(0xFFB8A99A)
     val BorderColor = Color(0xFF4A3F38)
     val ChipBackground = Color(0xFF3D322B)
     val ButtonBackground = Color(0xFFB8A99A)
@@ -69,251 +62,272 @@ fun ChartInputScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val focusManager = LocalFocusManager.current
-    val scrollState = rememberScrollState()
 
-    // -- Form State --
-    // Using rememberSaveable to survive configuration changes (rotation)
     var name by rememberSaveable { mutableStateOf("") }
     var selectedGender by rememberSaveable { mutableStateOf(Gender.PREFER_NOT_TO_SAY) }
     var locationLabel by rememberSaveable { mutableStateOf("") }
+    var selectedDateMillis by rememberSaveable { 
+        mutableStateOf(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()) 
+    }
+    var selectedHour by rememberSaveable { mutableStateOf(10) }
+    var selectedMinute by rememberSaveable { mutableStateOf(0) }
     var latitude by rememberSaveable { mutableStateOf("") }
     var longitude by rememberSaveable { mutableStateOf("") }
     var altitude by rememberSaveable { mutableStateOf("") }
-    
-    // Date/Time State
-    var selectedDate by rememberSaveable { mutableStateOf(LocalDate.now()) }
-    var selectedTime by rememberSaveable { mutableStateOf(LocalTime.of(10, 0)) }
     var selectedTimezone by rememberSaveable { mutableStateOf(ZoneId.systemDefault().id) }
 
-    // Dialog Visibility State
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
-    var showTimezoneSheet by remember { mutableStateOf(false) } // Changed to Sheet/Dialog for better UX
+    var showTimezoneDropdown by remember { mutableStateOf(false) }
+    var showErrorDialog by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+    var chartCalculationInitiated by remember { mutableStateOf(false) }
 
-    // -- Navigation Logic --
-    var isCalculating by remember { mutableStateOf(false) }
+    val selectedDate = remember(selectedDateMillis) {
+        java.time.Instant.ofEpochMilli(selectedDateMillis)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+    }
+    val selectedTime = remember(selectedHour, selectedMinute) {
+        LocalTime.of(selectedHour, selectedMinute)
+    }
+
+    val latitudeFocusRequester = remember { FocusRequester() }
+    val longitudeFocusRequester = remember { FocusRequester() }
+    val altitudeFocusRequester = remember { FocusRequester() }
+
+    val timezones = remember {
+        val common = listOf(
+            "Asia/Kathmandu", "Asia/Kolkata", "Asia/Dubai", "Asia/Singapore",
+            "Asia/Tokyo", "Asia/Shanghai", "Asia/Hong_Kong", "Europe/London",
+            "Europe/Paris", "Europe/Berlin", "America/New_York", "America/Los_Angeles",
+            "America/Chicago", "America/Denver", "Australia/Sydney", "Pacific/Auckland"
+        )
+        val all = TimeZone.getAvailableIDs()
+            .filter { it.contains("/") && !it.startsWith("Etc/") && !it.startsWith("SystemV/") }
+            .sorted()
+        (common + all).distinct()
+    }
 
     LaunchedEffect(Unit) {
         viewModel.resetState()
     }
 
     LaunchedEffect(uiState) {
-        when (uiState) {
+        when (val state = uiState) {
             is ChartUiState.Success -> {
-                if (isCalculating) {
-                    val chart = (uiState as ChartUiState.Success).chart
-                    viewModel.saveChart(chart)
+                if (chartCalculationInitiated) {
+                    viewModel.saveChart(state.chart)
                 }
             }
             is ChartUiState.Saved -> {
-                if (isCalculating) {
-                    isCalculating = false
+                if (chartCalculationInitiated) {
+                    chartCalculationInitiated = false
                     onChartCalculated()
                 }
             }
             is ChartUiState.Error -> {
-                isCalculating = false
+                errorMessage = state.message
+                showErrorDialog = true
+                chartCalculationInitiated = false
             }
             else -> {}
         }
     }
 
-    // -- UI --
-    Scaffold(
-        containerColor = ChartTheme.ScreenBackground,
-        topBar = {
-            ChartTopBar(onBack = onNavigateBack)
-        }
-    ) { paddingValues ->
+    val scrollState = rememberScrollState()
+    val isCalculating = uiState is ChartUiState.Calculating
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(ChartInputTheme.ScreenBackground)
+            .imePadding()
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .verticalScroll(scrollState)
-                .padding(horizontal = 24.dp, vertical = 16.dp)
-                .imePadding() // Handles keyboard overlap
+                .padding(horizontal = 24.dp)
+                .padding(top = 16.dp, bottom = 32.dp)
         ) {
-            // 1. Identity
-            SectionHeader("Identity")
+            ChartInputHeader(onNavigateBack = onNavigateBack)
+
+            Spacer(modifier = Modifier.height(28.dp))
+
             IdentitySection(
                 name = name,
                 onNameChange = { name = it },
-                gender = selectedGender,
+                selectedGender = selectedGender,
                 onGenderChange = { selectedGender = it },
-                focusManager = focusManager
+                onFocusNext = { focusManager.clearFocus() }
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // 2. Location (Geocoding)
-            SectionHeader("Birth Location")
-            LocationSection(
-                locationLabel = locationLabel,
-                onLocationLabelChange = { locationLabel = it },
-                onLocationSelected = { locName, lat, lon, timezone ->
-                    locationLabel = locName
-                    latitude = lat.toString()
-                    longitude = lon.toString()
-                    // Auto-fill timezone if available from GeocodingService
-                    timezone?.let { selectedTimezone = it }
+            LocationSearchField(
+                value = locationLabel,
+                onValueChange = { locationLabel = it },
+                onLocationSelected = { location, lat, lon ->
+                    locationLabel = location
+                    latitude = String.format(java.util.Locale.US, "%.6f", lat)
+                    longitude = String.format(java.util.Locale.US, "%.6f", lon)
                 },
-                latitude = latitude,
-                onLatChange = { latitude = it },
-                longitude = longitude,
-                onLonChange = { longitude = it },
-                altitude = altitude,
-                onAltChange = { altitude = it },
-                focusManager = focusManager
+                label = "Location",
+                placeholder = "Search city or enter manually"
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
-            // 3. Time Details
-            SectionHeader("Date & Time")
             DateTimeSection(
-                date = selectedDate,
-                time = selectedTime,
-                timezone = selectedTimezone,
-                onDateClick = { showDatePicker = true },
-                onTimeClick = { showTimePicker = true },
-                onTimezoneClick = { showTimezoneSheet = true }
+                selectedDate = selectedDate,
+                selectedTime = selectedTime,
+                selectedTimezone = selectedTimezone,
+                timezones = timezones,
+                showTimezoneDropdown = showTimezoneDropdown,
+                onShowDatePicker = { showDatePicker = true },
+                onShowTimePicker = { showTimePicker = true },
+                onTimezoneDropdownChange = { showTimezoneDropdown = it },
+                onTimezoneSelected = { 
+                    selectedTimezone = it
+                    showTimezoneDropdown = false 
+                }
+            )
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            CoordinatesSection(
+                latitude = latitude,
+                longitude = longitude,
+                altitude = altitude,
+                onLatitudeChange = { latitude = it },
+                onLongitudeChange = { longitude = it },
+                onAltitudeChange = { altitude = it },
+                latitudeFocusRequester = latitudeFocusRequester,
+                longitudeFocusRequester = longitudeFocusRequester,
+                altitudeFocusRequester = altitudeFocusRequester,
+                onDone = { focusManager.clearFocus() }
             )
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // 4. Action Button
-            // Validate inputs before enabling button
-            val isFormValid by remember {
-                derivedStateOf {
-                    name.isNotBlank() &&
-                    locationLabel.isNotBlank() &&
-                    latitude.toDoubleOrNull() in -90.0..90.0 &&
-                    longitude.toDoubleOrNull() in -180.0..180.0
-                }
-            }
-
             GenerateButton(
-                enabled = isFormValid && !isCalculating,
-                isLoading = uiState is ChartUiState.Calculating,
+                isCalculating = isCalculating,
                 onClick = {
-                    isCalculating = true
-val birthData = BirthData(
-    name = name.trim(),
-    dateTime = LocalDateTime.of(selectedDate, selectedTime),
-    latitude = latitude.toDoubleOrNull() ?: 0.0,
-    longitude = longitude.toDoubleOrNull() ?: 0.0,
-    timezone = selectedTimezone,
-    location = locationLabel.trim(),
-    gender = selectedGender
-)
+                    val validationResult = validateInput(latitude, longitude)
+                    if (validationResult != null) {
+                        errorMessage = validationResult
+                        showErrorDialog = true
+                        return@GenerateButton
+                    }
+
+                    val lat = latitude.toDouble()
+                    val lon = longitude.toDouble()
+                    val dateTime = LocalDateTime.of(selectedDate, selectedTime)
+
+                    val birthData = BirthData(
+                        name = name.ifBlank { "Unknown" },
+                        dateTime = dateTime,
+                        latitude = lat,
+                        longitude = lon,
+                        timezone = selectedTimezone,
+                        location = locationLabel.ifBlank { "Unknown" },
+                        gender = selectedGender
+                    )
+
+                    chartCalculationInitiated = true
                     viewModel.calculateChart(birthData)
                 }
             )
-            
-            if (uiState is ChartUiState.Error) {
-                Text(
-                    text = (uiState as ChartUiState.Error).message,
-                    color = ChartTheme.ErrorColor,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(top = 16.dp).align(Alignment.CenterHorizontally)
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 
-    // -- Dialogs --
     if (showDatePicker) {
-        val dateState = rememberDatePickerState(
-            initialSelectedDateMillis = selectedDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        ChartDatePickerDialog(
+            initialDateMillis = selectedDateMillis,
+            onDismiss = { showDatePicker = false },
+            onConfirm = { millis ->
+                selectedDateMillis = millis
+                showDatePicker = false
+            }
         )
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    dateState.selectedDateMillis?.let {
-                        selectedDate = java.time.Instant.ofEpochMilli(it)
-                            .atZone(ZoneId.systemDefault()).toLocalDate()
-                    }
-                    showDatePicker = false
-                }) { Text("OK", color = ChartTheme.AccentColor) }
-            },
-            colors = DatePickerDefaults.colors(containerColor = ChartTheme.CardBackground)
-        ) {
-            DatePicker(
-                state = dateState,
-                colors = DatePickerDefaults.colors(
-                    containerColor = ChartTheme.CardBackground,
-                    titleContentColor = ChartTheme.TextPrimary,
-                    headlineContentColor = ChartTheme.TextPrimary,
-                    dayContentColor = ChartTheme.TextPrimary,
-                    selectedDayContainerColor = ChartTheme.AccentColor,
-                    selectedDayContentColor = ChartTheme.ButtonText
-                )
-            )
-        }
     }
 
     if (showTimePicker) {
-        val timeState = rememberTimePickerState(selectedTime.hour, selectedTime.minute, is24Hour = true)
-        TimePickerDialog(
+        ChartTimePickerDialog(
+            initialHour = selectedHour,
+            initialMinute = selectedMinute,
             onDismiss = { showTimePicker = false },
-            onConfirm = {
-                selectedTime = LocalTime.of(timeState.hour, timeState.minute)
+            onConfirm = { hour, minute ->
+                selectedHour = hour
+                selectedMinute = minute
                 showTimePicker = false
             }
-        ) {
-            TimePicker(
-                state = timeState,
-                colors = TimePickerDefaults.colors(
-                    clockDialColor = ChartTheme.ChipBackground,
-                    clockDialSelectedContentColor = ChartTheme.ButtonText,
-                    selectorColor = ChartTheme.AccentColor,
-                    timeSelectorSelectedContainerColor = ChartTheme.AccentColor,
-                    timeSelectorSelectedContentColor = ChartTheme.ButtonText
-                )
-            )
-        }
+        )
     }
-    
-    if (showTimezoneSheet) {
-        TimezoneSelectionDialog(
-            currentTimezone = selectedTimezone,
-            onTimezoneSelected = { 
-                selectedTimezone = it
-                showTimezoneSheet = false 
+
+    if (showErrorDialog) {
+        AlertDialog(
+            onDismissRequest = { showErrorDialog = false },
+            title = {
+                Text(
+                    "Input Error",
+                    color = ChartInputTheme.TextPrimary,
+                    fontWeight = FontWeight.SemiBold
+                )
             },
-            onDismiss = { showTimezoneSheet = false }
+            text = {
+                Text(errorMessage, color = ChartInputTheme.TextSecondary)
+            },
+            confirmButton = {
+                TextButton(onClick = { showErrorDialog = false }) {
+                    Text("OK", color = ChartInputTheme.AccentColor)
+                }
+            },
+            containerColor = ChartInputTheme.CardBackground,
+            shape = RoundedCornerShape(20.dp)
         )
     }
 }
 
-// --------------------------
-// Sub-Composables (Clean Architecture)
-// --------------------------
+private fun validateInput(latitude: String, longitude: String): String? {
+    val lat = latitude.toDoubleOrNull()
+    val lon = longitude.toDoubleOrNull()
+
+    return when {
+        lat == null || lon == null -> "Please enter valid latitude and longitude"
+        lat < -90 || lat > 90 -> "Latitude must be between -90 and 90"
+        lon < -180 || lon > 180 -> "Longitude must be between -180 and 180"
+        else -> null
+    }
+}
 
 @Composable
-private fun ChartTopBar(onBack: () -> Unit) {
+private fun ChartInputHeader(onNavigateBack: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .statusBarsPadding(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = onBack) {
+        IconButton(
+            onClick = onNavigateBack,
+            modifier = Modifier.semantics { contentDescription = "Go back" }
+        ) {
             Icon(
-                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                contentDescription = "Back",
-                tint = ChartTheme.TextSecondary
+                imageVector = Icons.Outlined.ArrowBack,
+                contentDescription = null,
+                tint = ChartInputTheme.TextSecondary,
+                modifier = Modifier.size(24.dp)
             )
         }
+        Spacer(Modifier.width(12.dp))
         Text(
             text = "New Birth Chart",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Medium,
-            color = ChartTheme.TextPrimary,
-            modifier = Modifier.padding(start = 8.dp)
+            fontSize = 22.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = ChartInputTheme.TextPrimary,
+            letterSpacing = 0.3.sp
         )
     }
 }
@@ -322,190 +336,447 @@ private fun ChartTopBar(onBack: () -> Unit) {
 private fun IdentitySection(
     name: String,
     onNameChange: (String) -> Unit,
-    gender: Gender,
+    selectedGender: Gender,
     onGenderChange: (Gender) -> Unit,
-    focusManager: FocusManager
+    onFocusNext: () -> Unit
 ) {
-    ChartTextField(
-        value = name,
-        onValueChange = onNameChange,
-        label = "Full Name",
-        keyboardOptions = KeyboardOptions(
-            capitalization = KeyboardCapitalization.Words,
-            imeAction = ImeAction.Next
-        ),
-        keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) })
-    )
+    Column {
+        SectionTitle("Identity")
+        Spacer(modifier = Modifier.height(12.dp))
 
-    Spacer(modifier = Modifier.height(16.dp))
+        ChartOutlinedTextField(
+            value = name,
+            onValueChange = onNameChange,
+            label = "Full name",
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { onFocusNext() })
+        )
 
-    Text("Gender", color = ChartTheme.TextSecondary, fontSize = 14.sp, modifier = Modifier.padding(bottom = 8.dp))
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Gender.entries.forEach { item ->
-            GenderChip(
-                text = item.displayName,
-                isSelected = gender == item,
-                onClick = { onGenderChange(item) },
-                modifier = Modifier.weight(1f)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "Gender",
+            fontSize = 14.sp,
+            color = ChartInputTheme.TextSecondary,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Gender.entries.forEach { gender ->
+                GenderChip(
+                    text = gender.displayName,
+                    isSelected = selectedGender == gender,
+                    onClick = { onGenderChange(gender) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DateTimeSection(
+    selectedDate: LocalDate,
+    selectedTime: LocalTime,
+    selectedTimezone: String,
+    timezones: List<String>,
+    showTimezoneDropdown: Boolean,
+    onShowDatePicker: () -> Unit,
+    onShowTimePicker: () -> Unit,
+    onTimezoneDropdownChange: (Boolean) -> Unit,
+    onTimezoneSelected: (String) -> Unit
+) {
+    Column {
+        SectionTitle("Date & Time")
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            DateTimeChip(
+                text = selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                onClick = onShowDatePicker,
+                modifier = Modifier.weight(1f),
+                contentDescription = "Select date"
             )
+            DateTimeChip(
+                text = selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                onClick = onShowTimePicker,
+                modifier = Modifier.weight(0.7f),
+                contentDescription = "Select time"
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        ExposedDropdownMenuBox(
+            expanded = showTimezoneDropdown,
+            onExpandedChange = onTimezoneDropdownChange
+        ) {
+            OutlinedTextField(
+                value = selectedTimezone,
+                onValueChange = {},
+                readOnly = true,
+                label = {
+                    Text("Timezone", color = ChartInputTheme.TextSecondary, fontSize = 14.sp)
+                },
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = showTimezoneDropdown)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(),
+                shape = RoundedCornerShape(12.dp),
+                colors = chartTextFieldColors(),
+                textStyle = LocalTextStyle.current.copy(fontSize = 16.sp)
+            )
+
+            ExposedDropdownMenu(
+                expanded = showTimezoneDropdown,
+                onDismissRequest = { onTimezoneDropdownChange(false) },
+                modifier = Modifier
+                    .background(ChartInputTheme.CardBackground)
+                    .heightIn(max = 300.dp)
+            ) {
+                timezones.forEach { timezone ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(text = timezone, color = ChartInputTheme.TextPrimary, fontSize = 14.sp)
+                        },
+                        onClick = { onTimezoneSelected(timezone) },
+                        colors = MenuDefaults.itemColors(textColor = ChartInputTheme.TextPrimary)
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun LocationSection(
-    locationLabel: String,
-    onLocationLabelChange: (String) -> Unit,
-    onLocationSelected: (String, Double, Double, String?) -> Unit,
+private fun CoordinatesSection(
     latitude: String,
-    onLatChange: (String) -> Unit,
     longitude: String,
-    onLonChange: (String) -> Unit,
     altitude: String,
-    onAltChange: (String) -> Unit,
-    focusManager: FocusManager
+    onLatitudeChange: (String) -> Unit,
+    onLongitudeChange: (String) -> Unit,
+    onAltitudeChange: (String) -> Unit,
+    latitudeFocusRequester: FocusRequester,
+    longitudeFocusRequester: FocusRequester,
+    altitudeFocusRequester: FocusRequester,
+    onDone: () -> Unit
 ) {
-    // Search Field
-    LocationSearchField(
-        value = locationLabel,
-        onValueChange = onLocationLabelChange,
-        // Assumption: Your LocationSearchField is updated to pass Timezone string as 4th param
-        // If not, pass null, but update your SearchField component to support the updated Service
-        onLocationSelected = onLocationSelected,
-        label = "City / Place",
-        placeholder = "Search location...",
-    )
+    Column {
+        SectionTitle("Coordinates")
+        Spacer(modifier = Modifier.height(12.dp))
 
-    Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            ChartOutlinedTextField(
+                value = latitude,
+                onValueChange = onLatitudeChange,
+                label = "Latitude",
+                modifier = Modifier
+                    .weight(1f)
+                    .focusRequester(latitudeFocusRequester),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Decimal,
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = { longitudeFocusRequester.requestFocus() }
+                )
+            )
 
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        ChartTextField(
-            value = latitude,
-            onValueChange = onLatChange,
-            label = "Latitude",
-            modifier = Modifier.weight(1f),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Next),
-            isError = latitude.isNotEmpty() && latitude.toDoubleOrNull() == null
-        )
-        ChartTextField(
-            value = longitude,
-            onValueChange = onLonChange,
-            label = "Longitude",
-            modifier = Modifier.weight(1f),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Next),
-            isError = longitude.isNotEmpty() && longitude.toDoubleOrNull() == null
+            ChartOutlinedTextField(
+                value = longitude,
+                onValueChange = onLongitudeChange,
+                label = "Longitude",
+                modifier = Modifier
+                    .weight(1f)
+                    .focusRequester(longitudeFocusRequester),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Decimal,
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = { altitudeFocusRequester.requestFocus() }
+                )
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        ChartOutlinedTextField(
+            value = altitude,
+            onValueChange = onAltitudeChange,
+            label = "Altitude (m) - Optional",
+            modifier = Modifier.focusRequester(altitudeFocusRequester),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(onDone = { onDone() })
         )
     }
-    
-    Spacer(modifier = Modifier.height(12.dp))
-    
-    ChartTextField(
-        value = altitude,
-        onValueChange = onAltChange,
-        label = "Altitude (Optional)",
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
-        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
+}
+
+@Composable
+private fun GenerateButton(
+    isCalculating: Boolean,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .semantics { contentDescription = "Generate and save birth chart" },
+        shape = RoundedCornerShape(28.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = ChartInputTheme.ButtonBackground,
+            contentColor = ChartInputTheme.ButtonText,
+            disabledContainerColor = ChartInputTheme.ButtonBackground.copy(alpha = 0.5f),
+            disabledContentColor = ChartInputTheme.ButtonText.copy(alpha = 0.5f)
+        ),
+        enabled = !isCalculating
+    ) {
+        Crossfade(targetState = isCalculating, label = "button_content") { calculating ->
+            if (calculating) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = ChartInputTheme.ButtonText,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.PlayArrow,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        "Generate & Save",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ChartDatePickerDialog(
+    initialDateMillis: Long,
+    onDismiss: () -> Unit,
+    onConfirm: (Long) -> Unit
+) {
+    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialDateMillis)
+
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    datePickerState.selectedDateMillis?.let(onConfirm)
+                }
+            ) {
+                Text("OK", color = ChartInputTheme.AccentColor)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel", color = ChartInputTheme.TextSecondary)
+            }
+        },
+        colors = DatePickerDefaults.colors(containerColor = ChartInputTheme.CardBackground)
+    ) {
+        DatePicker(
+            state = datePickerState,
+            colors = DatePickerDefaults.colors(
+                containerColor = ChartInputTheme.CardBackground,
+                titleContentColor = ChartInputTheme.TextPrimary,
+                headlineContentColor = ChartInputTheme.TextPrimary,
+                weekdayContentColor = ChartInputTheme.TextSecondary,
+                subheadContentColor = ChartInputTheme.TextSecondary,
+                yearContentColor = ChartInputTheme.TextPrimary,
+                currentYearContentColor = ChartInputTheme.AccentColor,
+                selectedYearContentColor = ChartInputTheme.ButtonText,
+                selectedYearContainerColor = ChartInputTheme.AccentColor,
+                dayContentColor = ChartInputTheme.TextPrimary,
+                selectedDayContentColor = ChartInputTheme.ButtonText,
+                selectedDayContainerColor = ChartInputTheme.AccentColor,
+                todayContentColor = ChartInputTheme.AccentColor,
+                todayDateBorderColor = ChartInputTheme.AccentColor,
+                navigationContentColor = ChartInputTheme.TextSecondary
+            )
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ChartTimePickerDialog(
+    initialHour: Int,
+    initialMinute: Int,
+    onDismiss: () -> Unit,
+    onConfirm: (hour: Int, minute: Int) -> Unit
+) {
+    val timePickerState = rememberTimePickerState(
+        initialHour = initialHour,
+        initialMinute = initialMinute,
+        is24Hour = true
+    )
+
+    androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(24.dp),
+            color = ChartInputTheme.CardBackground,
+            tonalElevation = 6.dp
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Select time",
+                    color = ChartInputTheme.TextSecondary,
+                    fontSize = 14.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 20.dp)
+                )
+
+                TimePicker(
+                    state = timePickerState,
+                    colors = TimePickerDefaults.colors(
+                        containerColor = ChartInputTheme.CardBackground,
+                        clockDialColor = ChartInputTheme.ChipBackground,
+                        clockDialSelectedContentColor = ChartInputTheme.ButtonText,
+                        clockDialUnselectedContentColor = ChartInputTheme.TextPrimary,
+                        selectorColor = ChartInputTheme.AccentColor,
+                        periodSelectorBorderColor = ChartInputTheme.BorderColor,
+                        periodSelectorSelectedContainerColor = ChartInputTheme.AccentColor,
+                        periodSelectorUnselectedContainerColor = ChartInputTheme.CardBackground,
+                        periodSelectorSelectedContentColor = ChartInputTheme.ButtonText,
+                        periodSelectorUnselectedContentColor = ChartInputTheme.TextSecondary,
+                        timeSelectorSelectedContainerColor = ChartInputTheme.AccentColor,
+                        timeSelectorUnselectedContainerColor = ChartInputTheme.ChipBackground,
+                        timeSelectorSelectedContentColor = ChartInputTheme.ButtonText,
+                        timeSelectorUnselectedContentColor = ChartInputTheme.TextPrimary
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text("Cancel", color = ChartInputTheme.TextSecondary)
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    TextButton(
+                        onClick = { onConfirm(timePickerState.hour, timePickerState.minute) }
+                    ) {
+                        Text("OK", color = ChartInputTheme.AccentColor)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SectionTitle(title: String) {
+    Text(
+        text = title,
+        fontSize = 16.sp,
+        fontWeight = FontWeight.SemiBold,
+        color = ChartInputTheme.TextPrimary,
+        letterSpacing = 0.5.sp
     )
 }
 
 @Composable
-private fun DateTimeSection(
-    date: LocalDate,
-    time: LocalTime,
-    timezone: String,
-    onDateClick: () -> Unit,
-    onTimeClick: () -> Unit,
-    onTimezoneClick: () -> Unit
-) {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        ConfigTile(
-            icon = Icons.Outlined.DateRange,
-            title = date.format(DateTimeFormatter.ofPattern("dd MMM yyyy")),
-            subtitle = "Date",
-            onClick = onDateClick,
-            modifier = Modifier.weight(1f)
-        )
-        ConfigTile(
-            icon = Icons.Outlined.Schedule,
-            title = time.format(DateTimeFormatter.ofPattern("HH:mm")),
-            subtitle = "Time",
-            onClick = onTimeClick,
-            modifier = Modifier.weight(0.8f)
-        )
-    }
-    
-    Spacer(modifier = Modifier.height(12.dp))
-    
-    ConfigTile(
-        icon = Icons.Outlined.LocationOn,
-        title = timezone.replace("_", " "),
-        subtitle = "Timezone",
-        onClick = onTimezoneClick,
-        modifier = Modifier.fillMaxWidth()
-    )
-}
-
-// --------------------------
-// UI Components
-// --------------------------
-
-@Composable
-private fun ChartTextField(
+private fun ChartOutlinedTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
     modifier: Modifier = Modifier,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
-    isError: Boolean = false
+    keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(label, color = if(isError) ChartTheme.ErrorColor else ChartTheme.TextSecondary) },
+        label = { Text(label, color = ChartInputTheme.TextSecondary, fontSize = 14.sp) },
         modifier = modifier.fillMaxWidth(),
         singleLine = true,
-        isError = isError,
         shape = RoundedCornerShape(12.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = ChartTheme.TextPrimary,
-            unfocusedTextColor = ChartTheme.TextPrimary,
-            focusedBorderColor = if(isError) ChartTheme.ErrorColor else ChartTheme.AccentColor,
-            unfocusedBorderColor = if(isError) ChartTheme.ErrorColor else ChartTheme.BorderColor,
-            cursorColor = ChartTheme.AccentColor,
-            focusedContainerColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent
-        ),
+        colors = chartTextFieldColors(),
         keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions
+        keyboardActions = keyboardActions,
+        textStyle = LocalTextStyle.current.copy(fontSize = 16.sp)
     )
 }
 
 @Composable
-private fun ConfigTile(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    title: String,
-    subtitle: String,
+private fun chartTextFieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedTextColor = ChartInputTheme.TextPrimary,
+    unfocusedTextColor = ChartInputTheme.TextPrimary,
+    focusedBorderColor = ChartInputTheme.AccentColor,
+    unfocusedBorderColor = ChartInputTheme.BorderColor,
+    focusedLabelColor = ChartInputTheme.AccentColor,
+    unfocusedLabelColor = ChartInputTheme.TextSecondary,
+    cursorColor = ChartInputTheme.AccentColor,
+    focusedTrailingIconColor = ChartInputTheme.TextSecondary,
+    unfocusedTrailingIconColor = ChartInputTheme.TextSecondary
+)
+
+@Composable
+private fun DateTimeChip(
+    text: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    contentDescription: String? = null
 ) {
     Surface(
         onClick = onClick,
-        modifier = modifier.height(64.dp),
-        shape = RoundedCornerShape(12.dp),
-        color = ChartTheme.CardBackground,
-        border = BorderStroke(1.dp, ChartTheme.BorderColor)
+        modifier = modifier
+            .height(52.dp)
+            .then(
+                if (contentDescription != null) {
+                    Modifier.semantics { this.contentDescription = contentDescription }
+                } else Modifier
+            ),
+        shape = RoundedCornerShape(26.dp),
+        color = ChartInputTheme.ChipBackground,
+        border = BorderStroke(1.dp, ChartInputTheme.BorderColor)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 12.dp)
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
         ) {
-            Icon(imageVector = icon, contentDescription = null, tint = ChartTheme.AccentColor)
-            Spacer(modifier = Modifier.width(12.dp))
-            Column {
-                Text(text = title, color = ChartTheme.TextPrimary, fontSize = 15.sp, fontWeight = FontWeight.Medium)
-                Text(text = subtitle, color = ChartTheme.TextSecondary, fontSize = 12.sp)
-            }
+            Text(
+                text = text,
+                color = ChartInputTheme.TextPrimary,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
         }
     }
 }
@@ -521,159 +792,19 @@ private fun GenderChip(
         onClick = onClick,
         modifier = modifier.height(40.dp),
         shape = RoundedCornerShape(20.dp),
-        color = if (isSelected) ChartTheme.AccentColor else ChartTheme.ChipBackground,
-        border = BorderStroke(1.dp, if (isSelected) ChartTheme.AccentColor else ChartTheme.BorderColor)
+        color = if (isSelected) ChartInputTheme.AccentColor else ChartInputTheme.ChipBackground,
+        border = BorderStroke(1.dp, if (isSelected) ChartInputTheme.AccentColor else ChartInputTheme.BorderColor)
     ) {
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
             Text(
                 text = text,
-                color = if (isSelected) ChartTheme.ButtonText else ChartTheme.TextPrimary,
-                fontSize = 13.sp,
+                color = if (isSelected) ChartInputTheme.ButtonText else ChartInputTheme.TextPrimary,
+                fontSize = 12.sp,
                 fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
             )
-        }
-    }
-}
-
-@Composable
-private fun GenerateButton(
-    enabled: Boolean,
-    isLoading: Boolean,
-    onClick: () -> Unit
-) {
-    Button(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = Modifier.fillMaxWidth().height(56.dp),
-        shape = RoundedCornerShape(28.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = ChartTheme.ButtonBackground,
-            contentColor = ChartTheme.ButtonText,
-            disabledContainerColor = ChartTheme.ButtonBackground.copy(alpha = 0.3f),
-            disabledContentColor = ChartTheme.ButtonText.copy(alpha = 0.3f)
-        )
-    ) {
-        AnimatedVisibility(
-            visible = isLoading,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            CircularProgressIndicator(modifier = Modifier.size(24.dp), color = ChartTheme.ButtonText, strokeWidth = 2.dp)
-        }
-        AnimatedVisibility(
-            visible = !isLoading,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.PlayArrow, null)
-                Spacer(Modifier.width(8.dp))
-                Text("Generate Chart", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-            }
-        }
-    }
-}
-
-@Composable
-private fun SectionHeader(text: String) {
-    Text(
-        text = text,
-        color = ChartTheme.TextPrimary,
-        fontSize = 16.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(bottom = 12.dp)
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TimezoneSelectionDialog(
-    currentTimezone: String,
-    onTimezoneSelected: (String) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val allTimezones = remember { ZoneId.getAvailableZoneIds().sorted() }
-    var searchQuery by remember { mutableStateOf("") }
-    
-    val filteredTimezones = remember(searchQuery) {
-        if (searchQuery.isEmpty()) allTimezones 
-        else allTimezones.filter { it.contains(searchQuery, ignoreCase = true) }
-    }
-
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        containerColor = ChartTheme.CardBackground,
-        dragHandle = { BottomSheetDefaults.DragHandle(color = ChartTheme.TextSecondary) }
-    ) {
-        Column(modifier = Modifier.fillMaxWidth().heightIn(min = 300.dp, max = 500.dp)) {
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                placeholder = { Text("Search timezone", color = ChartTheme.TextSecondary) },
-                leadingIcon = { Icon(Icons.Outlined.Clear, null, tint = ChartTheme.TextSecondary, modifier = Modifier.clickable { searchQuery = "" }) },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = ChartTheme.TextPrimary,
-                    unfocusedTextColor = ChartTheme.TextPrimary,
-                    focusedBorderColor = ChartTheme.AccentColor,
-                    unfocusedBorderColor = ChartTheme.BorderColor
-                )
-            )
-            
-            androidx.compose.foundation.lazy.LazyColumn(
-                modifier = Modifier.fillMaxWidth().weight(1f)
-            ) {
-                items(filteredTimezones.size) { index ->
-                    val tz = filteredTimezones[index]
-                    val isSelected = tz == currentTimezone
-                    
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onTimezoneSelected(tz) }
-                            .background(if (isSelected) ChartTheme.AccentColor.copy(alpha = 0.2f) else Color.Transparent)
-                            .padding(horizontal = 24.dp, vertical = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = tz.replace("_", " "),
-                            color = if (isSelected) ChartTheme.AccentColor else ChartTheme.TextPrimary,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                        )
-                    }
-                    HorizontalDivider(color = ChartTheme.BorderColor.copy(alpha = 0.5f))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun TimePickerDialog(
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-    content: @Composable () -> Unit
-) {
-    androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            shape = RoundedCornerShape(24.dp),
-            color = ChartTheme.CardBackground,
-            tonalElevation = 6.dp
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                content()
-                Spacer(modifier = Modifier.height(24.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(onClick = onDismiss) { Text("Cancel", color = ChartTheme.TextSecondary) }
-                    TextButton(onClick = onConfirm) { Text("OK", color = ChartTheme.AccentColor) }
-                }
-            }
         }
     }
 }
