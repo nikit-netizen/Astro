@@ -50,6 +50,7 @@ fun MainScreen(
     onNavigateToMuhurta: () -> Unit = {},
     onNavigateToRemedies: () -> Unit = {},
     onNavigateToVarshaphala: () -> Unit = {},
+    onNavigateToPrashna: () -> Unit = {},
     onExportChart: (ExportFormat) -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -96,6 +97,7 @@ fun MainScreen(
                                         // Features that don't require a chart
                                         InsightFeature.MATCHMAKING -> onNavigateToMatchmaking()
                                         InsightFeature.MUHURTA -> onNavigateToMuhurta()
+                                        InsightFeature.PRASHNA -> onNavigateToPrashna()
                                         // Features that require a chart
                                         InsightFeature.REMEDIES -> if (currentChart != null) onNavigateToRemedies()
                                         InsightFeature.VARSHAPHALA -> if (currentChart != null) onNavigateToVarshaphala()

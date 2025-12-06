@@ -14,6 +14,7 @@ import com.astro.storm.ui.screen.ChartAnalysisScreen
 import com.astro.storm.ui.screen.ChartInputScreen
 import com.astro.storm.ui.screen.MatchmakingScreen
 import com.astro.storm.ui.screen.MuhurtaScreen
+import com.astro.storm.ui.screen.PrashnaScreen
 import com.astro.storm.ui.screen.RemediesScreen
 import com.astro.storm.ui.screen.VarshaphalaScreen
 import com.astro.storm.ui.screen.main.ExportFormat
@@ -41,6 +42,7 @@ sealed class Screen(val route: String) {
     object Varshaphala : Screen("varshaphala/{chartId}") {
         fun createRoute(chartId: Long) = "varshaphala/$chartId"
     }
+    object Prashna : Screen("prashna")
 
     // Legacy routes for backward compatibility
     object Home : Screen("home")
@@ -112,6 +114,9 @@ fun AstroStormNavigation(
                     selectedChartId?.let { chartId ->
                         navController.navigate(Screen.Varshaphala.createRoute(chartId))
                     }
+                },
+                onNavigateToPrashna = {
+                    navController.navigate(Screen.Prashna.route)
                 },
                 onExportChart = { format ->
                     currentChart?.let { chart ->
@@ -244,6 +249,14 @@ fun AstroStormNavigation(
             }
 
             VarshaphalaScreen(
+                chart = currentChart,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Prashna (Horary) screen
+        composable(Screen.Prashna.route) {
+            PrashnaScreen(
                 chart = currentChart,
                 onBack = { navController.popBackStack() }
             )

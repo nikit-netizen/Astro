@@ -424,7 +424,7 @@ enum class InsightFeature(
         description = "Horary astrology",
         icon = Icons.Outlined.HelpOutline,
         color = AppTheme.AccentTeal,
-        isImplemented = false
+        isImplemented = true
     ),
     CHART_COMPARISON(
         title = "Synastry",
