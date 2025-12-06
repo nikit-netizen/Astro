@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -46,7 +47,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -250,13 +250,15 @@ private fun ProfileItem(
         formatChartDetails(chart)
     }
 
+    val interactionSource = remember { MutableInteractionSource() }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(backgroundColor)
             .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = ripple(color = AppTheme.AccentPrimary.copy(alpha = 0.12f)),
+                interactionSource = interactionSource,
+                indication = rememberRipple(color = AppTheme.AccentPrimary.copy(alpha = 0.12f)),
                 onClick = onClick,
                 role = Role.Button
             )
@@ -392,12 +394,14 @@ fun ProfileAvatar(
 
 @Composable
 private fun AddNewChartButton(onClick: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = ripple(color = AppTheme.AccentPrimary.copy(alpha = 0.12f)),
+                interactionSource = interactionSource,
+                indication = rememberRipple(color = AppTheme.AccentPrimary.copy(alpha = 0.12f)),
                 onClick = onClick,
                 role = Role.Button
             )
@@ -445,13 +449,14 @@ fun ProfileHeaderRow(
     modifier: Modifier = Modifier
 ) {
     val hapticFeedback = LocalHapticFeedback.current
+    val interactionSource = remember { MutableInteractionSource() }
 
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
             .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = ripple(
+                interactionSource = interactionSource,
+                indication = rememberRipple(
                     bounded = true,
                     color = AppTheme.AccentPrimary.copy(alpha = 0.1f)
                 ),
