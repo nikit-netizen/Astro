@@ -77,12 +77,6 @@ sealed class Screen(val route: String) {
     object ProfileEdit : Screen("profile_edit/{chartId}") {
         fun createRoute(chartId: Long) = "profile_edit/$chartId"
     }
-
-    // Legacy routes for backward compatibility
-    object Home : Screen("home")
-    object ChartDetail : Screen("chart_detail/{chartId}") {
-        fun createRoute(chartId: Long) = "chart_detail/$chartId"
-    }
 }
 
 /**
@@ -489,28 +483,6 @@ fun AstroStormNavigation(
                 onBack = { navController.popBackStack() },
                 onSaveComplete = { navController.popBackStack() }
             )
-        }
-
-        // Legacy home route - redirect to main
-        composable(Screen.Home.route) {
-            LaunchedEffect(Unit) {
-                navController.navigate(Screen.Main.route) {
-                    popUpTo(Screen.Home.route) { inclusive = true }
-                }
-            }
-        }
-
-        // Legacy chart detail route - redirect to chart analysis
-        composable(
-            route = Screen.ChartDetail.route,
-            arguments = listOf(navArgument("chartId") { type = NavType.LongType })
-        ) { backStackEntry ->
-            val chartId = backStackEntry.arguments?.getLong("chartId") ?: return@composable
-            LaunchedEffect(chartId) {
-                navController.navigate(Screen.ChartAnalysis.createRoute(chartId, InsightFeature.FULL_CHART)) {
-                    popUpTo(Screen.ChartDetail.route) { inclusive = true }
-                }
-            }
         }
     }
 }

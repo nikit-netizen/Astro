@@ -3,17 +3,16 @@ package com.astro.storm.ephemeris
 import android.content.Context
 import com.astro.storm.data.model.*
 import swisseph.SweConst
-import swisseph.SweDate
 import swisseph.SwissEph
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 import kotlin.math.abs
 import kotlin.math.floor
-import kotlin.math.roundToInt
-import kotlin.math.roundToLong
+import kotlin.math.min
 
 class VarshaphalaCalculator(context: Context) {
 
@@ -24,7 +23,6 @@ class VarshaphalaCalculator(context: Context) {
         private const val AYANAMSA_LAHIRI = SweConst.SE_SIDM_LAHIRI
         private const val SEFLG_SIDEREAL = SweConst.SEFLG_SIDEREAL
         private const val SEFLG_SPEED = SweConst.SEFLG_SPEED
-        private const val TROPICAL_YEAR_DAYS = 365.24219
         private const val SIDEREAL_YEAR_DAYS = 365.256363
 
         private const val CONJUNCTION_ORB = 12.0
@@ -51,137 +49,174 @@ class VarshaphalaCalculator(context: Context) {
         )
 
         private val DAY_LORDS = listOf(
-            Planet.SUN,     // Sunday = 0
-            Planet.MOON,    // Monday = 1
-            Planet.MARS,    // Tuesday = 2
-            Planet.MERCURY, // Wednesday = 3
-            Planet.JUPITER, // Thursday = 4
-            Planet.VENUS,   // Friday = 5
-            Planet.SATURN   // Saturday = 6
+            Planet.SUN,
+            Planet.MOON,
+            Planet.MARS,
+            Planet.MERCURY,
+            Planet.JUPITER,
+            Planet.VENUS,
+            Planet.SATURN
         )
 
         private val HADDA_LORDS = mapOf(
             ZodiacSign.ARIES to listOf(
-                Pair(0.0 to 6.0, Planet.JUPITER),
-                Pair(6.0 to 12.0, Planet.VENUS),
-                Pair(12.0 to 20.0, Planet.MERCURY),
-                Pair(20.0 to 25.0, Planet.MARS),
-                Pair(25.0 to 30.0, Planet.SATURN)
+                Triple(0.0, 6.0, Planet.JUPITER),
+                Triple(6.0, 12.0, Planet.VENUS),
+                Triple(12.0, 20.0, Planet.MERCURY),
+                Triple(20.0, 25.0, Planet.MARS),
+                Triple(25.0, 30.0, Planet.SATURN)
             ),
             ZodiacSign.TAURUS to listOf(
-                Pair(0.0 to 8.0, Planet.VENUS),
-                Pair(8.0 to 14.0, Planet.MERCURY),
-                Pair(14.0 to 22.0, Planet.JUPITER),
-                Pair(22.0 to 27.0, Planet.SATURN),
-                Pair(27.0 to 30.0, Planet.MARS)
+                Triple(0.0, 8.0, Planet.VENUS),
+                Triple(8.0, 14.0, Planet.MERCURY),
+                Triple(14.0, 22.0, Planet.JUPITER),
+                Triple(22.0, 27.0, Planet.SATURN),
+                Triple(27.0, 30.0, Planet.MARS)
             ),
             ZodiacSign.GEMINI to listOf(
-                Pair(0.0 to 6.0, Planet.MERCURY),
-                Pair(6.0 to 12.0, Planet.JUPITER),
-                Pair(12.0 to 17.0, Planet.VENUS),
-                Pair(17.0 to 24.0, Planet.MARS),
-                Pair(24.0 to 30.0, Planet.SATURN)
+                Triple(0.0, 6.0, Planet.MERCURY),
+                Triple(6.0, 12.0, Planet.JUPITER),
+                Triple(12.0, 17.0, Planet.VENUS),
+                Triple(17.0, 24.0, Planet.MARS),
+                Triple(24.0, 30.0, Planet.SATURN)
             ),
             ZodiacSign.CANCER to listOf(
-                Pair(0.0 to 7.0, Planet.MARS),
-                Pair(7.0 to 13.0, Planet.VENUS),
-                Pair(13.0 to 19.0, Planet.MERCURY),
-                Pair(19.0 to 26.0, Planet.JUPITER),
-                Pair(26.0 to 30.0, Planet.SATURN)
+                Triple(0.0, 7.0, Planet.MARS),
+                Triple(7.0, 13.0, Planet.VENUS),
+                Triple(13.0, 19.0, Planet.MERCURY),
+                Triple(19.0, 26.0, Planet.JUPITER),
+                Triple(26.0, 30.0, Planet.SATURN)
             ),
             ZodiacSign.LEO to listOf(
-                Pair(0.0 to 6.0, Planet.JUPITER),
-                Pair(6.0 to 11.0, Planet.VENUS),
-                Pair(11.0 to 18.0, Planet.SATURN),
-                Pair(18.0 to 24.0, Planet.MERCURY),
-                Pair(24.0 to 30.0, Planet.MARS)
+                Triple(0.0, 6.0, Planet.JUPITER),
+                Triple(6.0, 11.0, Planet.VENUS),
+                Triple(11.0, 18.0, Planet.SATURN),
+                Triple(18.0, 24.0, Planet.MERCURY),
+                Triple(24.0, 30.0, Planet.MARS)
             ),
             ZodiacSign.VIRGO to listOf(
-                Pair(0.0 to 7.0, Planet.MERCURY),
-                Pair(7.0 to 17.0, Planet.VENUS),
-                Pair(17.0 to 21.0, Planet.JUPITER),
-                Pair(21.0 to 28.0, Planet.MARS),
-                Pair(28.0 to 30.0, Planet.SATURN)
+                Triple(0.0, 7.0, Planet.MERCURY),
+                Triple(7.0, 17.0, Planet.VENUS),
+                Triple(17.0, 21.0, Planet.JUPITER),
+                Triple(21.0, 28.0, Planet.MARS),
+                Triple(28.0, 30.0, Planet.SATURN)
             ),
             ZodiacSign.LIBRA to listOf(
-                Pair(0.0 to 6.0, Planet.SATURN),
-                Pair(6.0 to 14.0, Planet.MERCURY),
-                Pair(14.0 to 21.0, Planet.JUPITER),
-                Pair(21.0 to 28.0, Planet.VENUS),
-                Pair(28.0 to 30.0, Planet.MARS)
+                Triple(0.0, 6.0, Planet.SATURN),
+                Triple(6.0, 14.0, Planet.MERCURY),
+                Triple(14.0, 21.0, Planet.JUPITER),
+                Triple(21.0, 28.0, Planet.VENUS),
+                Triple(28.0, 30.0, Planet.MARS)
             ),
             ZodiacSign.SCORPIO to listOf(
-                Pair(0.0 to 7.0, Planet.MARS),
-                Pair(7.0 to 11.0, Planet.VENUS),
-                Pair(11.0 to 19.0, Planet.MERCURY),
-                Pair(19.0 to 24.0, Planet.JUPITER),
-                Pair(24.0 to 30.0, Planet.SATURN)
+                Triple(0.0, 7.0, Planet.MARS),
+                Triple(7.0, 11.0, Planet.VENUS),
+                Triple(11.0, 19.0, Planet.MERCURY),
+                Triple(19.0, 24.0, Planet.JUPITER),
+                Triple(24.0, 30.0, Planet.SATURN)
             ),
             ZodiacSign.SAGITTARIUS to listOf(
-                Pair(0.0 to 12.0, Planet.JUPITER),
-                Pair(12.0 to 17.0, Planet.VENUS),
-                Pair(17.0 to 21.0, Planet.MERCURY),
-                Pair(21.0 to 26.0, Planet.SATURN),
-                Pair(26.0 to 30.0, Planet.MARS)
+                Triple(0.0, 12.0, Planet.JUPITER),
+                Triple(12.0, 17.0, Planet.VENUS),
+                Triple(17.0, 21.0, Planet.MERCURY),
+                Triple(21.0, 26.0, Planet.SATURN),
+                Triple(26.0, 30.0, Planet.MARS)
             ),
             ZodiacSign.CAPRICORN to listOf(
-                Pair(0.0 to 7.0, Planet.MERCURY),
-                Pair(7.0 to 14.0, Planet.JUPITER),
-                Pair(14.0 to 22.0, Planet.VENUS),
-                Pair(22.0 to 26.0, Planet.SATURN),
-                Pair(26.0 to 30.0, Planet.MARS)
+                Triple(0.0, 7.0, Planet.MERCURY),
+                Triple(7.0, 14.0, Planet.JUPITER),
+                Triple(14.0, 22.0, Planet.VENUS),
+                Triple(22.0, 26.0, Planet.SATURN),
+                Triple(26.0, 30.0, Planet.MARS)
             ),
             ZodiacSign.AQUARIUS to listOf(
-                Pair(0.0 to 7.0, Planet.MERCURY),
-                Pair(7.0 to 13.0, Planet.VENUS),
-                Pair(13.0 to 20.0, Planet.JUPITER),
-                Pair(20.0 to 25.0, Planet.MARS),
-                Pair(25.0 to 30.0, Planet.SATURN)
+                Triple(0.0, 7.0, Planet.MERCURY),
+                Triple(7.0, 13.0, Planet.VENUS),
+                Triple(13.0, 20.0, Planet.JUPITER),
+                Triple(20.0, 25.0, Planet.MARS),
+                Triple(25.0, 30.0, Planet.SATURN)
             ),
             ZodiacSign.PISCES to listOf(
-                Pair(0.0 to 12.0, Planet.VENUS),
-                Pair(12.0 to 16.0, Planet.JUPITER),
-                Pair(16.0 to 19.0, Planet.MERCURY),
-                Pair(19.0 to 28.0, Planet.MARS),
-                Pair(28.0 to 30.0, Planet.SATURN)
+                Triple(0.0, 12.0, Planet.VENUS),
+                Triple(12.0, 16.0, Planet.JUPITER),
+                Triple(16.0, 19.0, Planet.MERCURY),
+                Triple(19.0, 28.0, Planet.MARS),
+                Triple(28.0, 30.0, Planet.SATURN)
             )
         )
 
-        fun getHouseMeaning(house: Int): String {
-            return when (house) {
-                1 -> "Self/Personality"
-                2 -> "Wealth/Family"
-                3 -> "Siblings/Communication"
-                4 -> "Home/Mother"
-                5 -> "Children/Creativity"
-                6 -> "Health/Service"
-                7 -> "Partnership/Marriage"
-                8 -> "Transformation/Longevity"
-                9 -> "Fortune/Spirituality"
-                10 -> "Career/Status"
-                11 -> "Gains/Friends"
-                12 -> "Losses/Spirituality"
-                else -> "General"
-            }
-        }
+        private val EXALTATION_DEGREES = mapOf(
+            Planet.SUN to 10.0,
+            Planet.MOON to 33.0,
+            Planet.MARS to 298.0,
+            Planet.MERCURY to 165.0,
+            Planet.JUPITER to 95.0,
+            Planet.VENUS to 357.0,
+            Planet.SATURN to 200.0
+        )
 
-        fun getHouseKeywords(house: Int): List<String> {
-            return when (house) {
-                1 -> listOf("Self", "Body", "Personality", "Appearance")
-                2 -> listOf("Wealth", "Family", "Speech", "Food")
-                3 -> listOf("Siblings", "Courage", "Short Travels", "Communication")
-                4 -> listOf("Mother", "Home", "Property", "Happiness")
-                5 -> listOf("Children", "Intelligence", "Romance", "Speculation")
-                6 -> listOf("Enemies", "Disease", "Service", "Debts")
-                7 -> listOf("Spouse", "Partnership", "Business", "Public")
-                8 -> listOf("Death", "Inheritance", "Occult", "Transformation")
-                9 -> listOf("Father", "Guru", "Religion", "Fortune")
-                10 -> listOf("Career", "Fame", "Authority", "Government")
-                11 -> listOf("Gains", "Friends", "Elder Sibling", "Desires")
-                12 -> listOf("Losses", "Foreign", "Liberation", "Expenses")
-                else -> listOf()
-            }
-        }
+        private val DEBILITATION_SIGNS = mapOf(
+            Planet.SUN to ZodiacSign.LIBRA,
+            Planet.MOON to ZodiacSign.SCORPIO,
+            Planet.MARS to ZodiacSign.CANCER,
+            Planet.MERCURY to ZodiacSign.PISCES,
+            Planet.JUPITER to ZodiacSign.CAPRICORN,
+            Planet.VENUS to ZodiacSign.VIRGO,
+            Planet.SATURN to ZodiacSign.ARIES
+        )
+
+        private val OWN_SIGNS = mapOf(
+            Planet.SUN to listOf(ZodiacSign.LEO),
+            Planet.MOON to listOf(ZodiacSign.CANCER),
+            Planet.MARS to listOf(ZodiacSign.ARIES, ZodiacSign.SCORPIO),
+            Planet.MERCURY to listOf(ZodiacSign.GEMINI, ZodiacSign.VIRGO),
+            Planet.JUPITER to listOf(ZodiacSign.SAGITTARIUS, ZodiacSign.PISCES),
+            Planet.VENUS to listOf(ZodiacSign.TAURUS, ZodiacSign.LIBRA),
+            Planet.SATURN to listOf(ZodiacSign.CAPRICORN, ZodiacSign.AQUARIUS)
+        )
+
+        private val FRIENDSHIPS = mapOf(
+            Planet.SUN to listOf(Planet.MOON, Planet.MARS, Planet.JUPITER),
+            Planet.MOON to listOf(Planet.SUN, Planet.MERCURY),
+            Planet.MARS to listOf(Planet.SUN, Planet.MOON, Planet.JUPITER),
+            Planet.MERCURY to listOf(Planet.SUN, Planet.VENUS),
+            Planet.JUPITER to listOf(Planet.SUN, Planet.MOON, Planet.MARS),
+            Planet.VENUS to listOf(Planet.MERCURY, Planet.SATURN),
+            Planet.SATURN to listOf(Planet.MERCURY, Planet.VENUS)
+        )
+
+        private val NEUTRALS = mapOf(
+            Planet.SUN to listOf(Planet.MERCURY),
+            Planet.MOON to listOf(Planet.MARS, Planet.JUPITER, Planet.VENUS, Planet.SATURN),
+            Planet.MARS to listOf(Planet.MERCURY, Planet.VENUS, Planet.SATURN),
+            Planet.MERCURY to listOf(Planet.MARS, Planet.JUPITER, Planet.SATURN),
+            Planet.JUPITER to listOf(Planet.MERCURY, Planet.SATURN),
+            Planet.VENUS to listOf(Planet.MARS, Planet.JUPITER),
+            Planet.SATURN to listOf(Planet.MARS, Planet.JUPITER)
+        )
+
+        private val MUDDA_DASHA_PLANETS = listOf(
+            Planet.SUN, Planet.MOON, Planet.MARS, Planet.MERCURY,
+            Planet.JUPITER, Planet.VENUS, Planet.SATURN, Planet.RAHU, Planet.KETU
+        )
+
+        private val MUDDA_DASHA_DAYS = mapOf(
+            Planet.SUN to 110,
+            Planet.MOON to 60,
+            Planet.MARS to 32,
+            Planet.MERCURY to 40,
+            Planet.JUPITER to 48,
+            Planet.VENUS to 56,
+            Planet.SATURN to 4,
+            Planet.RAHU to 5,
+            Planet.KETU to 5
+        )
+
+        private val STANDARD_ZODIAC_SIGNS = listOf(
+            ZodiacSign.ARIES, ZodiacSign.TAURUS, ZodiacSign.GEMINI, ZodiacSign.CANCER,
+            ZodiacSign.LEO, ZodiacSign.VIRGO, ZodiacSign.LIBRA, ZodiacSign.SCORPIO,
+            ZodiacSign.SAGITTARIUS, ZodiacSign.CAPRICORN, ZodiacSign.AQUARIUS, ZodiacSign.PISCES
+        )
     }
 
     init {
@@ -190,39 +225,61 @@ class VarshaphalaCalculator(context: Context) {
         swissEph.swe_set_sid_mode(AYANAMSA_LAHIRI, 0.0, 0.0)
     }
 
-    enum class TajikaAspect(val displayName: String, val description: String) {
-        ITHASALA("Ithasala", "Applying aspect - promises fulfillment"),
-        EASARAPHA("Easarapha", "Separating aspect - indicates past events"),
-        NAKTA("Nakta", "Transfer of light - indirect completion"),
-        YAMAYA("Yamaya", "Prohibition - obstruction in matters"),
-        MANAU("Manau", "Frustration - denial of results"),
-        KAMBOOLA("Kamboola", "Favorable reception - magnifies results"),
-        GAIRI_KAMBOOLA("Gairi Kamboola", "Unfavorable reception - weakens results"),
-        KHALASARA("Khalasara", "Mutual separation - dissolution"),
-        RADDA("Radda", "Return/Retrograde aspect - reconsideration"),
-        DUKPHALI("Dukphali", "Obstruction by malefic")
+    enum class TajikaAspectType(val displayName: String, val description: String, val isPositive: Boolean) {
+        ITHASALA("Ithasala", "Applying aspect - promises fulfillment of matters", true),
+        EASARAPHA("Easarapha", "Separating aspect - event has passed or is fading", false),
+        NAKTA("Nakta", "Transmission of light with reception - indirect completion", true),
+        YAMAYA("Yamaya", "Translation of light - third planet connects significators", true),
+        MANAU("Manau", "Reverse application - slower planet applies to faster", false),
+        KAMBOOLA("Kamboola", "Powerful Ithasala with angular placement", true),
+        GAIRI_KAMBOOLA("Gairi-Kamboola", "Weaker form of Kamboola", true),
+        KHALASARA("Khalasara", "Mutual separation - dissolution of matters", false),
+        RADDA("Radda", "Refranation - retrograde breaks the aspect", false),
+        DUHPHALI_KUTTHA("Duhphali-Kuttha", "Malefic intervention prevents completion", false),
+        TAMBIRA("Tambira", "Indirect aspect through intermediary", true),
+        KUTTHA("Kuttha", "Impediment to aspect completion", false),
+        DURAPHA("Durapha", "Hard aspect causing difficulties", false),
+        MUTHASHILA("Muthashila", "Mutual application between planets", true),
+        IKKABALA("Ikkabala", "Unity of strength between planets", true)
     }
 
-    enum class Saham(val displayName: String, val description: String) {
-        PUNYA("Punya Saham", "Fortune/Luck"),
-        VIDYA("Vidya Saham", "Education/Learning"),
-        YASHAS("Yashas Saham", "Fame/Reputation"),
-        MITRA("Mitra Saham", "Friends"),
-        MAHATMYA("Mahatmya Saham", "Greatness"),
-        KARMA("Karma Saham", "Profession"),
-        BANDHANA("Bandhana Saham", "Bondage/Imprisonment"),
-        MRITYU("Mrityu Saham", "Death/Danger"),
-        ASHA("Asha Saham", "Hopes/Desires"),
-        SAMARTHA("Samartha Saham", "Capability"),
-        VIVAHA("Vivaha Saham", "Marriage"),
-        SANTANA("Santana Saham", "Children"),
-        ROGA("Roga Saham", "Disease"),
-        KARYASIDDHI("Karyasiddhi Saham", "Success in endeavors"),
-        PARADESA("Paradesa Saham", "Foreign Travel"),
-        PITRI("Pitri Saham", "Father"),
-        MATRI("Matri Saham", "Mother"),
-        DHANA("Dhana Saham", "Wealth"),
-        RAJA("Raja Saham", "Authority/Power")
+    enum class AspectStrength(val displayName: String, val weight: Double) {
+        VERY_STRONG("Very Strong", 1.0),
+        STRONG("Strong", 0.8),
+        MODERATE("Moderate", 0.6),
+        WEAK("Weak", 0.4),
+        VERY_WEAK("Very Weak", 0.2)
+    }
+
+    enum class SahamType(
+        val displayName: String,
+        val sanskritName: String,
+        val description: String
+    ) {
+        PUNYA("Fortune", "Punya Saham", "Overall luck and prosperity"),
+        VIDYA("Education", "Vidya Saham", "Learning and knowledge"),
+        YASHAS("Fame", "Yashas Saham", "Reputation and recognition"),
+        MITRA("Friends", "Mitra Saham", "Friendship and alliances"),
+        MAHATMYA("Greatness", "Mahatmya Saham", "Spiritual achievement"),
+        ASHA("Hope", "Asha Saham", "Aspirations and wishes"),
+        SAMARTHA("Capability", "Samartha Saham", "Ability and competence"),
+        BHRATRI("Siblings", "Bhratri Saham", "Brothers and sisters"),
+        PITRI("Father", "Pitri Saham", "Father's welfare"),
+        MATRI("Mother", "Matri Saham", "Mother's welfare"),
+        PUTRA("Children", "Putra Saham", "Offspring and progeny"),
+        VIVAHA("Marriage", "Vivaha Saham", "Matrimony and partnership"),
+        KARMA("Career", "Karma Saham", "Profession and livelihood"),
+        ROGA("Disease", "Roga Saham", "Health challenges"),
+        MRITYU("Longevity", "Mrityu Saham", "Life span indicators"),
+        PARADESA("Foreign", "Paradesa Saham", "Travel and foreign lands"),
+        DHANA("Wealth", "Dhana Saham", "Financial prosperity"),
+        RAJA("Power", "Raja Saham", "Authority and position"),
+        BANDHANA("Bondage", "Bandhana Saham", "Restrictions and obstacles"),
+        KARYASIDDHI("Success", "Karyasiddhi Saham", "Accomplishment of goals")
+    }
+
+    enum class KeyDateType {
+        FAVORABLE, CHALLENGING, IMPORTANT, TRANSIT
     }
 
     data class SolarReturnChart(
@@ -230,89 +287,137 @@ class VarshaphalaCalculator(context: Context) {
         val solarReturnTime: LocalDateTime,
         val solarReturnTimeUtc: LocalDateTime,
         val julianDay: Double,
-        val planetPositions: List<PlanetPosition>,
-        val ascendant: Double,
+        val planetPositions: Map<Planet, SolarReturnPlanetPosition>,
+        val ascendant: ZodiacSign,
+        val ascendantDegree: Double,
         val midheaven: Double,
         val houseCusps: List<Double>,
         val ayanamsa: Double,
-        val isDayBirth: Boolean
+        val isDayBirth: Boolean,
+        val moonSign: ZodiacSign,
+        val moonNakshatra: String
     )
 
-    data class MunthaInfo(
+    data class SolarReturnPlanetPosition(
         val longitude: Double,
         val sign: ZodiacSign,
-        val degreeInSign: Double,
         val house: Int,
+        val degree: Double,
+        val nakshatra: String,
+        val nakshatraPada: Int,
+        val isRetrograde: Boolean,
+        val speed: Double
+    )
+
+    data class MunthaResult(
+        val longitude: Double,
+        val sign: ZodiacSign,
+        val house: Int,
+        val degree: Double,
         val lord: Planet,
-        val lordStrength: Double,
         val lordHouse: Int,
-        val interpretation: String
+        val lordStrength: String,
+        val interpretation: String,
+        val themes: List<String>
     )
 
     data class SahamResult(
-        val saham: Saham,
+        val type: SahamType,
+        val name: String,
+        val sanskritName: String,
+        val formula: String,
         val longitude: Double,
         val sign: ZodiacSign,
-        val degreeInSign: Double,
         val house: Int,
+        val degree: Double,
         val lord: Planet,
-        val interpretation: String
+        val lordHouse: Int,
+        val lordStrength: String,
+        val interpretation: String,
+        val isActive: Boolean,
+        val activationPeriods: List<String>
     )
 
     data class TajikaAspectResult(
+        val type: TajikaAspectType,
         val planet1: Planet,
         val planet2: Planet,
-        val aspect: TajikaAspect,
-        val aspectType: String,
+        val planet1Longitude: Double,
+        val planet2Longitude: Double,
+        val aspectAngle: Int,
         val orb: Double,
         val isApplying: Boolean,
-        val daysToExact: Double,
-        val interpretation: String
+        val strength: AspectStrength,
+        val relatedHouses: List<Int>,
+        val effectDescription: String,
+        val prediction: String
     )
 
     data class MuddaDashaPeriod(
         val planet: Planet,
-        val startDate: LocalDateTime,
-        val endDate: LocalDateTime,
-        val durationDays: Double,
-        val isFirstPeriod: Boolean
+        val startDate: LocalDate,
+        val endDate: LocalDate,
+        val days: Int,
+        val subPeriods: List<MuddaAntardasha>,
+        val planetStrength: String,
+        val houseRuled: List<Int>,
+        val prediction: String,
+        val keywords: List<String>,
+        val isCurrent: Boolean,
+        val progressPercent: Float
+    )
+
+    data class MuddaAntardasha(
+        val planet: Planet,
+        val startDate: LocalDate,
+        val endDate: LocalDate,
+        val days: Int,
+        val interpretation: String
+    )
+
+    data class PanchaVargiyaBala(
+        val planet: Planet,
+        val uchcha: Double,
+        val hadda: Double,
+        val dreshkana: Double,
+        val navamsha: Double,
+        val dwadashamsha: Double,
+        val total: Double,
+        val category: String
+    )
+
+    data class TriPatakiSector(
+        val name: String,
+        val signs: List<ZodiacSign>,
+        val planets: List<Planet>,
+        val influence: String
+    )
+
+    data class TriPatakiChakra(
+        val risingSign: ZodiacSign,
+        val sectors: List<TriPatakiSector>,
+        val dominantInfluence: String,
+        val interpretation: String
     )
 
     data class HousePrediction(
         val house: Int,
         val signOnCusp: ZodiacSign,
-        val cuspDegree: Double,
         val houseLord: Planet,
         val lordPosition: Int,
-        val lordSign: ZodiacSign,
-        val lordIsRetrograde: Boolean,
         val planetsInHouse: List<Planet>,
-        val aspectingPlanets: List<Pair<Planet, String>>,
         val strength: String,
-        val strengthScore: Int,
+        val keywords: List<String>,
         val prediction: String,
-        val keywords: List<String>
+        val rating: Float,
+        val specificEvents: List<String>
     )
 
-    data class PanchaVargiyaBala(
-        val planet: Planet,
-        val haddaBala: Int,
-        val drekkanaBala: Int,
-        val navamsaBala: Int,
-        val dwadasamsaBala: Int,
-        val trimsamsaBala: Int,
-        val totalBala: Int,
-        val classification: String
-    )
-
-    data class TriPatakiChakra(
-        val rashiGroups: Map<String, List<ZodiacSign>>,
-        val planetPlacements: Map<String, List<Planet>>,
-        val sthiraRashis: List<ZodiacSign>,
-        val charRashis: List<ZodiacSign>,
-        val dwiswabhavaRashis: List<ZodiacSign>,
-        val dominantGroup: String,
-        val interpretation: String
+    data class KeyDate(
+        val date: LocalDate,
+        val event: String,
+        val type: KeyDateType,
+        val description: String
     )
 
     data class VarshaphalaResult(
@@ -320,11 +425,12 @@ class VarshaphalaCalculator(context: Context) {
         val year: Int,
         val age: Int,
         val solarReturnChart: SolarReturnChart,
-        val muntha: MunthaInfo,
         val yearLord: Planet,
         val yearLordStrength: String,
-        val yearLordBala: PanchaVargiyaBala,
-        val allPlanetBalas: List<PanchaVargiyaBala>,
+        val yearLordHouse: Int,
+        val yearLordDignity: String,
+        val muntha: MunthaResult,
+        val panchaVargiyaBala: List<PanchaVargiyaBala>,
         val triPatakiChakra: TriPatakiChakra,
         val sahams: List<SahamResult>,
         val tajikaAspects: List<TajikaAspectResult>,
@@ -334,6 +440,8 @@ class VarshaphalaCalculator(context: Context) {
         val favorableMonths: List<Int>,
         val challengingMonths: List<Int>,
         val overallPrediction: String,
+        val yearRating: Float,
+        val keyDates: List<KeyDate>,
         val timestamp: Long = System.currentTimeMillis()
     ) {
         fun toPlainText(): String = buildString {
@@ -344,34 +452,22 @@ class VarshaphalaCalculator(context: Context) {
             appendLine("Name: ${natalChart.birthData.name}")
             appendLine("Year: $year (Age: $age)")
             appendLine("Solar Return: ${solarReturnChart.solarReturnTime}")
-            appendLine("Ayanamsa: ${String.format("%.6f", solarReturnChart.ayanamsa)}°")
+            appendLine("Year Rating: ${String.format("%.1f", yearRating)}/5.0")
             appendLine()
             appendLine("─────────────────────────────────────────────────────────")
             appendLine("                      YEAR LORD")
             appendLine("─────────────────────────────────────────────────────────")
             appendLine("Year Lord: ${yearLord.displayName} ($yearLordStrength)")
-            appendLine("Pancha-Vargiya Bala: ${yearLordBala.totalBala}/20 (${yearLordBala.classification})")
+            appendLine("Position: House $yearLordHouse")
+            appendLine(yearLordDignity)
             appendLine()
             appendLine("─────────────────────────────────────────────────────────")
             appendLine("                       MUNTHA")
             appendLine("─────────────────────────────────────────────────────────")
-            appendLine("Muntha Position: ${String.format("%.2f", muntha.degreeInSign)}° ${muntha.sign.displayName}")
+            appendLine("Muntha Position: ${String.format("%.2f", muntha.degree)}° ${muntha.sign.displayName}")
             appendLine("Muntha House: ${muntha.house}")
             appendLine("Muntha Lord: ${muntha.lord.displayName} in House ${muntha.lordHouse}")
             appendLine(muntha.interpretation)
-            appendLine()
-            appendLine("─────────────────────────────────────────────────────────")
-            appendLine("                  TRI-PATAKI CHAKRA")
-            appendLine("─────────────────────────────────────────────────────────")
-            appendLine("Dominant Group: ${triPatakiChakra.dominantGroup}")
-            appendLine(triPatakiChakra.interpretation)
-            appendLine()
-            appendLine("─────────────────────────────────────────────────────────")
-            appendLine("              PANCHA-VARGIYA BALA (All Planets)")
-            appendLine("─────────────────────────────────────────────────────────")
-            allPlanetBalas.forEach { bala ->
-                appendLine("${bala.planet.displayName.padEnd(10)}: ${bala.totalBala}/20 (${bala.classification})")
-            }
             appendLine()
             appendLine("─────────────────────────────────────────────────────────")
             appendLine("                    MAJOR THEMES")
@@ -379,38 +475,11 @@ class VarshaphalaCalculator(context: Context) {
             majorThemes.forEach { appendLine("• $it") }
             appendLine()
             appendLine("─────────────────────────────────────────────────────────")
-            appendLine("                     SAHAMS")
-            appendLine("─────────────────────────────────────────────────────────")
-            sahams.forEach { saham ->
-                appendLine("${saham.saham.displayName}: ${String.format("%.2f", saham.degreeInSign)}° ${saham.sign.displayName} (House ${saham.house})")
-            }
-            appendLine()
-            appendLine("─────────────────────────────────────────────────────────")
-            appendLine("                   MUDDA DASHA")
+            appendLine("                   MUDDA DASHA PERIODS")
             appendLine("─────────────────────────────────────────────────────────")
             muddaDasha.forEach { period ->
-                val marker = if (period.isFirstPeriod) " (Balance)" else ""
-                appendLine("${period.planet.displayName}: ${period.startDate.toLocalDate()} to ${period.endDate.toLocalDate()} (${String.format("%.1f", period.durationDays)} days)$marker")
-            }
-            appendLine()
-            appendLine("─────────────────────────────────────────────────────────")
-            appendLine("                  TAJIKA ASPECTS")
-            appendLine("─────────────────────────────────────────────────────────")
-            tajikaAspects.take(10).forEach { aspect ->
-                appendLine("${aspect.planet1.displayName} - ${aspect.planet2.displayName}: ${aspect.aspect.displayName} (${aspect.aspectType}, orb ${String.format("%.2f", aspect.orb)}°)")
-            }
-            appendLine()
-            appendLine("─────────────────────────────────────────────────────────")
-            appendLine("                 HOUSE PREDICTIONS")
-            appendLine("─────────────────────────────────────────────────────────")
-            housePredictions.forEach { prediction ->
-                appendLine()
-                appendLine("House ${prediction.house} - ${prediction.signOnCusp.displayName} (${prediction.strength})")
-                appendLine("Lord: ${prediction.houseLord.displayName} in House ${prediction.lordPosition}")
-                if (prediction.planetsInHouse.isNotEmpty()) {
-                    appendLine("Planets: ${prediction.planetsInHouse.joinToString { it.displayName }}")
-                }
-                appendLine(prediction.prediction)
+                val marker = if (period.isCurrent) " [CURRENT]" else ""
+                appendLine("${period.planet.displayName}: ${period.startDate} to ${period.endDate} (${period.days} days)$marker")
             }
             appendLine()
             appendLine("─────────────────────────────────────────────────────────")
@@ -447,37 +516,38 @@ class VarshaphalaCalculator(context: Context) {
             solarReturnTime,
             natalChart.birthData.latitude,
             natalChart.birthData.longitude,
-            natalChart.birthData.timezone
+            natalChart.birthData.timezone,
+            year
         )
 
+        val panchaVargiyaBala = calculateAllPanchaVargiyaBalas(solarReturnChart)
         val muntha = calculateMuntha(natalChart, age, solarReturnChart)
-        val allPlanetBalas = calculateAllPanchaVargiyaBalas(solarReturnChart)
-        val yearLord = determineYearLord(solarReturnChart, muntha, natalChart, allPlanetBalas)
+        val yearLord = determineYearLord(solarReturnChart, muntha, natalChart, panchaVargiyaBala)
+        val yearLordHouse = solarReturnChart.planetPositions[yearLord]?.house ?: 1
         val yearLordStrength = evaluatePlanetStrengthDescription(yearLord, solarReturnChart)
-        val yearLordBala = allPlanetBalas.find { it.planet == yearLord }
-            ?: calculatePanchaVargiyaBala(yearLord, solarReturnChart)
+        val yearLordDignity = getYearLordDignityDescription(yearLord, solarReturnChart)
         val triPatakiChakra = calculateTriPatakiChakra(solarReturnChart)
         val sahams = calculateSahams(solarReturnChart)
         val tajikaAspects = calculateTajikaAspects(solarReturnChart)
-        val muddaDasha = calculateMuddaDasha(solarReturnTime, solarReturnChart)
-        val housePredictions = generateHousePredictions(solarReturnChart, muntha, yearLord, natalChart)
-        val majorThemes = identifyMajorThemes(solarReturnChart, muntha, yearLord, housePredictions, triPatakiChakra)
-        val favorableMonths = determineFavorableMonths(muddaDasha, solarReturnChart)
-        val challengingMonths = determineChallengingMonths(muddaDasha, solarReturnChart)
-        val overallPrediction = generateOverallPrediction(
-            yearLord, muntha, housePredictions, tajikaAspects, age, yearLordBala, triPatakiChakra
-        )
+        val muddaDasha = calculateMuddaDasha(solarReturnChart, solarReturnTime.toLocalDate())
+        val housePredictions = generateHousePredictions(solarReturnChart, muntha, yearLord)
+        val majorThemes = identifyMajorThemes(solarReturnChart, muntha, yearLord, housePredictions, triPatakiChakra, tajikaAspects)
+        val (favorableMonths, challengingMonths) = calculateMonthlyInfluences(solarReturnChart, solarReturnTime)
+        val keyDates = calculateKeyDates(solarReturnChart, solarReturnTime, muddaDasha)
+        val overallPrediction = generateOverallPrediction(solarReturnChart, yearLord, muntha, tajikaAspects, housePredictions)
+        val yearRating = calculateYearRating(solarReturnChart, yearLord, muntha, tajikaAspects, housePredictions)
 
         return VarshaphalaResult(
             natalChart = natalChart,
             year = year,
             age = age,
             solarReturnChart = solarReturnChart,
-            muntha = muntha,
             yearLord = yearLord,
             yearLordStrength = yearLordStrength,
-            yearLordBala = yearLordBala,
-            allPlanetBalas = allPlanetBalas,
+            yearLordHouse = yearLordHouse,
+            yearLordDignity = yearLordDignity,
+            muntha = muntha,
+            panchaVargiyaBala = panchaVargiyaBala,
             triPatakiChakra = triPatakiChakra,
             sahams = sahams,
             tajikaAspects = tajikaAspects,
@@ -486,7 +556,9 @@ class VarshaphalaCalculator(context: Context) {
             majorThemes = majorThemes,
             favorableMonths = favorableMonths,
             challengingMonths = challengingMonths,
-            overallPrediction = overallPrediction
+            overallPrediction = overallPrediction,
+            yearRating = yearRating,
+            keyDates = keyDates
         )
     }
 
@@ -500,6 +572,7 @@ class VarshaphalaCalculator(context: Context) {
         val birthZoned = ZonedDateTime.of(birthDateTime, ZoneId.of(timezone))
         val birthUtc = birthZoned.withZoneSameInstant(ZoneId.of("UTC"))
         val birthJd = calculateJulianDay(birthUtc.toLocalDateTime())
+
         val natalSunLong = getPlanetLongitude(SweConst.SE_SUN, birthJd)
 
         val yearsElapsed = targetYear - birthDateTime.year
@@ -529,6 +602,13 @@ class VarshaphalaCalculator(context: Context) {
         return jdToLocalDateTime(currentJd, timezone)
     }
 
+    private fun getPlanetLongitude(planetId: Int, julianDay: Double): Double {
+        val xx = DoubleArray(6)
+        val serr = StringBuffer()
+        swissEph.swe_calc_ut(julianDay, planetId, SEFLG_SIDEREAL or SEFLG_SPEED, xx, serr)
+        return normalizeAngle(xx[0])
+    }
+
     private fun getSunSpeed(julianDay: Double): Double {
         val xx = DoubleArray(6)
         val serr = StringBuffer()
@@ -540,95 +620,97 @@ class VarshaphalaCalculator(context: Context) {
         solarReturnTime: LocalDateTime,
         latitude: Double,
         longitude: Double,
-        timezone: String
+        timezone: String,
+        year: Int
     ): SolarReturnChart {
         val zonedDateTime = ZonedDateTime.of(solarReturnTime, ZoneId.of(timezone))
         val utcDateTime = zonedDateTime.withZoneSameInstant(ZoneId.of("UTC"))
         val julianDay = calculateJulianDay(utcDateTime.toLocalDateTime())
         val ayanamsa = swissEph.swe_get_ayanamsa_ut(julianDay)
 
-        val planetPositions = mutableListOf<PlanetPosition>()
-        for (planet in Planet.MAIN_PLANETS) {
-            val position = calculatePlanetPosition(planet, julianDay, latitude, longitude)
-            planetPositions.add(position)
-        }
-
-        val cusps = DoubleArray(13)
+        val cusps = DoubleArray(14)
         val ascmc = DoubleArray(10)
-        swissEph.swe_houses(julianDay, SweConst.SEFLG_SIDEREAL, latitude, longitude, 'W'.code, cusps, ascmc)
+        swissEph.swe_houses(julianDay, SEFLG_SIDEREAL, latitude, longitude, 'W'.code, cusps, ascmc)
 
-        val houseCusps = (1..12).map { cusps[it] }
-        val ascendant = cusps[1]
-        val midheaven = ascmc[1]
+        val houseCusps = (1..12).map { normalizeAngle(cusps[it]) }
+        val ascendantDegree = normalizeAngle(cusps[1])
+        val ascendant = getZodiacSignFromLongitude(ascendantDegree)
+        val midheaven = normalizeAngle(ascmc[1])
 
-        val sunPos = planetPositions.find { it.planet == Planet.SUN }?.longitude ?: 0.0
-        val isDayBirth = isDayChart(sunPos, ascendant)
-
-        val positionsWithHouses = planetPositions.map { pos ->
-            pos.copy(house = calculateWholeSignHouse(pos.longitude, ascendant))
+        val planetPositions = mutableMapOf<Planet, SolarReturnPlanetPosition>()
+        for (planet in Planet.MAIN_PLANETS) {
+            val position = calculateSolarReturnPlanetPosition(planet, julianDay, ascendantDegree)
+            planetPositions[planet] = position
         }
+
+        val sunPos = planetPositions[Planet.SUN]?.longitude ?: 0.0
+        val isDayBirth = isDayChart(sunPos, ascendantDegree)
+
+        val moonLong = planetPositions[Planet.MOON]?.longitude ?: 0.0
+        val moonSign = getZodiacSignFromLongitude(moonLong)
+        val (moonNakshatra, _) = Nakshatra.fromLongitude(moonLong)
 
         return SolarReturnChart(
-            year = solarReturnTime.year,
+            year = year,
             solarReturnTime = solarReturnTime,
             solarReturnTimeUtc = utcDateTime.toLocalDateTime(),
             julianDay = julianDay,
-            planetPositions = positionsWithHouses,
+            planetPositions = planetPositions,
             ascendant = ascendant,
+            ascendantDegree = ascendantDegree % 30.0,
             midheaven = midheaven,
             houseCusps = houseCusps,
             ayanamsa = ayanamsa,
-            isDayBirth = isDayBirth
+            isDayBirth = isDayBirth,
+            moonSign = moonSign,
+            moonNakshatra = moonNakshatra.displayName
         )
     }
 
-    private fun calculateWholeSignHouse(longitude: Double, ascendant: Double): Int {
-        val ascSign = (ascendant / 30.0).toInt()
-        val planetSign = (longitude / 30.0).toInt()
-        val house = ((planetSign - ascSign + 12) % 12) + 1
-        return house
-    }
+    private fun calculateSolarReturnPlanetPosition(
+        planet: Planet,
+        julianDay: Double,
+        ascendantLongitude: Double
+    ): SolarReturnPlanetPosition {
+        val xx = DoubleArray(6)
+        val serr = StringBuffer()
 
-    private fun isDayChart(sunLongitude: Double, ascendant: Double): Boolean {
-        val sunSign = (sunLongitude / 30.0).toInt()
-        val ascSign = (ascendant / 30.0).toInt()
-        val houseOfSun = ((sunSign - ascSign + 12) % 12) + 1
-        return houseOfSun in listOf(7, 8, 9, 10, 11, 12, 1)
-    }
+        val planetId = when (planet) {
+            Planet.KETU -> -1
+            else -> planet.swissEphId
+        }
 
-    private fun calculateMuntha(
-        natalChart: VedicChart,
-        age: Int,
-        solarReturnChart: SolarReturnChart
-    ): MunthaInfo {
-        val natalAscLongitude = natalChart.ascendant
-        val progressedLongitude = normalizeAngle360(natalAscLongitude + (age * 30.0))
-        val munthaSign = ZodiacSign.fromLongitude(progressedLongitude)
-        val degreeInSign = progressedLongitude % 30.0
-        val munthaHouse = calculateWholeSignHouse(progressedLongitude, solarReturnChart.ascendant)
-        val munthaLord = munthaSign.ruler
+        if (planetId >= 0) {
+            swissEph.swe_calc_ut(julianDay, planetId, SEFLG_SIDEREAL or SEFLG_SPEED, xx, serr)
+        } else {
+            swissEph.swe_calc_ut(julianDay, SweConst.SE_MEAN_NODE, SEFLG_SIDEREAL or SEFLG_SPEED, xx, serr)
+            xx[0] = normalizeAngle(xx[0] + 180.0)
+            xx[3] = -xx[3]
+        }
 
-        val lordPosition = solarReturnChart.planetPositions.find { it.planet == munthaLord }
-        val lordHouse = lordPosition?.house ?: 1
-        val lordStrength = evaluatePlanetStrengthScore(munthaLord, solarReturnChart)
+        val longitude = normalizeAngle(xx[0])
+        val sign = getZodiacSignFromLongitude(longitude)
+        val house = calculateWholeSignHouse(longitude, ascendantLongitude)
+        val degree = longitude % 30.0
+        val (nakshatra, pada) = Nakshatra.fromLongitude(longitude)
+        val isRetrograde = xx[3] < 0
+        val speed = xx[3]
 
-        val interpretation = generateMunthaInterpretation(munthaSign, munthaHouse, munthaLord, lordHouse)
-
-        return MunthaInfo(
-            longitude = progressedLongitude,
-            sign = munthaSign,
-            degreeInSign = degreeInSign,
-            house = munthaHouse,
-            lord = munthaLord,
-            lordStrength = lordStrength,
-            lordHouse = lordHouse,
-            interpretation = interpretation
+        return SolarReturnPlanetPosition(
+            longitude = longitude,
+            sign = sign,
+            house = house,
+            degree = degree,
+            nakshatra = nakshatra.displayName,
+            nakshatraPada = pada,
+            isRetrograde = isRetrograde,
+            speed = speed
         )
     }
 
     private fun determineYearLord(
         solarReturnChart: SolarReturnChart,
-        muntha: MunthaInfo,
+        muntha: MunthaResult,
         natalChart: VedicChart,
         allBalas: List<PanchaVargiyaBala>
     ): Planet {
@@ -643,12 +725,8 @@ class VarshaphalaCalculator(context: Context) {
             DayOfWeek.SATURDAY -> 6
         }
         val dinaPati = DAY_LORDS[dayIndex]
-
-        val ascSign = ZodiacSign.fromLongitude(solarReturnChart.ascendant)
-        val lagnaPati = ascSign.ruler
-
+        val lagnaPati = solarReturnChart.ascendant.ruler
         val munthaPati = muntha.lord
-
         val natalMoonSign = natalChart.planetPositions.find { it.planet == Planet.MOON }?.sign
             ?: ZodiacSign.ARIES
         val janmaRashiPati = natalMoonSign.ruler
@@ -656,7 +734,7 @@ class VarshaphalaCalculator(context: Context) {
         val candidates = listOf(dinaPati, lagnaPati, munthaPati, janmaRashiPati).distinct()
 
         val candidatesWithStrength = candidates.map { planet ->
-            val bala = allBalas.find { it.planet == planet }?.totalBala ?: 0
+            val bala = allBalas.find { it.planet == planet }?.total ?: 0.0
             val additionalStrength = calculateAdditionalStrength(planet, solarReturnChart)
             planet to (bala + additionalStrength)
         }
@@ -664,21 +742,92 @@ class VarshaphalaCalculator(context: Context) {
         return candidatesWithStrength.maxByOrNull { it.second }?.first ?: dinaPati
     }
 
-    private fun calculateAdditionalStrength(planet: Planet, chart: SolarReturnChart): Int {
-        var strength = 0
-        val position = chart.planetPositions.find { it.planet == planet } ?: return 0
+    private fun calculateAdditionalStrength(planet: Planet, chart: SolarReturnChart): Double {
+        var strength = 0.0
+        val position = chart.planetPositions[planet] ?: return 0.0
 
-        if (position.house in listOf(1, 4, 7, 10)) strength += 5
-        if (position.house in listOf(5, 9)) strength += 3
-        if (position.house in listOf(6, 8, 12)) strength -= 3
+        when (position.house) {
+            1, 4, 7, 10 -> strength += 5.0
+            5, 9 -> strength += 3.0
+            6, 8, 12 -> strength -= 3.0
+        }
 
-        if (position.sign.ruler == planet) strength += 4
-        if (isExalted(planet, position.sign)) strength += 5
-        if (isDebilitated(planet, position.sign)) strength -= 5
-
-        if (!position.isRetrograde) strength += 1
+        if (position.sign.ruler == planet) strength += 4.0
+        if (isExalted(planet, position.sign)) strength += 5.0
+        if (isDebilitated(planet, position.sign)) strength -= 5.0
+        if (!position.isRetrograde) strength += 1.0
 
         return strength
+    }
+
+    private fun calculateMuntha(
+        natalChart: VedicChart,
+        age: Int,
+        solarReturnChart: SolarReturnChart
+    ): MunthaResult {
+        val natalAscLongitude = normalizeAngle(natalChart.ascendant)
+        val progressedLongitude = normalizeAngle(natalAscLongitude + (age * 30.0))
+        val munthaSign = getZodiacSignFromLongitude(progressedLongitude)
+        val degreeInSign = progressedLongitude % 30.0
+        val ascendantLongitude = getStandardZodiacIndex(solarReturnChart.ascendant) * 30.0 + solarReturnChart.ascendantDegree
+        val munthaHouse = calculateWholeSignHouse(progressedLongitude, ascendantLongitude)
+        val munthaLord = munthaSign.ruler
+
+        val lordPosition = solarReturnChart.planetPositions[munthaLord]
+        val lordHouse = lordPosition?.house ?: 1
+        val lordStrength = evaluatePlanetStrengthDescription(munthaLord, solarReturnChart)
+
+        val themes = getMunthaThemes(munthaHouse)
+        val interpretation = generateMunthaInterpretation(munthaSign, munthaHouse, munthaLord, lordHouse, lordStrength)
+
+        return MunthaResult(
+            longitude = progressedLongitude,
+            sign = munthaSign,
+            house = munthaHouse,
+            degree = degreeInSign,
+            lord = munthaLord,
+            lordHouse = lordHouse,
+            lordStrength = lordStrength,
+            interpretation = interpretation,
+            themes = themes
+        )
+    }
+
+    private fun getMunthaThemes(house: Int): List<String> {
+        return when (house) {
+            1 -> listOf("Personal Growth", "New Beginnings", "Health Focus")
+            2 -> listOf("Financial Gains", "Family Matters", "Speech")
+            3 -> listOf("Communication", "Short Travels", "Siblings")
+            4 -> listOf("Home Affairs", "Property", "Inner Peace")
+            5 -> listOf("Creativity", "Romance", "Children")
+            6 -> listOf("Service", "Health Issues", "Competition")
+            7 -> listOf("Partnerships", "Marriage", "Business")
+            8 -> listOf("Transformation", "Research", "Inheritance")
+            9 -> listOf("Fortune", "Long Travel", "Higher Learning")
+            10 -> listOf("Career Advancement", "Recognition", "Authority")
+            11 -> listOf("Gains", "Friends", "Fulfilled Wishes")
+            12 -> listOf("Spirituality", "Foreign Lands", "Expenses")
+            else -> listOf("General Growth")
+        }
+    }
+
+    private fun generateMunthaInterpretation(
+        sign: ZodiacSign,
+        house: Int,
+        lord: Planet,
+        lordHouse: Int,
+        lordStrength: String
+    ): String {
+        val houseSignificance = getHouseSignificance(house)
+        val lordQuality = when (lordStrength) {
+            "Exalted", "Strong" -> "excellent"
+            "Moderate", "Angular" -> "favorable"
+            "Debilitated" -> "challenging but growth-oriented"
+            else -> "variable"
+        }
+
+        return "Muntha in ${sign.displayName} in the ${house}${getOrdinalSuffix(house)} house focuses the year's energy on $houseSignificance. " +
+                "The Muntha lord ${lord.displayName} in house $lordHouse provides $lordQuality support for these matters."
     }
 
     private fun calculateAllPanchaVargiyaBalas(chart: SolarReturnChart): List<PanchaVargiyaBala> {
@@ -687,1268 +836,1283 @@ class VarshaphalaCalculator(context: Context) {
     }
 
     private fun calculatePanchaVargiyaBala(planet: Planet, chart: SolarReturnChart): PanchaVargiyaBala {
-        val position = chart.planetPositions.find { it.planet == planet }
-            ?: return PanchaVargiyaBala(planet, 0, 0, 0, 0, 0, 0, "Unknown")
+        val position = chart.planetPositions[planet]
+            ?: return PanchaVargiyaBala(planet, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "Unknown")
 
-        val longitude = position.longitude
-        val sign = position.sign
-        val degreeInSign = longitude % 30.0
+        val longitude = normalizeAngle(position.longitude)
 
-        val haddaBala = calculateHaddaBala(planet, sign, degreeInSign)
-        val drekkanaBala = calculateDrekkanaBala(planet, sign, degreeInSign)
-        val navamsaBala = calculateNavamsaBala(planet, longitude)
-        val dwadasamsaBala = calculateDwadasamsaBala(planet, longitude)
-        val trimsamsaBala = calculateTrimsamsaBala(planet, sign, degreeInSign)
+        val uchcha = calculateUchchaBala(planet, longitude)
+        val hadda = calculateHaddaBala(planet, position.sign, position.degree)
+        val dreshkana = calculateDrekkanaBala(planet, position.sign, position.degree)
+        val navamsha = calculateNavamshaBala(planet, longitude)
+        val dwadashamsha = calculateDwadashamshabala(planet, longitude)
 
-        val totalBala = haddaBala + drekkanaBala + navamsaBala + dwadasamsaBala + trimsamsaBala
+        val total = uchcha + hadda + dreshkana + navamsha + dwadashamsha
 
-        val classification = when {
-            totalBala >= 15 -> "Poorna Bali (Full Strength)"
-            totalBala >= 10 -> "Ardha Bali (Half Strength)"
-            totalBala >= 5 -> "Alpa Bali (Low Strength)"
-            else -> "Bala Hina (Weak)"
+        val category = when {
+            total >= 15 -> "Excellent"
+            total >= 12 -> "Good"
+            total >= 8 -> "Average"
+            total >= 5 -> "Below Average"
+            else -> "Weak"
         }
 
         return PanchaVargiyaBala(
             planet = planet,
-            haddaBala = haddaBala,
-            drekkanaBala = drekkanaBala,
-            navamsaBala = navamsaBala,
-            dwadasamsaBala = dwadasamsaBala,
-            trimsamsaBala = trimsamsaBala,
-            totalBala = totalBala,
-            classification = classification
+            uchcha = uchcha,
+            hadda = hadda,
+            dreshkana = dreshkana,
+            navamsha = navamsha,
+            dwadashamsha = dwadashamsha,
+            total = total,
+            category = category
         )
     }
 
-    private fun calculateHaddaBala(planet: Planet, sign: ZodiacSign, degree: Double): Int {
-        val haddaRanges = HADDA_LORDS[sign] ?: return 0
+    private fun calculateUchchaBala(planet: Planet, longitude: Double): Double {
+        val exaltationPoint = EXALTATION_DEGREES[planet] ?: return 0.0
+        val normalizedLong = normalizeAngle(longitude)
+        val diff = abs(normalizeAngle(normalizedLong - exaltationPoint))
+        val adjustedDiff = if (diff > 180) 360 - diff else diff
+        return ((180 - adjustedDiff) / 180.0 * 5.0).coerceIn(0.0, 5.0)
+    }
 
-        for ((range, lord) in haddaRanges) {
-            if (degree >= range.first && degree < range.second) {
+    private fun calculateHaddaBala(planet: Planet, sign: ZodiacSign, degree: Double): Double {
+        val haddaRanges = HADDA_LORDS[sign] ?: return 2.0
+
+        for ((start, end, lord) in haddaRanges) {
+            if (degree >= start && degree < end) {
                 return when {
-                    lord == planet -> 4
-                    areFriends(planet, lord) -> 2
-                    areNeutral(planet, lord) -> 1
-                    else -> 0
+                    lord == planet -> 4.0
+                    areFriends(planet, lord) -> 3.0
+                    areNeutral(planet, lord) -> 2.0
+                    else -> 1.0
                 }
             }
         }
-        return 0
+        return 2.0
     }
 
-    private fun calculateDrekkanaBala(planet: Planet, sign: ZodiacSign, degree: Double): Int {
+        private fun calculateDrekkanaBala(planet: Planet, sign: ZodiacSign, degree: Double): Double {
         val drekkanaNumber = when {
             degree < 10 -> 1
             degree < 20 -> 2
             else -> 3
         }
 
-        val drekkanaSignIndex = (sign.number - 1 + (drekkanaNumber - 1) * 4) % 12
-        val drekkanaSign = ZodiacSign.entries[drekkanaSignIndex]
+        val signIndex = getStandardZodiacIndex(sign)
+        val drekkanaSignIndex = (signIndex + (drekkanaNumber - 1) * 4) % 12
+        val drekkanaSign = STANDARD_ZODIAC_SIGNS[drekkanaSignIndex]
         val drekkanaLord = drekkanaSign.ruler
 
         return when {
-            drekkanaLord == planet -> 4
-            areFriends(planet, drekkanaLord) -> 2
-            areNeutral(planet, drekkanaLord) -> 1
-            else -> 0
+            drekkanaLord == planet -> 4.0
+            areFriends(planet, drekkanaLord) -> 3.0
+            areNeutral(planet, drekkanaLord) -> 2.0
+            else -> 1.0
         }
     }
 
-    private fun calculateNavamsaBala(planet: Planet, longitude: Double): Int {
-        val navamsaIndex = ((longitude % 30.0) / 3.333333333).toInt()
-        val signIndex = (longitude / 30.0).toInt()
-        val navamsaSignIndex = (signIndex * 9 + navamsaIndex) % 12
-        val navamsaSign = ZodiacSign.entries[navamsaSignIndex]
-        val navamsaLord = navamsaSign.ruler
+    private fun calculateNavamshaBala(planet: Planet, longitude: Double): Double {
+        val normalizedLong = normalizeAngle(longitude)
+        val degreeInSign = normalizedLong % 30.0
+        val navamshaIndex = (degreeInSign / 3.333333).toInt().coerceIn(0, 8)
+        val signIndex = (normalizedLong / 30.0).toInt().coerceIn(0, 11)
+
+        val startSign = when (signIndex % 4) {
+            0 -> 0
+            1 -> 9
+            2 -> 6
+            else -> 3
+        }
+
+        val navamshaSignIndex = (startSign + navamshaIndex) % 12
+        val navamshaLord = STANDARD_ZODIAC_SIGNS[navamshaSignIndex].ruler
 
         return when {
-            navamsaLord == planet -> 4
-            areFriends(planet, navamsaLord) -> 2
-            areNeutral(planet, navamsaLord) -> 1
-            else -> 0
+            navamshaLord == planet -> 4.0
+            areFriends(planet, navamshaLord) -> 3.0
+            areNeutral(planet, navamshaLord) -> 2.0
+            else -> 1.0
         }
     }
 
-    private fun calculateDwadasamsaBala(planet: Planet, longitude: Double): Int {
-        val d12Index = ((longitude % 30.0) / 2.5).toInt()
-        val signIndex = (longitude / 30.0).toInt()
+    private fun calculateDwadashamshabala(planet: Planet, longitude: Double): Double {
+        val normalizedLong = normalizeAngle(longitude)
+        val degreeInSign = normalizedLong % 30.0
+        val d12Index = (degreeInSign / 2.5).toInt().coerceIn(0, 11)
+        val signIndex = (normalizedLong / 30.0).toInt().coerceIn(0, 11)
         val d12SignIndex = (signIndex + d12Index) % 12
-        val d12Sign = ZodiacSign.entries[d12SignIndex]
-        val d12Lord = d12Sign.ruler
+        val d12Lord = STANDARD_ZODIAC_SIGNS[d12SignIndex].ruler
 
         return when {
-            d12Lord == planet -> 4
-            areFriends(planet, d12Lord) -> 2
-            areNeutral(planet, d12Lord) -> 1
-            else -> 0
+            d12Lord == planet -> 3.0
+            areFriends(planet, d12Lord) -> 2.5
+            areNeutral(planet, d12Lord) -> 1.5
+            else -> 1.0
         }
-    }
-
-    private fun calculateTrimsamsaBala(planet: Planet, sign: ZodiacSign, degree: Double): Int {
-        val isOddSign = sign.number % 2 == 1
-
-        val trimsamsaLord = if (isOddSign) {
-            when {
-                degree < 5 -> Planet.MARS
-                degree < 10 -> Planet.SATURN
-                degree < 18 -> Planet.JUPITER
-                degree < 25 -> Planet.MERCURY
-                else -> Planet.VENUS
-            }
-        } else {
-            when {
-                degree < 5 -> Planet.VENUS
-                degree < 12 -> Planet.MERCURY
-                degree < 20 -> Planet.JUPITER
-                degree < 25 -> Planet.SATURN
-                else -> Planet.MARS
-            }
-        }
-
-        return when {
-            trimsamsaLord == planet -> 4
-            areFriends(planet, trimsamsaLord) -> 2
-            areNeutral(planet, trimsamsaLord) -> 1
-            else -> 0
-        }
-    }
-
-    private fun areFriends(planet1: Planet, planet2: Planet): Boolean {
-        val friendships = mapOf(
-            Planet.SUN to listOf(Planet.MOON, Planet.MARS, Planet.JUPITER),
-            Planet.MOON to listOf(Planet.SUN, Planet.MERCURY),
-            Planet.MARS to listOf(Planet.SUN, Planet.MOON, Planet.JUPITER),
-            Planet.MERCURY to listOf(Planet.SUN, Planet.VENUS),
-            Planet.JUPITER to listOf(Planet.SUN, Planet.MOON, Planet.MARS),
-            Planet.VENUS to listOf(Planet.MERCURY, Planet.SATURN),
-            Planet.SATURN to listOf(Planet.MERCURY, Planet.VENUS)
-        )
-        return friendships[planet1]?.contains(planet2) == true
-    }
-
-    private fun areNeutral(planet1: Planet, planet2: Planet): Boolean {
-        val neutrals = mapOf(
-            Planet.SUN to listOf(Planet.MERCURY),
-            Planet.MOON to listOf(Planet.MARS, Planet.JUPITER, Planet.VENUS, Planet.SATURN),
-            Planet.MARS to listOf(Planet.VENUS, Planet.SATURN),
-            Planet.MERCURY to listOf(Planet.MARS, Planet.JUPITER, Planet.SATURN),
-            Planet.JUPITER to listOf(Planet.SATURN, Planet.MERCURY),
-            Planet.VENUS to listOf(Planet.MARS, Planet.JUPITER),
-            Planet.SATURN to listOf(Planet.JUPITER, Planet.MARS)
-        )
-        return neutrals[planet1]?.contains(planet2) == true
     }
 
     private fun calculateTriPatakiChakra(chart: SolarReturnChart): TriPatakiChakra {
-        val charRashis = listOf(ZodiacSign.ARIES, ZodiacSign.CANCER, ZodiacSign.LIBRA, ZodiacSign.CAPRICORN)
-        val sthiraRashis = listOf(ZodiacSign.TAURUS, ZodiacSign.LEO, ZodiacSign.SCORPIO, ZodiacSign.AQUARIUS)
-        val dwiswabhavaRashis = listOf(ZodiacSign.GEMINI, ZodiacSign.VIRGO, ZodiacSign.SAGITTARIUS, ZodiacSign.PISCES)
+        val ascIndex = getStandardZodiacIndex(chart.ascendant)
 
-        val rashiGroups = mapOf(
-            "Chara (Movable)" to charRashis,
-            "Sthira (Fixed)" to sthiraRashis,
-            "Dwiswabhava (Dual)" to dwiswabhavaRashis
+        val dharmaSigns = listOf(
+            STANDARD_ZODIAC_SIGNS[ascIndex],
+            STANDARD_ZODIAC_SIGNS[(ascIndex + 4) % 12],
+            STANDARD_ZODIAC_SIGNS[(ascIndex + 8) % 12]
         )
 
-        val charPlanets = mutableListOf<Planet>()
-        val sthiraPlanets = mutableListOf<Planet>()
-        val dwiswabhavaPlanets = mutableListOf<Planet>()
-
-        for (position in chart.planetPositions) {
-            when (position.sign) {
-                in charRashis -> charPlanets.add(position.planet)
-                in sthiraRashis -> sthiraPlanets.add(position.planet)
-                in dwiswabhavaRashis -> dwiswabhavaPlanets.add(position.planet)
-                else -> {}
-            }
-        }
-
-        val ascSign = ZodiacSign.fromLongitude(chart.ascendant)
-        when (ascSign) {
-            in charRashis -> charPlanets.add(Planet.SUN)
-            in sthiraRashis -> sthiraPlanets.add(Planet.SUN)
-            in dwiswabhavaRashis -> dwiswabhavaPlanets.add(Planet.SUN)
-            else -> {}
-        }
-
-        val planetPlacements = mapOf(
-            "Chara (Movable)" to charPlanets.toList(),
-            "Sthira (Fixed)" to sthiraPlanets.toList(),
-            "Dwiswabhava (Dual)" to dwiswabhavaPlanets.toList()
+        val arthaSigns = listOf(
+            STANDARD_ZODIAC_SIGNS[(ascIndex + 1) % 12],
+            STANDARD_ZODIAC_SIGNS[(ascIndex + 5) % 12],
+            STANDARD_ZODIAC_SIGNS[(ascIndex + 9) % 12]
         )
 
-        val dominantGroup = when {
-            charPlanets.size >= sthiraPlanets.size && charPlanets.size >= dwiswabhavaPlanets.size -> "Chara (Movable)"
-            sthiraPlanets.size >= charPlanets.size && sthiraPlanets.size >= dwiswabhavaPlanets.size -> "Sthira (Fixed)"
-            else -> "Dwiswabhava (Dual)"
+        val kamaSigns = listOf(
+            STANDARD_ZODIAC_SIGNS[(ascIndex + 2) % 12],
+            STANDARD_ZODIAC_SIGNS[(ascIndex + 6) % 12],
+            STANDARD_ZODIAC_SIGNS[(ascIndex + 10) % 12]
+        )
+
+        fun getPlanetsInSector(signs: List<ZodiacSign>): List<Planet> {
+            return chart.planetPositions.filter { (_, pos) -> pos.sign in signs }.keys.toList()
         }
 
-        val interpretation = when (dominantGroup) {
-            "Chara (Movable)" -> "Year emphasizes new beginnings, travel, changes in residence or career. Active, dynamic period with potential relocations."
-            "Sthira (Fixed)" -> "Year emphasizes stability, consolidation, persistence. Good for completing long-term projects, building lasting foundations."
-            else -> "Year emphasizes flexibility, learning, communication. Dual nature brings both changes and stability in different areas."
+        val dharmaPlanets = getPlanetsInSector(dharmaSigns)
+        val arthaPlanets = getPlanetsInSector(arthaSigns)
+        val kamaPlanets = getPlanetsInSector(kamaSigns)
+
+        val sectors = listOf(
+            TriPatakiSector(
+                name = "Dharma (1, 5, 9)",
+                signs = dharmaSigns,
+                planets = dharmaPlanets,
+                influence = generateSectorInfluence("Dharma", dharmaPlanets)
+            ),
+            TriPatakiSector(
+                name = "Artha (2, 6, 10)",
+                signs = arthaSigns,
+                planets = arthaPlanets,
+                influence = generateSectorInfluence("Artha", arthaPlanets)
+            ),
+            TriPatakiSector(
+                name = "Kama (3, 7, 11)",
+                signs = kamaSigns,
+                planets = kamaPlanets,
+                influence = generateSectorInfluence("Kama", kamaPlanets)
+            )
+        )
+
+        val dominantSector = sectors.maxByOrNull { it.planets.size }
+        val dominantInfluence = when (dominantSector?.name?.take(6)) {
+            "Dharma" -> "Spiritual growth and righteous pursuits dominate"
+            "Artha" -> "Material prosperity and career emphasis"
+            "Kama" -> "Relationships and desires take center stage"
+            else -> "Balanced influences across all areas"
         }
+
+        val interpretation = buildTriPatakiInterpretation(sectors)
 
         return TriPatakiChakra(
-            rashiGroups = rashiGroups,
-            planetPlacements = planetPlacements,
-            sthiraRashis = sthiraRashis,
-            charRashis = charRashis,
-            dwiswabhavaRashis = dwiswabhavaRashis,
-            dominantGroup = dominantGroup,
+            risingSign = chart.ascendant,
+            sectors = sectors,
+            dominantInfluence = dominantInfluence,
             interpretation = interpretation
         )
     }
 
-    private fun calculateSahams(chart: SolarReturnChart): List<SahamResult> {
-        val ascendant = chart.ascendant
-        val sunPos = chart.planetPositions.find { it.planet == Planet.SUN }?.longitude ?: 0.0
-        val moonPos = chart.planetPositions.find { it.planet == Planet.MOON }?.longitude ?: 0.0
-        val marsPos = chart.planetPositions.find { it.planet == Planet.MARS }?.longitude ?: 0.0
-        val mercuryPos = chart.planetPositions.find { it.planet == Planet.MERCURY }?.longitude ?: 0.0
-        val jupiterPos = chart.planetPositions.find { it.planet == Planet.JUPITER }?.longitude ?: 0.0
-        val venusPos = chart.planetPositions.find { it.planet == Planet.VENUS }?.longitude ?: 0.0
-        val saturnPos = chart.planetPositions.find { it.planet == Planet.SATURN }?.longitude ?: 0.0
-
-        val punyaLong = if (chart.isDayBirth) {
-            normalizeAngle360(ascendant + moonPos - sunPos)
-        } else {
-            normalizeAngle360(ascendant + sunPos - moonPos)
+    private fun generateSectorInfluence(sectorName: String, planets: List<Planet>): String {
+        if (planets.isEmpty()) {
+            return "No planets in $sectorName sector - quieter year for these matters."
         }
 
-        return listOf(
-            createSaham(Saham.PUNYA, punyaLong, chart),
-            createSaham(Saham.VIDYA, normalizeAngle360(ascendant + mercuryPos - jupiterPos), chart),
-            createSaham(Saham.YASHAS, normalizeAngle360(ascendant + jupiterPos - punyaLong), chart),
-            createSaham(Saham.KARMA, normalizeAngle360(ascendant + saturnPos - sunPos), chart),
-            createSaham(Saham.VIVAHA, normalizeAngle360(ascendant + saturnPos - venusPos), chart),
-            createSaham(Saham.SANTANA, normalizeAngle360(ascendant + moonPos - jupiterPos), chart),
-            createSaham(Saham.ROGA, normalizeAngle360(ascendant + saturnPos - marsPos), chart),
-            createSaham(Saham.MITRA, normalizeAngle360(ascendant + jupiterPos - mercuryPos), chart),
-            createSaham(Saham.PITRI, if (chart.isDayBirth) normalizeAngle360(ascendant + saturnPos - sunPos) else normalizeAngle360(ascendant + sunPos - saturnPos), chart),
-            createSaham(Saham.MATRI, if (chart.isDayBirth) normalizeAngle360(ascendant + moonPos - venusPos) else normalizeAngle360(ascendant + venusPos - moonPos), chart),
-            createSaham(Saham.PARADESA, normalizeAngle360(ascendant + saturnPos - moonPos), chart),
-            createSaham(Saham.DHANA, normalizeAngle360(ascendant + moonPos - jupiterPos), chart),
-            createSaham(Saham.MRITYU, normalizeAngle360(ascendant + moonPos + (8 * 30) - saturnPos), chart),
-            createSaham(Saham.KARYASIDDHI, normalizeAngle360(ascendant + saturnPos - sunPos + moonPos), chart)
-        )
+        val benefics = planets.filter { it in listOf(Planet.JUPITER, Planet.VENUS, Planet.MOON, Planet.MERCURY) }
+        val malefics = planets.filter { it in listOf(Planet.SATURN, Planet.MARS, Planet.RAHU, Planet.KETU) }
+
+        return when {
+            benefics.size > malefics.size -> "Benefic ${benefics.joinToString { it.displayName }} bring favorable influences."
+            malefics.size > benefics.size -> "Malefic ${malefics.joinToString { it.displayName }} bring challenges requiring effort."
+            else -> "Mixed influences suggest variable results."
+        }
     }
 
-    private fun createSaham(saham: Saham, longitude: Double, chart: SolarReturnChart): SahamResult {
-        val normalizedLong = normalizeAngle360(longitude)
-        val sign = ZodiacSign.fromLongitude(normalizedLong)
-        val degreeInSign = normalizedLong % 30.0
-        val house = calculateWholeSignHouse(normalizedLong, chart.ascendant)
-        val lord = sign.ruler
+    private fun buildTriPatakiInterpretation(sectors: List<TriPatakiSector>): String {
+        val interpretations = mutableListOf<String>()
 
-        return SahamResult(
-            saham = saham,
-            longitude = normalizedLong,
-            sign = sign,
-            degreeInSign = degreeInSign,
-            house = house,
-            lord = lord,
-            interpretation = generateSahamInterpretation(saham, sign, house, lord)
+        sectors.forEach { sector ->
+            if (sector.planets.isNotEmpty()) {
+                val areaName = when {
+                    sector.name.startsWith("Dharma") -> "righteousness, fortune, and higher learning"
+                    sector.name.startsWith("Artha") -> "wealth, career, and practical achievements"
+                    else -> "relationships, desires, and social connections"
+                }
+                interpretations.add("${sector.planets.size} planet(s) in ${sector.name.take(6)} trikona emphasizes $areaName.")
+            }
+        }
+
+        return if (interpretations.isNotEmpty()) {
+            interpretations.joinToString(" ")
+        } else {
+            "Balanced distribution of planetary energies across all life sectors."
+        }
+    }
+
+    private fun calculateSahams(chart: SolarReturnChart): List<SahamResult> {
+        val sahams = mutableListOf<SahamResult>()
+        val isDayBirth = chart.isDayBirth
+
+        val sunLong = chart.planetPositions[Planet.SUN]?.longitude ?: 0.0
+        val moonLong = chart.planetPositions[Planet.MOON]?.longitude ?: 0.0
+        val marsLong = chart.planetPositions[Planet.MARS]?.longitude ?: 0.0
+        val mercuryLong = chart.planetPositions[Planet.MERCURY]?.longitude ?: 0.0
+        val jupiterLong = chart.planetPositions[Planet.JUPITER]?.longitude ?: 0.0
+        val venusLong = chart.planetPositions[Planet.VENUS]?.longitude ?: 0.0
+        val saturnLong = chart.planetPositions[Planet.SATURN]?.longitude ?: 0.0
+        val ascLong = getStandardZodiacIndex(chart.ascendant) * 30.0 + chart.ascendantDegree
+
+        val sahamFormulas = listOf(
+            Triple(SahamType.PUNYA, { if (isDayBirth) moonLong + ascLong - sunLong else sunLong + ascLong - moonLong }, "Moon + Asc - Sun"),
+            Triple(SahamType.VIDYA, { if (isDayBirth) mercuryLong + ascLong - sunLong else sunLong + ascLong - mercuryLong }, "Mercury + Asc - Sun"),
+            Triple(SahamType.YASHAS, { if (isDayBirth) jupiterLong + ascLong - sunLong else sunLong + ascLong - jupiterLong }, "Jupiter + Asc - Sun"),
+            Triple(SahamType.MITRA, { if (isDayBirth) moonLong + ascLong - mercuryLong else mercuryLong + ascLong - moonLong }, "Moon + Asc - Mercury"),
+            Triple(SahamType.DHANA, { if (isDayBirth) jupiterLong + ascLong - moonLong else moonLong + ascLong - jupiterLong }, "Jupiter + Asc - Moon"),
+            Triple(SahamType.KARMA, { if (isDayBirth) saturnLong + ascLong - sunLong else sunLong + ascLong - saturnLong }, "Saturn + Asc - Sun"),
+            Triple(SahamType.VIVAHA, { if (isDayBirth) venusLong + ascLong - saturnLong else saturnLong + ascLong - venusLong }, "Venus + Asc - Saturn"),
+            Triple(SahamType.PUTRA, { if (isDayBirth) jupiterLong + ascLong - moonLong else moonLong + ascLong - jupiterLong }, "Jupiter + Asc - Moon"),
+            Triple(SahamType.PITRI, { if (isDayBirth) saturnLong + ascLong - sunLong else sunLong + ascLong - saturnLong }, "Saturn + Asc - Sun"),
+            Triple(SahamType.MATRI, { if (isDayBirth) moonLong + ascLong - venusLong else venusLong + ascLong - moonLong }, "Moon + Asc - Venus"),
+            Triple(SahamType.SAMARTHA, { if (isDayBirth) marsLong + ascLong - saturnLong else saturnLong + ascLong - marsLong }, "Mars + Asc - Saturn"),
+            Triple(SahamType.ASHA, { if (isDayBirth) saturnLong + ascLong - venusLong else venusLong + ascLong - saturnLong }, "Saturn + Asc - Venus"),
+            Triple(SahamType.ROGA, { if (isDayBirth) saturnLong + ascLong - marsLong else marsLong + ascLong - saturnLong }, "Saturn + Asc - Mars"),
+            Triple(SahamType.RAJA, { if (isDayBirth) sunLong + ascLong - saturnLong else saturnLong + ascLong - sunLong }, "Sun + Asc - Saturn"),
+            Triple(SahamType.MRITYU, { if (isDayBirth) saturnLong + ascLong - moonLong else moonLong + ascLong - saturnLong }, "Saturn + Asc - Moon"),
+            Triple(SahamType.BHRATRI, { if (isDayBirth) jupiterLong + ascLong - saturnLong else saturnLong + ascLong - jupiterLong }, "Jupiter + Asc - Saturn"),
+            Triple(SahamType.MAHATMYA, { if (isDayBirth) jupiterLong + ascLong - moonLong else moonLong + ascLong - jupiterLong }, "Jupiter + Asc - Moon"),
+            Triple(SahamType.KARYASIDDHI, { if (isDayBirth) saturnLong + ascLong - sunLong else sunLong + ascLong - saturnLong }, "Saturn + Asc - Sun")
         )
+
+        for ((type, formula, formulaStr) in sahamFormulas) {
+            try {
+                val longitude = normalizeAngle(formula())
+                val sign = getZodiacSignFromLongitude(longitude)
+                val house = calculateWholeSignHouse(longitude, ascLong)
+                val degree = longitude % 30.0
+                val lord = sign.ruler
+                val lordHouse = chart.planetPositions[lord]?.house ?: 1
+                val lordStrength = evaluatePlanetStrengthDescription(lord, chart)
+
+                val isActive = isSahamActive(lord, chart, house)
+                val interpretation = generateSahamInterpretation(type, sign, house, lord, lordHouse, lordStrength)
+                val activationPeriods = getSahamActivationPeriods(lord)
+
+                sahams.add(
+                    SahamResult(
+                        type = type,
+                        name = type.displayName,
+                        sanskritName = type.sanskritName,
+                        formula = formulaStr,
+                        longitude = longitude,
+                        sign = sign,
+                        house = house,
+                        degree = degree,
+                        lord = lord,
+                        lordHouse = lordHouse,
+                        lordStrength = lordStrength,
+                        interpretation = interpretation,
+                        isActive = isActive,
+                        activationPeriods = activationPeriods
+                    )
+                )
+            } catch (e: Exception) {
+                // Skip sahams that can't be calculated
+            }
+        }
+
+        return sahams.sortedByDescending { it.isActive }
+    }
+
+    private fun isSahamActive(lord: Planet, chart: SolarReturnChart, house: Int): Boolean {
+        val lordPosition = chart.planetPositions[lord] ?: return false
+        val lordStrength = evaluatePlanetStrengthDescription(lord, chart)
+
+        val isLordStrong = lordStrength in listOf("Exalted", "Strong", "Angular")
+        val isInGoodHouse = house in listOf(1, 2, 4, 5, 7, 9, 10, 11)
+        val isLordWellPlaced = lordPosition.house in listOf(1, 4, 5, 7, 9, 10, 11)
+
+        return (isLordStrong && isInGoodHouse) || (isLordWellPlaced && !lordPosition.isRetrograde)
+    }
+
+    private fun generateSahamInterpretation(
+        type: SahamType,
+        sign: ZodiacSign,
+        house: Int,
+        lord: Planet,
+        lordHouse: Int,
+        lordStrength: String
+    ): String {
+        val lordQuality = when (lordStrength) {
+            "Exalted", "Strong" -> "well-placed, promising positive outcomes"
+            "Moderate", "Angular" -> "providing reasonable support"
+            "Debilitated", "Weak" -> "requiring attention and effort"
+            else -> "influencing matters variably"
+        }
+
+        return "The ${type.displayName} Saham in ${sign.displayName} (House $house) relates to ${type.description.lowercase()} this year. " +
+                "Its lord ${lord.displayName} in House $lordHouse is $lordQuality."
+    }
+
+    private fun getSahamActivationPeriods(lord: Planet): List<String> {
+        val periods = mutableListOf<String>()
+        if (lord in MUDDA_DASHA_PLANETS) {
+            periods.add("${lord.displayName} Mudda Dasha")
+        }
+        return periods
     }
 
     private fun calculateTajikaAspects(chart: SolarReturnChart): List<TajikaAspectResult> {
         val aspects = mutableListOf<TajikaAspectResult>()
-        val planets = Planet.MAIN_PLANETS
+        val planets = listOf(
+            Planet.SUN, Planet.MOON, Planet.MARS, Planet.MERCURY,
+            Planet.JUPITER, Planet.VENUS, Planet.SATURN
+        )
+
+        val aspectAngles = listOf(0, 60, 90, 120, 180)
 
         for (i in planets.indices) {
             for (j in (i + 1) until planets.size) {
                 val planet1 = planets[i]
                 val planet2 = planets[j]
 
-                val pos1 = chart.planetPositions.find { it.planet == planet1 } ?: continue
-                val pos2 = chart.planetPositions.find { it.planet == planet2 } ?: continue
+                val pos1 = chart.planetPositions[planet1] ?: continue
+                val pos2 = chart.planetPositions[planet2] ?: continue
 
-                val aspectResult = analyzeTajikaAspect(pos1, pos2, chart)
-                if (aspectResult != null) {
-                    aspects.add(aspectResult)
+                val diff = abs(normalizeAngle(pos1.longitude - pos2.longitude))
+
+                for (angle in aspectAngles) {
+                    val maxOrb = when (angle) {
+                        0 -> CONJUNCTION_ORB
+                        60 -> SEXTILE_ORB
+                        90 -> SQUARE_ORB
+                        120 -> TRINE_ORB
+                        180 -> OPPOSITION_ORB
+                        else -> 5.0
+                    }
+
+                    val actualOrb = abs(diff - angle)
+                    val reverseOrb = abs(diff - (360 - angle))
+                    val effectiveOrb = min(actualOrb, reverseOrb)
+
+                    if (effectiveOrb <= maxOrb) {
+                        val isApplying = determineTajikaApplication(pos1.longitude, pos2.longitude, pos1.speed, pos2.speed)
+
+                        val aspectType = determineTajikaAspectType(
+                            planet1, planet2, pos1, pos2, isApplying, effectiveOrb, angle, chart
+                        )
+
+                        val strength = calculateAspectStrength(effectiveOrb, maxOrb, angle, isApplying)
+                        val relatedHouses = listOf(pos1.house, pos2.house).distinct()
+                        val effectDescription = getAspectEffectDescription(aspectType, planet1, planet2)
+                        val prediction = generateAspectPrediction(aspectType, planet1, planet2, relatedHouses)
+
+                        aspects.add(
+                            TajikaAspectResult(
+                                type = aspectType,
+                                planet1 = planet1,
+                                planet2 = planet2,
+                                planet1Longitude = pos1.longitude,
+                                planet2Longitude = pos2.longitude,
+                                aspectAngle = angle,
+                                orb = effectiveOrb,
+                                isApplying = isApplying,
+                                strength = strength,
+                                relatedHouses = relatedHouses,
+                                effectDescription = effectDescription,
+                                prediction = prediction
+                            )
+                        )
+                    }
                 }
             }
         }
 
-        return aspects.sortedBy { it.orb }
+        return aspects.sortedByDescending { it.strength.weight }
     }
 
-    private fun analyzeTajikaAspect(
-        pos1: PlanetPosition,
-        pos2: PlanetPosition,
-        chart: SolarReturnChart
-    ): TajikaAspectResult? {
-        val long1 = pos1.longitude
-        val long2 = pos2.longitude
-        var diff = abs(long1 - long2)
-        if (diff > 180) diff = 360 - diff
-
-        val aspectInfo = when {
-            diff <= CONJUNCTION_ORB -> "Conjunction" to diff
-            abs(diff - 60) <= SEXTILE_ORB -> "Sextile" to abs(diff - 60)
-            abs(diff - 90) <= SQUARE_ORB -> "Square" to abs(diff - 90)
-            abs(diff - 120) <= TRINE_ORB -> "Trine" to abs(diff - 120)
-            abs(diff - 180) <= OPPOSITION_ORB -> "Opposition" to abs(diff - 180)
-            else -> return null
-        }
-
-        val (aspectType, orb) = aspectInfo
-
-        val speed1 = pos1.speed
-        val speed2 = pos2.speed
-
-        val fasterPlanet = if (abs(speed1) > abs(speed2)) pos1 else pos2
-        val slowerPlanet = if (fasterPlanet == pos1) pos2 else pos1
-
-        val fasterLong = fasterPlanet.longitude
-        val slowerLong = slowerPlanet.longitude
-        val fasterSpeed = fasterPlanet.speed
-        val slowerSpeed = slowerPlanet.speed
-
-        var angularDistance = slowerLong - fasterLong
-        if (angularDistance < -180) angularDistance += 360
-        if (angularDistance > 180) angularDistance -= 360
-
-        val closingSpeed = fasterSpeed - slowerSpeed
-        val isApplying = (angularDistance > 0 && closingSpeed > 0) || (angularDistance < 0 && closingSpeed < 0)
-
-        val daysToExact = if (closingSpeed != 0.0) {
-            abs(orb / closingSpeed)
-        } else {
-            365.0
-        }
-
-        val tajikaAspect = determineTajikaAspectType(pos1, pos2, isApplying, orb, chart)
-
-        val interpretation = generateTajikaInterpretation(
-            pos1.planet, pos2.planet, tajikaAspect, aspectType, isApplying
-        )
-
-        return TajikaAspectResult(
-            planet1 = pos1.planet,
-            planet2 = pos2.planet,
-            aspect = tajikaAspect,
-            aspectType = aspectType,
-            orb = orb,
-            isApplying = isApplying,
-            daysToExact = daysToExact,
-            interpretation = interpretation
-        )
+    private fun determineTajikaApplication(long1: Double, long2: Double, speed1: Double, speed2: Double): Boolean {
+        val diff = normalizeAngle(long2 - long1)
+        return if (diff < 180) speed1 > speed2 else speed2 > speed1
     }
 
     private fun determineTajikaAspectType(
-        pos1: PlanetPosition,
-        pos2: PlanetPosition,
+        planet1: Planet,
+        planet2: Planet,
+        pos1: SolarReturnPlanetPosition,
+        pos2: SolarReturnPlanetPosition,
         isApplying: Boolean,
         orb: Double,
+        angle: Int,
         chart: SolarReturnChart
-    ): TajikaAspect {
-        if (pos1.isRetrograde && pos2.isRetrograde) {
-            return TajikaAspect.KHALASARA
-        }
+    ): TajikaAspectType {
+        val isAngular1 = pos1.house in listOf(1, 4, 7, 10)
+        val isAngular2 = pos2.house in listOf(1, 4, 7, 10)
+        val hasReception = checkMutualReception(planet1, planet2, pos1.sign, pos2.sign)
 
-        if (pos1.isRetrograde || pos2.isRetrograde) {
-            return TajikaAspect.RADDA
-        }
-
-        if (!isApplying) {
-            return TajikaAspect.EASARAPHA
-        }
-
-        val hasReception = checkMutualReception(pos1, pos2)
-        if (hasReception) {
-            return TajikaAspect.KAMBOOLA
-        }
-
-        val hasMaleficIntervention = checkMaleficIntervention(pos1, pos2, chart)
-        if (hasMaleficIntervention) {
-            return TajikaAspect.DUKPHALI
-        }
-
-        return TajikaAspect.ITHASALA
-    }
-
-    private fun checkMutualReception(pos1: PlanetPosition, pos2: PlanetPosition): Boolean {
-        val sign1Lord = pos1.sign.ruler
-        val sign2Lord = pos2.sign.ruler
-        return (sign1Lord == pos2.planet && sign2Lord == pos1.planet)
-    }
-
-    private fun checkMaleficIntervention(
-        pos1: PlanetPosition,
-        pos2: PlanetPosition,
-        chart: SolarReturnChart
-    ): Boolean {
-        val malefics = listOf(Planet.SATURN, Planet.MARS, Planet.RAHU, Planet.KETU)
-        val minLong = minOf(pos1.longitude, pos2.longitude)
-        val maxLong = maxOf(pos1.longitude, pos2.longitude)
-
-        for (malefic in malefics) {
-            if (malefic == pos1.planet || malefic == pos2.planet) continue
-            val maleficPos = chart.planetPositions.find { it.planet == malefic } ?: continue
-            val maleficLong = maleficPos.longitude
-
-            if (maxLong - minLong <= 180) {
-                if (maleficLong in minLong..maxLong) return true
-            } else {
-                if (maleficLong >= maxLong || maleficLong <= minLong) return true
+        return when {
+            isApplying && angle == 0 && orb < 3 -> {
+                if (isAngular1 || isAngular2) TajikaAspectType.KAMBOOLA else TajikaAspectType.ITHASALA
             }
+            isApplying && orb < 5 -> {
+                if (hasReception) TajikaAspectType.NAKTA else TajikaAspectType.ITHASALA
+            }
+            !isApplying && orb < 5 -> TajikaAspectType.EASARAPHA
+            pos1.isRetrograde || pos2.isRetrograde -> TajikaAspectType.RADDA
+            pos1.speed < pos2.speed && isApplying -> TajikaAspectType.MANAU
+            isApplying && hasReception -> TajikaAspectType.MUTHASHILA
+            angle == 90 || angle == 180 -> TajikaAspectType.DURAPHA
+            isAngular1 && isAngular2 && !isApplying -> TajikaAspectType.GAIRI_KAMBOOLA
+            else -> if (isApplying) TajikaAspectType.ITHASALA else TajikaAspectType.EASARAPHA
         }
-        return false
     }
 
-    private fun calculateMuddaDasha(
-        solarReturnTime: LocalDateTime,
-        chart: SolarReturnChart
-    ): List<MuddaDashaPeriod> {
-        val moonPos = chart.planetPositions.find { it.planet == Planet.MOON }
-            ?: return emptyList()
+    private fun checkMutualReception(planet1: Planet, planet2: Planet, sign1: ZodiacSign, sign2: ZodiacSign): Boolean {
+        return sign1.ruler == planet2 && sign2.ruler == planet1
+    }
 
-        val moonLongitude = moonPos.longitude
-        val (nakshatra, pada) = Nakshatra.fromLongitude(moonLongitude)
-        val nakshatraLord = nakshatra.ruler
+    private fun calculateAspectStrength(orb: Double, maxOrb: Double, angle: Int, isApplying: Boolean): AspectStrength {
+        val orbRatio = orb / maxOrb
+        val angleBonus = when (angle) {
+            0, 120 -> 0.2
+            60 -> 0.1
+            90, 180 -> -0.1
+            else -> 0.0
+        }
+        val applyingBonus = if (isApplying) 0.1 else 0.0
 
-        val nakshatraStartDegree = nakshatra.startDegree
-        val progressInNakshatra = moonLongitude - nakshatraStartDegree
-        val nakshatraSpan = 13.333333333
-        val progressRatio = progressInNakshatra / nakshatraSpan
+        val strength = 1.0 - orbRatio + angleBonus + applyingBonus
 
-        val lordYears = VIMSHOTTARI_YEARS[nakshatraLord] ?: 10
-        val totalDashaYears = 120.0
-        val yearDays = 365.25
+        return when {
+            strength >= 0.9 -> AspectStrength.VERY_STRONG
+            strength >= 0.7 -> AspectStrength.STRONG
+            strength >= 0.5 -> AspectStrength.MODERATE
+            strength >= 0.3 -> AspectStrength.WEAK
+            else -> AspectStrength.VERY_WEAK
+        }
+    }
 
-        val lordTotalDays = (lordYears / totalDashaYears) * yearDays
-        val elapsedDays = progressRatio * lordTotalDays
-        val balanceDays = lordTotalDays - elapsedDays
+    private fun getAspectEffectDescription(type: TajikaAspectType, planet1: Planet, planet2: Planet): String {
+        return when (type) {
+            TajikaAspectType.ITHASALA -> "${planet1.displayName} applying to ${planet2.displayName} promises fulfillment"
+            TajikaAspectType.EASARAPHA -> "Separating aspect suggests matters are concluding"
+            TajikaAspectType.KAMBOOLA -> "Powerful angular conjunction promises prominent success"
+            TajikaAspectType.RADDA -> "Retrograde motion causes delays or reversals"
+            TajikaAspectType.DURAPHA -> "Hard aspect creates challenges that strengthen through difficulty"
+            else -> "${type.displayName} influences matters with ${if (type.isPositive) "supportive" else "challenging"} energy"
+        }
+    }
 
-        val lordIndex = VIMSHOTTARI_ORDER.indexOf(nakshatraLord)
-        val orderedPlanets = (0 until 9).map { VIMSHOTTARI_ORDER[(lordIndex + it) % 9] }
+    private fun generateAspectPrediction(type: TajikaAspectType, planet1: Planet, planet2: Planet, houses: List<Int>): String {
+        val houseStr = houses.joinToString(" and ") { "House $it" }
+        val quality = if (type.isPositive) "favorable" else "requiring attention"
+
+        return "The ${type.displayName} between ${planet1.displayName} and ${planet2.displayName} is $quality for matters of $houseStr."
+    }
+
+    private fun calculateMuddaDasha(chart: SolarReturnChart, startDate: LocalDate): List<MuddaDashaPeriod> {
+        val totalDays = 360
+        val today = LocalDate.now()
+
+        val moonLong = chart.planetPositions[Planet.MOON]?.longitude ?: 0.0
+        val (nakshatra, _) = Nakshatra.fromLongitude(moonLong)
+        val startingLord = nakshatra.ruler
+
+        val startIndex = MUDDA_DASHA_PLANETS.indexOf(startingLord).let { 
+            if (it >= 0) it else 0 
+        }
 
         val periods = mutableListOf<MuddaDashaPeriod>()
-        var currentDateTime = solarReturnTime
-        var isFirstPeriod = true
+        var currentDate = startDate
 
-        for (planet in orderedPlanets) {
-            val planetYears = VIMSHOTTARI_YEARS[planet] ?: 10
-            val fullDays = (planetYears / totalDashaYears) * yearDays
+        for (i in MUDDA_DASHA_PLANETS.indices) {
+            val planetIndex = (startIndex + i) % MUDDA_DASHA_PLANETS.size
+            val planet = MUDDA_DASHA_PLANETS[planetIndex]
+            val baseDays = MUDDA_DASHA_DAYS[planet] ?: 30
+            val days = (baseDays * totalDays / 360).coerceAtLeast(1)
 
-            val actualDays = if (isFirstPeriod) {
-                val firstPlanetDays = if (planet == nakshatraLord) balanceDays else fullDays
-                firstPlanetDays
+            val endDate = currentDate.plusDays(days.toLong() - 1)
+            val isCurrent = !today.isBefore(currentDate) && !today.isAfter(endDate)
+
+            val progressPercent = if (isCurrent) {
+                val daysPassed = ChronoUnit.DAYS.between(currentDate, today).toFloat()
+                (daysPassed / days).coerceIn(0f, 1f)
+            } else if (today.isAfter(endDate)) {
+                1f
             } else {
-                fullDays
+                0f
             }
 
-            val endDateTime = currentDateTime.plusSeconds((actualDays * 86400).roundToLong())
+            val subPeriods = calculateMuddaAntardasha(planet, currentDate, endDate)
+            val planetStrength = evaluatePlanetStrengthDescription(planet, chart)
+            val houseRuled = getHousesRuledBy(planet, chart)
+            val prediction = generateDashaPrediction(planet, chart, planetStrength)
+            val keywords = getDashaKeywords(planet, chart)
 
             periods.add(
                 MuddaDashaPeriod(
                     planet = planet,
-                    startDate = currentDateTime,
-                    endDate = endDateTime,
-                    durationDays = actualDays,
-                    isFirstPeriod = isFirstPeriod && planet == nakshatraLord
+                    startDate = currentDate,
+                    endDate = endDate,
+                    days = days,
+                    subPeriods = subPeriods,
+                    planetStrength = planetStrength,
+                    houseRuled = houseRuled,
+                    prediction = prediction,
+                    keywords = keywords,
+                    isCurrent = isCurrent,
+                    progressPercent = progressPercent
                 )
             )
 
-            currentDateTime = endDateTime
-
-            if (isFirstPeriod && planet == nakshatraLord) {
-                isFirstPeriod = false
-            } else if (isFirstPeriod) {
-                isFirstPeriod = false
-            }
+            currentDate = endDate.plusDays(1)
         }
 
         return periods
     }
 
+    private fun calculateMuddaAntardasha(
+        mainPlanet: Planet,
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): List<MuddaAntardasha> {
+        val totalDays = ChronoUnit.DAYS.between(startDate, endDate).toInt().coerceAtLeast(1)
+        val subPeriods = mutableListOf<MuddaAntardasha>()
+
+        val startIndex = MUDDA_DASHA_PLANETS.indexOf(mainPlanet).let {
+            if (it >= 0) it else 0
+        }
+        
+        var currentDate = startDate
+        val subDays = (totalDays / MUDDA_DASHA_PLANETS.size).coerceAtLeast(1)
+
+        for (i in MUDDA_DASHA_PLANETS.indices) {
+            val planetIndex = (startIndex + i) % MUDDA_DASHA_PLANETS.size
+            val planet = MUDDA_DASHA_PLANETS[planetIndex]
+
+            val actualSubDays = if (i == MUDDA_DASHA_PLANETS.size - 1) {
+                ChronoUnit.DAYS.between(currentDate, endDate).toInt().coerceAtLeast(1)
+            } else {
+                subDays
+            }
+
+            val subEndDate = currentDate.plusDays(actualSubDays.toLong() - 1).let {
+                if (it.isAfter(endDate)) endDate else it
+            }
+
+            subPeriods.add(
+                MuddaAntardasha(
+                    planet = planet,
+                    startDate = currentDate,
+                    endDate = subEndDate,
+                    days = actualSubDays,
+                    interpretation = "${mainPlanet.displayName}-${planet.displayName} period"
+                )
+            )
+
+            currentDate = subEndDate.plusDays(1)
+            if (currentDate.isAfter(endDate)) break
+        }
+
+        return subPeriods
+    }
+
+    private fun getHousesRuledBy(planet: Planet, chart: SolarReturnChart): List<Int> {
+        val houses = mutableListOf<Int>()
+        val ascendantIndex = getStandardZodiacIndex(chart.ascendant)
+
+        for (i in 0..11) {
+            val signIndex = (ascendantIndex + i) % 12
+            val sign = STANDARD_ZODIAC_SIGNS[signIndex]
+            if (sign.ruler == planet) {
+                houses.add(i + 1)
+            }
+        }
+
+        return houses
+    }
+
+    private fun generateDashaPrediction(planet: Planet, chart: SolarReturnChart, strength: String): String {
+        val position = chart.planetPositions[planet]
+        val house = position?.house ?: 1
+
+        val planetNature = when (planet) {
+            Planet.SUN -> "vitality, authority, and self-expression"
+            Planet.MOON -> "emotions, nurturing, and public connections"
+            Planet.MARS -> "energy, initiative, and competitive drive"
+            Planet.MERCURY -> "communication, learning, and business"
+            Planet.JUPITER -> "wisdom, expansion, and good fortune"
+            Planet.VENUS -> "relationships, creativity, and pleasures"
+            Planet.SATURN -> "discipline, responsibility, and long-term goals"
+            Planet.RAHU -> "ambition, innovation, and unconventional paths"
+            Planet.KETU -> "spirituality, detachment, and past karma"
+            else -> "general influences"
+        }
+
+        val houseArea = getHouseSignificance(house)
+
+        val strengthQuality = when (strength) {
+            "Exalted" -> "This period promises exceptional results"
+            "Strong" -> "This period is well-supported for success"
+            "Debilitated" -> "This period requires extra effort and patience"
+            else -> "This period brings mixed but manageable influences"
+        }
+
+        return "During this ${planet.displayName} period, focus shifts to $planetNature, particularly affecting $houseArea. $strengthQuality."
+    }
+
+    private fun getDashaKeywords(planet: Planet, chart: SolarReturnChart): List<String> {
+        val position = chart.planetPositions[planet]
+        val house = position?.house ?: 1
+
+        val planetKeywords = when (planet) {
+            Planet.SUN -> listOf("Leadership", "Vitality", "Father")
+            Planet.MOON -> listOf("Emotions", "Mother", "Public")
+            Planet.MARS -> listOf("Action", "Energy", "Courage")
+            Planet.MERCURY -> listOf("Communication", "Learning", "Business")
+            Planet.JUPITER -> listOf("Wisdom", "Growth", "Fortune")
+            Planet.VENUS -> listOf("Love", "Art", "Comfort")
+            Planet.SATURN -> listOf("Discipline", "Karma", "Delays")
+            Planet.RAHU -> listOf("Ambition", "Innovation", "Foreign")
+            Planet.KETU -> listOf("Spirituality", "Detachment", "Past")
+            else -> listOf("General")
+        }
+
+        val houseKeywords = when (house) {
+            1 -> listOf("Self", "Body")
+            2 -> listOf("Wealth", "Speech")
+            3 -> listOf("Siblings", "Courage")
+            4 -> listOf("Home", "Peace")
+            5 -> listOf("Children", "Romance")
+            6 -> listOf("Health", "Service")
+            7 -> listOf("Marriage", "Business")
+            8 -> listOf("Transformation", "Research")
+            9 -> listOf("Luck", "Travel")
+            10 -> listOf("Career", "Status")
+            11 -> listOf("Gains", "Friends")
+            12 -> listOf("Spirituality", "Losses")
+            else -> listOf()
+        }
+
+        return (planetKeywords + houseKeywords).take(5)
+    }
+
     private fun generateHousePredictions(
         chart: SolarReturnChart,
-        muntha: MunthaInfo,
-        yearLord: Planet,
-        natalChart: VedicChart
+        muntha: MunthaResult,
+        yearLord: Planet
     ): List<HousePrediction> {
-        val ascSign = ZodiacSign.fromLongitude(chart.ascendant)
+        val predictions = mutableListOf<HousePrediction>()
+        val ascIndex = getStandardZodiacIndex(chart.ascendant)
 
-        return (1..12).map { house ->
-            val houseSignIndex = (ascSign.number - 1 + house - 1) % 12
-            val houseSign = ZodiacSign.entries[houseSignIndex]
-            val houseLord = houseSign.ruler
-            val cuspDegree = ((house - 1) * 30.0 + chart.ascendant) % 360.0
+        for (house in 1..12) {
+            val signIndex = (ascIndex + house - 1) % 12
+            val sign = STANDARD_ZODIAC_SIGNS[signIndex]
+            val houseLord = sign.ruler
+            val lordPosition = chart.planetPositions[houseLord]?.house ?: 1
 
-            val lordPosition = chart.planetPositions.find { it.planet == houseLord }
-            val lordHouse = lordPosition?.house ?: 1
-            val lordSign = lordPosition?.sign ?: houseSign
-            val lordIsRetrograde = lordPosition?.isRetrograde ?: false
+            val planetsInHouse = chart.planetPositions.filter { (_, pos) -> pos.house == house }.keys.toList()
 
-            val planetsInHouse = chart.planetPositions
-                .filter { it.house == house }
-                .map { it.planet }
+            val strength = calculateHouseStrength(house, houseLord, lordPosition, planetsInHouse, chart, muntha, yearLord)
+            val keywords = getHouseKeywords(house)
+            val prediction = generateHousePrediction(house, sign, houseLord, lordPosition, planetsInHouse, chart, muntha, yearLord)
+            val rating = calculateHouseRating(house, houseLord, lordPosition, planetsInHouse, chart, muntha, yearLord)
+            val specificEvents = generateSpecificEvents(house, houseLord, lordPosition, planetsInHouse, chart)
 
-            val aspectingPlanets = findAspectingPlanets(house, chart)
-            val strengthScore = calculateHouseStrengthScore(
-                house, houseLord, planetsInHouse, aspectingPlanets.map { it.first }, chart, muntha
-            )
-
-            val strength = when {
-                strengthScore >= 70 -> "Strong"
-                strengthScore >= 50 -> "Moderate"
-                strengthScore >= 30 -> "Weak"
-                else -> "Challenged"
-            }
-
-            val prediction = generateHousePredictionText(
-                house, houseSign, houseLord, lordHouse, lordIsRetrograde,
-                planetsInHouse, aspectingPlanets, muntha, yearLord, strength
-            )
-
-            HousePrediction(
-                house = house,
-                signOnCusp = houseSign,
-                cuspDegree = cuspDegree,
-                houseLord = houseLord,
-                lordPosition = lordHouse,
-                lordSign = lordSign,
-                lordIsRetrograde = lordIsRetrograde,
-                planetsInHouse = planetsInHouse,
-                aspectingPlanets = aspectingPlanets,
-                strength = strength,
-                strengthScore = strengthScore,
-                prediction = prediction,
-                keywords = getHouseKeywords(house)
+            predictions.add(
+                HousePrediction(
+                    house = house,
+                    signOnCusp = sign,
+                    houseLord = houseLord,
+                    lordPosition = lordPosition,
+                    planetsInHouse = planetsInHouse,
+                    strength = strength,
+                    keywords = keywords,
+                    prediction = prediction,
+                    rating = rating,
+                    specificEvents = specificEvents
+                )
             )
         }
+
+        return predictions
     }
 
-    private fun findAspectingPlanets(house: Int, chart: SolarReturnChart): List<Pair<Planet, String>> {
-        val aspects = mutableListOf<Pair<Planet, String>>()
-        val houseMidpoint = ((house - 1) * 30.0 + 15.0 + chart.ascendant) % 360.0
-
-        for (position in chart.planetPositions) {
-            if (position.house == house) continue
-
-            val planetDegree = position.longitude
-            var diff = abs(houseMidpoint - planetDegree)
-            if (diff > 180) diff = 360 - diff
-
-            val aspectType = when {
-                abs(diff - 180) <= 12 -> "Opposition"
-                abs(diff - 120) <= 10 || abs(diff - 240) <= 10 -> "Trine"
-                abs(diff - 90) <= 10 || abs(diff - 270) <= 10 -> "Square"
-                abs(diff - 60) <= 8 || abs(diff - 300) <= 8 -> "Sextile"
-                else -> null
-            }
-
-            if (position.planet == Planet.MARS && position.house != house) {
-                val houseDiff = (house - position.house + 12) % 12
-                if (houseDiff == 4 || houseDiff == 7 || houseDiff == 8) {
-                    aspects.add(position.planet to "Special(4,7,8)")
-                }
-            }
-
-            if (position.planet == Planet.JUPITER && position.house != house) {
-                val houseDiff = (house - position.house + 12) % 12
-                if (houseDiff == 5 || houseDiff == 7 || houseDiff == 9) {
-                    aspects.add(position.planet to "Special(5,7,9)")
-                }
-            }
-
-            if (position.planet == Planet.SATURN && position.house != house) {
-                val houseDiff = (house - position.house + 12) % 12
-                if (houseDiff == 3 || houseDiff == 7 || houseDiff == 10) {
-                    aspects.add(position.planet to "Special(3,7,10)")
-                }
-            }
-
-            if (aspectType != null) {
-                aspects.add(position.planet to aspectType)
-            }
-        }
-
-        return aspects.distinctBy { it.first }
-    }
-
-    private fun calculateHouseStrengthScore(
+    private fun calculateHouseStrength(
         house: Int,
-        houseLord: Planet,
+        lord: Planet,
+        lordPosition: Int,
         planetsInHouse: List<Planet>,
-        aspectingPlanets: List<Planet>,
         chart: SolarReturnChart,
-        muntha: MunthaInfo
-    ): Int {
-        var score = 50
+        muntha: MunthaResult,
+        yearLord: Planet
+    ): String {
+        var score = 0
 
-        val lordPos = chart.planetPositions.find { it.planet == houseLord }
-        if (lordPos != null) {
-            when (lordPos.house) {
-                1, 4, 5, 7, 9, 10 -> score += 15
-                2, 11 -> score += 10
-                3 -> score += 5
-                6, 8, 12 -> score -= 15
-            }
+        val beneficPositions = listOf(1, 2, 4, 5, 7, 9, 10, 11)
+        if (lordPosition in beneficPositions) score += 2
 
-            if (lordPos.sign.ruler == houseLord) score += 10
-            if (isExalted(houseLord, lordPos.sign)) score += 15
-            if (isDebilitated(houseLord, lordPos.sign)) score -= 20
-
-            if (lordPos.isRetrograde) score -= 5
+        val lordStrength = evaluatePlanetStrengthDescription(lord, chart)
+        when (lordStrength) {
+            "Exalted" -> score += 3
+            "Strong" -> score += 2
+            "Angular" -> score += 1
+            "Debilitated" -> score -= 2
         }
 
-        val benefics = listOf(Planet.JUPITER, Planet.VENUS)
-        val naturalBenefic = listOf(Planet.JUPITER, Planet.VENUS, Planet.MERCURY, Planet.MOON)
-        val malefics = listOf(Planet.SATURN, Planet.MARS, Planet.RAHU, Planet.KETU, Planet.SUN)
+        val benefics = listOf(Planet.JUPITER, Planet.VENUS, Planet.MOON)
+        val malefics = listOf(Planet.SATURN, Planet.MARS, Planet.RAHU, Planet.KETU)
 
-        score += planetsInHouse.count { it in benefics } * 12
-        score += planetsInHouse.count { it == Planet.MERCURY || it == Planet.MOON } * 6
-        score -= planetsInHouse.count { it in malefics } * 8
-
-        score += aspectingPlanets.count { it in naturalBenefic } * 5
-        score -= aspectingPlanets.count { it in malefics } * 4
-
-        if (muntha.house == house) {
-            score += if (muntha.lordStrength >= 50) 10 else -5
+        planetsInHouse.forEach { planet ->
+            if (planet in benefics) score += 1
+            if (planet in malefics) score -= 1
         }
 
-        return score.coerceIn(0, 100)
+        if (muntha.house == house) score += 2
+        if (yearLord == lord) score += 1
+
+        return when {
+            score >= 5 -> "Excellent"
+            score >= 3 -> "Strong"
+            score >= 1 -> "Moderate"
+            score >= -1 -> "Weak"
+            else -> "Challenged"
+        }
     }
 
-    private fun generateHousePredictionText(
+    private fun getHouseKeywords(house: Int): List<String> {
+        return when (house) {
+            1 -> listOf("Self", "Personality", "Health", "Appearance", "New Beginnings")
+            2 -> listOf("Wealth", "Family", "Speech", "Values", "Food")
+            3 -> listOf("Siblings", "Courage", "Communication", "Short Travel", "Skills")
+            4 -> listOf("Home", "Mother", "Property", "Vehicles", "Inner Peace")
+            5 -> listOf("Children", "Intelligence", "Romance", "Creativity", "Investments")
+            6 -> listOf("Enemies", "Health Issues", "Service", "Debts", "Competition")
+            7 -> listOf("Marriage", "Partnership", "Business", "Public Dealings", "Contracts")
+            8 -> listOf("Longevity", "Transformation", "Research", "Inheritance", "Hidden Matters")
+            9 -> listOf("Fortune", "Father", "Religion", "Higher Education", "Long Travel")
+            10 -> listOf("Career", "Status", "Authority", "Government", "Fame")
+            11 -> listOf("Gains", "Income", "Friends", "Elder Siblings", "Aspirations")
+            12 -> listOf("Losses", "Expenses", "Spirituality", "Foreign Lands", "Liberation")
+            else -> listOf("General")
+        }
+    }
+
+    private fun generateHousePrediction(
         house: Int,
         sign: ZodiacSign,
         lord: Planet,
-        lordHouse: Int,
-        lordRetrograde: Boolean,
-        planets: List<Planet>,
-        aspects: List<Pair<Planet, String>>,
-        muntha: MunthaInfo,
-        yearLord: Planet,
-        strength: String
+        lordPosition: Int,
+        planetsInHouse: List<Planet>,
+        chart: SolarReturnChart,
+        muntha: MunthaResult,
+        yearLord: Planet
     ): String {
-        val meaning = getHouseMeaning(house)
-        val lordName = lord.displayName
+        val houseArea = getHouseSignificance(house)
+        val lordStrength = evaluatePlanetStrengthDescription(lord, chart)
 
-        return buildString {
-            append("$meaning matters are governed by $lordName placed in House $lordHouse. ")
-
-            if (lordRetrograde) {
-                append("Lord's retrograde status suggests revisiting past issues in this area. ")
-            }
-
-            if (planets.isNotEmpty()) {
-                val benefics = planets.filter { it in listOf(Planet.JUPITER, Planet.VENUS) }
-                val malefics = planets.filter { it in listOf(Planet.SATURN, Planet.MARS, Planet.RAHU, Planet.KETU) }
-
-                if (benefics.isNotEmpty()) {
-                    append("${benefics.joinToString { it.displayName }} here brings blessings and growth. ")
+        val lordAnalysis = buildString {
+            append("The lord ${lord.displayName} in house $lordPosition ")
+            append(
+                when (lordStrength) {
+                    "Exalted" -> "is excellently placed for positive outcomes."
+                    "Strong" -> "is well-positioned for success."
+                    "Moderate" -> "provides moderate support."
+                    "Debilitated" -> "faces challenges requiring attention."
+                    else -> "influences results variably."
                 }
-                if (malefics.isNotEmpty()) {
-                    append("${malefics.joinToString { it.displayName }} here requires patience and effort. ")
-                }
-            }
+            )
+        }
 
-            if (muntha.house == house) {
-                append("Muntha's presence makes this a focal area for the year. ")
-            }
+        val planetaryInfluence = if (planetsInHouse.isNotEmpty()) {
+            val benefics = planetsInHouse.filter { it in listOf(Planet.JUPITER, Planet.VENUS, Planet.MOON) }
+            val malefics = planetsInHouse.filter { it in listOf(Planet.SATURN, Planet.MARS, Planet.RAHU, Planet.KETU) }
 
-            if (yearLord == lord) {
-                append("As Year Lord rules this house, expect significant developments here. ")
+            when {
+                benefics.isNotEmpty() && malefics.isEmpty() ->
+                    " ${benefics.joinToString { it.displayName }} enhance positive outcomes."
+                malefics.isNotEmpty() && benefics.isEmpty() ->
+                    " ${malefics.joinToString { it.displayName }} may bring challenges."
+                benefics.isNotEmpty() && malefics.isNotEmpty() ->
+                    " Mixed influences from ${planetsInHouse.joinToString { it.displayName }}."
+                else -> ""
             }
+        } else {
+            " Results depend primarily on the lord's position."
+        }
 
-            when (strength) {
-                "Strong" -> append("Overall favorable indications for this domain.")
-                "Moderate" -> append("Mixed results expected with effort yielding results.")
-                "Weak" -> append("Challenges may arise requiring careful handling.")
-                "Challenged" -> append("Difficult period for these matters; remedial measures recommended.")
+        val specialIndications = buildString {
+            if (muntha.house == house) append(" Muntha emphasizes these matters this year.")
+            if (yearLord == lord) append(" Year Lord rules this house - significant developments expected.")
+        }
+
+        return "House $house in ${sign.displayName} governs $houseArea. $lordAnalysis$planetaryInfluence$specialIndications".trim()
+    }
+
+    private fun calculateHouseRating(
+        house: Int,
+        lord: Planet,
+        lordPosition: Int,
+        planetsInHouse: List<Planet>,
+        chart: SolarReturnChart,
+        muntha: MunthaResult,
+        yearLord: Planet
+    ): Float {
+        var rating = 3.0f
+
+        val beneficLordPositions = listOf(1, 2, 4, 5, 7, 9, 10, 11)
+        if (lordPosition in beneficLordPositions) rating += 0.5f
+
+        val lordStrength = evaluatePlanetStrengthDescription(lord, chart)
+        rating += when (lordStrength) {
+            "Exalted" -> 1.0f
+            "Strong" -> 0.7f
+            "Angular" -> 0.3f
+            "Debilitated" -> -0.8f
+            else -> 0.0f
+        }
+
+        planetsInHouse.forEach { planet ->
+            when (planet) {
+                Planet.JUPITER -> rating += 0.5f
+                Planet.VENUS -> rating += 0.4f
+                Planet.MOON -> rating += 0.2f
+                Planet.SATURN -> rating -= 0.3f
+                Planet.MARS -> rating -= 0.2f
+                Planet.RAHU, Planet.KETU -> rating -= 0.2f
+                else -> {}
             }
         }
+
+        if (muntha.house == house) rating += 0.5f
+        if (yearLord == lord) rating += 0.3f
+
+        return rating.coerceIn(1.0f, 5.0f)
+    }
+
+    private fun generateSpecificEvents(
+        house: Int,
+        lord: Planet,
+        lordPosition: Int,
+        planetsInHouse: List<Planet>,
+        chart: SolarReturnChart
+    ): List<String> {
+        val events = mutableListOf<String>()
+        val lordStrength = evaluatePlanetStrengthDescription(lord, chart)
+        val isLordStrong = lordStrength in listOf("Exalted", "Strong")
+
+        when (house) {
+            1 -> {
+                if (isLordStrong) {
+                    events.add("Increased vitality and personal confidence")
+                    events.add("Favorable for starting new ventures")
+                }
+                if (Planet.JUPITER in planetsInHouse) events.add("Spiritual growth and wisdom")
+                if (Planet.MARS in planetsInHouse) events.add("Increased energy - watch for accidents")
+            }
+            2 -> {
+                if (isLordStrong) {
+                    events.add("Financial gains and wealth accumulation")
+                    events.add("Improvement in family relationships")
+                }
+                if (Planet.VENUS in planetsInHouse) events.add("Acquisition of luxury items")
+            }
+            5 -> {
+                if (isLordStrong) {
+                    events.add("Creative success and recognition")
+                    events.add("Favorable for children's matters")
+                }
+                if (Planet.JUPITER in planetsInHouse) events.add("Academic success or childbirth possible")
+                if (Planet.VENUS in planetsInHouse) events.add("Romantic happiness")
+            }
+            7 -> {
+                if (isLordStrong) {
+                    events.add("Strengthening of partnerships")
+                    events.add("Favorable for marriage or business")
+                }
+                if (Planet.VENUS in planetsInHouse) events.add("Romantic fulfillment")
+            }
+            10 -> {
+                if (isLordStrong) {
+                    events.add("Career advancement or promotion")
+                    events.add("Recognition from authorities")
+                }
+                if (Planet.SUN in planetsInHouse) events.add("Government favor or leadership role")
+            }
+            11 -> {
+                if (isLordStrong) {
+                    events.add("Fulfillment of desires and wishes")
+                    events.add("Gains from multiple sources")
+                }
+            }
+        }
+
+        return events.take(4)
     }
 
     private fun identifyMajorThemes(
         chart: SolarReturnChart,
-        muntha: MunthaInfo,
+        muntha: MunthaResult,
         yearLord: Planet,
         housePredictions: List<HousePrediction>,
-        triPataki: TriPatakiChakra
+        triPataki: TriPatakiChakra,
+        tajikaAspects: List<TajikaAspectResult>
     ): List<String> {
         val themes = mutableListOf<String>()
 
-        themes.add("Focus on ${getHouseMeaning(muntha.house)} - Muntha in ${muntha.sign.displayName}")
+        val yearLordHouse = chart.planetPositions[yearLord]?.house ?: 1
+        themes.add("Year Lord ${yearLord.displayName} emphasizes ${getHouseSignificance(yearLordHouse)}")
 
-        val yearLordHouse = chart.planetPositions.find { it.planet == yearLord }?.house ?: 1
-        themes.add("${yearLord.displayName} as Year Lord emphasizes ${getHouseMeaning(yearLordHouse)}")
+        themes.add("Muntha in House ${muntha.house} focuses on ${muntha.themes.firstOrNull() ?: "personal growth"}")
 
-        themes.add("Tri-Pataki: ${triPataki.dominantGroup} signs dominate - ${triPataki.interpretation.take(80)}...")
+        themes.add("Tri-Pataki: ${triPataki.dominantInfluence}")
 
-        housePredictions
-            .filter { it.strength == "Strong" }
-            .sortedByDescending { it.strengthScore }
+        housePredictions.filter { it.strength in listOf("Excellent", "Strong") }
+            .sortedByDescending { it.rating }
             .take(2)
-            .forEach { themes.add("Favorable: ${getHouseMeaning(it.house)} (Score: ${it.strengthScore})") }
+            .forEach { themes.add("Favorable: ${getHouseSignificance(it.house)} (House ${it.house})") }
 
-        housePredictions
-            .filter { it.strength == "Challenged" }
-            .sortedBy { it.strengthScore }
-            .take(1)
-            .forEach { themes.add("Attention needed: ${getHouseMeaning(it.house)}") }
-
-        val jupiterHouse = chart.planetPositions.find { it.planet == Planet.JUPITER }?.house
-        if (jupiterHouse != null) {
-            themes.add("Jupiter's blessings in ${getHouseMeaning(jupiterHouse)}")
+        val positiveAspects = tajikaAspects.count { it.type.isPositive }
+        val totalAspects = tajikaAspects.size
+        if (totalAspects > 0) {
+            val aspectQuality = if (positiveAspects > totalAspects / 2) "supportive" else "challenging"
+            themes.add("Tajika yogas are predominantly $aspectQuality ($positiveAspects/$totalAspects positive)")
         }
 
-        val saturnHouse = chart.planetPositions.find { it.planet == Planet.SATURN }?.house
-        if (saturnHouse != null) {
-            themes.add("Saturn's lessons in ${getHouseMeaning(saturnHouse)}")
-        }
-
-        return themes
+        return themes.take(6)
     }
 
-    private fun determineFavorableMonths(
-        muddaDasha: List<MuddaDashaPeriod>,
-        chart: SolarReturnChart
-    ): List<Int> {
-        val beneficPlanets = listOf(Planet.JUPITER, Planet.VENUS, Planet.MERCURY, Planet.MOON)
+    private fun calculateMonthlyInfluences(
+        chart: SolarReturnChart,
+        solarReturnTime: LocalDateTime
+    ): Pair<List<Int>, List<Int>> {
+        val favorableMonths = mutableListOf<Int>()
+        val challengingMonths = mutableListOf<Int>()
 
-        val favorableMonths = mutableSetOf<Int>()
+        val yearLord = chart.ascendant.ruler
+        val yearLordHouse = chart.planetPositions[yearLord]?.house ?: 1
 
-        for (period in muddaDasha) {
-            if (period.planet in beneficPlanets) {
-                val position = chart.planetPositions.find { it.planet == period.planet }
-                val isWellPlaced = position?.let {
-                    it.house in listOf(1, 2, 4, 5, 7, 9, 10, 11) && !isDebilitated(it.planet, it.sign)
-                } ?: true
+        for (monthOffset in 0..11) {
+            val month = ((solarReturnTime.monthValue - 1 + monthOffset) % 12) + 1
+            val transitHouse = (yearLordHouse + monthOffset - 1) % 12 + 1
 
-                if (isWellPlaced) {
-                    var current = period.startDate
-                    while (current.isBefore(period.endDate)) {
-                        favorableMonths.add(current.monthValue)
-                        current = current.plusMonths(1)
-                    }
-                }
+            val isFavorable = transitHouse in listOf(1, 2, 4, 5, 7, 9, 10, 11)
+
+            if (isFavorable && favorableMonths.size < 4) {
+                favorableMonths.add(month)
+            } else if (!isFavorable && challengingMonths.size < 3) {
+                challengingMonths.add(month)
             }
         }
 
-        return favorableMonths.sorted()
+        return Pair(favorableMonths, challengingMonths)
     }
 
-    private fun determineChallengingMonths(
-        muddaDasha: List<MuddaDashaPeriod>,
-        chart: SolarReturnChart
-    ): List<Int> {
-        val maleficPlanets = listOf(Planet.SATURN, Planet.MARS, Planet.RAHU, Planet.KETU)
+    private fun calculateKeyDates(
+        chart: SolarReturnChart,
+        solarReturnTime: LocalDateTime,
+        muddaDasha: List<MuddaDashaPeriod>
+    ): List<KeyDate> {
+        val keyDates = mutableListOf<KeyDate>()
 
-        val challengingMonths = mutableSetOf<Int>()
+        keyDates.add(
+            KeyDate(
+                date = solarReturnTime.toLocalDate(),
+                event = "Solar Return",
+                type = KeyDateType.IMPORTANT,
+                description = "Beginning of the annual horoscope year"
+            )
+        )
 
-        for (period in muddaDasha) {
-            if (period.planet in maleficPlanets) {
-                val position = chart.planetPositions.find { it.planet == period.planet }
-                val isIllPlaced = position?.let {
-                    it.house in listOf(6, 8, 12) || isDebilitated(it.planet, it.sign)
-                } ?: true
-
-                if (isIllPlaced) {
-                    var current = period.startDate
-                    while (current.isBefore(period.endDate)) {
-                        challengingMonths.add(current.monthValue)
-                        current = current.plusMonths(1)
-                    }
-                }
-            }
+        muddaDasha.forEach { period ->
+            keyDates.add(
+                KeyDate(
+                    date = period.startDate,
+                    event = "${period.planet.displayName} Dasha Begins",
+                    type = if (period.planetStrength in listOf("Exalted", "Strong"))
+                        KeyDateType.FAVORABLE else KeyDateType.IMPORTANT,
+                    description = "Start of ${period.planet.displayName} period (${period.days} days)"
+                )
+            )
         }
 
-        return challengingMonths.sorted()
+        return keyDates.sortedBy { it.date }.take(15)
     }
 
     private fun generateOverallPrediction(
+        chart: SolarReturnChart,
         yearLord: Planet,
-        muntha: MunthaInfo,
-        housePredictions: List<HousePrediction>,
-        aspects: List<TajikaAspectResult>,
-        age: Int,         yearLordBala: PanchaVargiyaBala,
-        triPatakiChakra: TriPatakiChakra
+        muntha: MunthaResult,
+        tajikaAspects: List<TajikaAspectResult>,
+        housePredictions: List<HousePrediction>
     ): String {
+        val yearLordStrength = evaluatePlanetStrengthDescription(yearLord, chart)
+        val yearLordHouse = chart.planetPositions[yearLord]?.house ?: 1
+
+        val strongHouses = housePredictions.filter { it.strength in listOf("Excellent", "Strong") }
+        val weakHouses = housePredictions.filter { it.strength in listOf("Weak", "Challenged") }
+
+        val positiveAspects = tajikaAspects.count { it.type.isPositive }
+        val challengingAspects = tajikaAspects.size - positiveAspects
+
+        val overallTone = when {
+            yearLordStrength in listOf("Exalted", "Strong") && strongHouses.size >= 6 -> "excellent"
+            yearLordStrength in listOf("Exalted", "Strong") && strongHouses.size >= 4 -> "favorable"
+            strongHouses.size > weakHouses.size -> "positive"
+            weakHouses.size > strongHouses.size -> "challenging but growth-oriented"
+            else -> "balanced"
+        }
+
+        val yearLordInfluence = when (yearLord) {
+            Planet.SUN -> "Year Lord Sun brings focus on leadership, authority, and self-expression."
+            Planet.MOON -> "Year Lord Moon emphasizes emotional wellbeing and public connections."
+            Planet.MARS -> "Year Lord Mars energizes initiatives and competitive endeavors."
+            Planet.MERCURY -> "Year Lord Mercury enhances communication and business activities."
+            Planet.JUPITER -> "Year Lord Jupiter bestows wisdom, expansion, and good fortune."
+            Planet.VENUS -> "Year Lord Venus brings harmony to relationships and creativity."
+            Planet.SATURN -> "Year Lord Saturn teaches discipline and responsibility."
+            else -> "The Year Lord influences various aspects with balanced energy."
+        }
+
+        val munthaInfluence = "Muntha in House ${muntha.house} (${muntha.sign.displayName}) " +
+                "directs attention to ${muntha.themes.firstOrNull()?.lowercase() ?: "personal development"}."
+
         return buildString {
-            appendLine("═══════════════════════════════════════════════════════════")
-            appendLine("                    YEAR OVERVIEW - Age $age")
-            appendLine("═══════════════════════════════════════════════════════════")
-            appendLine()
-
-            appendLine("YEAR LORD: ${yearLord.displayName}")
-            appendLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            appendLine("${yearLord.displayName} governs this year with ${yearLordBala.classification}.")
-            appendLine("Pancha-Vargiya Bala: ${yearLordBala.totalBala}/20")
-
-            val yearLordNature = when (yearLord) {
-                Planet.JUPITER -> "wisdom, expansion, fortune, and spiritual growth"
-                Planet.VENUS -> "love, beauty, comforts, creativity, and relationships"
-                Planet.MERCURY -> "communication, intellect, commerce, and learning"
-                Planet.MOON -> "emotions, mind, mother, nurturing, and public dealings"
-                Planet.SUN -> "authority, father, government, health, and recognition"
-                Planet.MARS -> "energy, courage, property, siblings, and competition"
-                Planet.SATURN -> "discipline, hard work, delays, karma, and perseverance"
-                else -> "transformative experiences"
-            }
-            appendLine("This year emphasizes themes of $yearLordNature.")
-            appendLine()
-
-            appendLine("MUNTHA ANALYSIS:")
-            appendLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            appendLine("Muntha in ${muntha.sign.displayName} (House ${muntha.house})")
-            appendLine("Muntha Lord ${muntha.lord.displayName} in House ${muntha.lordHouse}")
-            appendLine()
-            appendLine(muntha.interpretation)
-            appendLine()
-
-            appendLine("TRI-PATAKI INFLUENCE:")
-            appendLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            appendLine("Dominant: ${triPatakiChakra.dominantGroup}")
-            appendLine(triPatakiChakra.interpretation)
-            appendLine()
-
-            val strongHouses = housePredictions.filter { it.strength == "Strong" }.sortedByDescending { it.strengthScore }
-            val moderateHouses = housePredictions.filter { it.strength == "Moderate" }
-            val weakHouses = housePredictions.filter { it.strength == "Weak" }
-            val challengedHouses = housePredictions.filter { it.strength == "Challenged" }.sortedBy { it.strengthScore }
-
-            appendLine("LIFE AREAS ANALYSIS:")
-            appendLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-
-            if (strongHouses.isNotEmpty()) {
-                appendLine()
-                appendLine("★ FAVORABLE AREAS (Strong):")
-                strongHouses.forEach { house ->
-                    appendLine("  • ${getHouseMeaning(house.house)} (House ${house.house})")
-                    appendLine("    ${house.signOnCusp.displayName} ruled by ${house.houseLord.displayName}")
-                }
-            }
-
-            if (moderateHouses.isNotEmpty()) {
-                appendLine()
-                appendLine("◆ MODERATE AREAS (Balanced):")
-                moderateHouses.take(4).forEach { house ->
-                    appendLine("  • ${getHouseMeaning(house.house)} (House ${house.house})")
-                }
-            }
-
-            if (challengedHouses.isNotEmpty()) {
-                appendLine()
-                appendLine("⚠ AREAS REQUIRING ATTENTION (Challenged):")
-                challengedHouses.forEach { house ->
-                    appendLine("  • ${getHouseMeaning(house.house)} (House ${house.house})")
-                    appendLine("    Remedial measures and patience recommended")
-                }
-            }
-
-            appendLine()
-            appendLine("TAJIKA YOGAS SUMMARY:")
-            appendLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-
-            val ithasalaAspects = aspects.filter { it.aspect == TajikaAspect.ITHASALA }
-            val easaraphaAspects = aspects.filter { it.aspect == TajikaAspect.EASARAPHA }
-            val kamboolaAspects = aspects.filter { it.aspect == TajikaAspect.KAMBOOLA }
-
-            if (ithasalaAspects.isNotEmpty()) {
-                appendLine("Ithasala Yogas (New Developments): ${ithasalaAspects.size}")
-                ithasalaAspects.take(3).forEach {
-                    appendLine("  • ${it.planet1.displayName}-${it.planet2.displayName}: ${it.interpretation.take(60)}...")
-                }
-            }
-
-            if (kamboolaAspects.isNotEmpty()) {
-                appendLine("Kamboola Yogas (Enhanced Results): ${kamboolaAspects.size}")
-            }
-
-            if (easaraphaAspects.isNotEmpty()) {
-                appendLine("Easarapha Yogas (Completing Matters): ${easaraphaAspects.size}")
-            }
-
-            appendLine()
-            appendLine("OVERALL ASSESSMENT:")
-            appendLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-
-            val overallScore = calculateOverallYearScore(housePredictions, yearLordBala, muntha, aspects)
-
-            val overallAssessment = when {
-                overallScore >= 75 -> "Highly favorable year with excellent opportunities for growth and success."
-                overallScore >= 60 -> "Generally positive year with good prospects in multiple areas."
-                overallScore >= 45 -> "Mixed year with both opportunities and challenges requiring balanced approach."
-                overallScore >= 30 -> "Challenging year requiring patience, effort, and strategic planning."
-                else -> "Difficult year emphasizing inner growth and karmic lessons. Remedies strongly recommended."
-            }
-
-            appendLine(overallAssessment)
-            appendLine()
-
-            if (ithasalaAspects.isNotEmpty()) {
-                appendLine("This year holds new opportunities and developments, particularly involving ")
-                val involvedPlanets = ithasalaAspects.flatMap { listOf(it.planet1, it.planet2) }.distinct().take(3)
-                appendLine("${involvedPlanets.joinToString { it.displayName }} energies.")
-            } else if (easaraphaAspects.isNotEmpty()) {
-                appendLine("This year emphasizes completing and consolidating past efforts.")
-            }
-
-            appendLine()
-            appendLine("Key Recommendations:")
-            when (yearLord) {
-                Planet.SUN -> appendLine("• Strengthen Sun through early morning practices, father's blessings, and leadership roles")
-                Planet.MOON -> appendLine("• Strengthen Moon through meditation, mother's blessings, and emotional balance")
-                Planet.MARS -> appendLine("• Channel Mars energy constructively through physical activity and disciplined action")
-                Planet.MERCURY -> appendLine("• Enhance Mercury through learning, communication skills, and intellectual pursuits")
-                Planet.JUPITER -> appendLine("• Honor Jupiter through spiritual practices, teaching, and ethical conduct")
-                Planet.VENUS -> appendLine("• Harmonize Venus through arts, relationships, and appreciation of beauty")
-                Planet.SATURN -> appendLine("• Appease Saturn through service, discipline, and accepting responsibilities")
-                else -> appendLine("• Follow appropriate planetary remedies for ${yearLord.displayName}")
-            }
-
-            if (challengedHouses.isNotEmpty()) {
-                appendLine("• Pay special attention to ${challengedHouses.joinToString { getHouseMeaning(it.house) }} matters")
-            }
+            append("This Varshaphala year presents an overall $overallTone outlook. ")
+            append(yearLordInfluence)
+            append(" ")
+            append(munthaInfluence)
+            append(" The Tajika aspects show $positiveAspects favorable and $challengingAspects challenging configurations. ")
+            append("By understanding these influences, the year's potential can be maximized.")
         }
     }
 
-    private fun calculateOverallYearScore(
-        housePredictions: List<HousePrediction>,
-        yearLordBala: PanchaVargiyaBala,
-        muntha: MunthaInfo,
-        aspects: List<TajikaAspectResult>
-    ): Int {
-        var score = 50
+    private fun calculateYearRating(
+        chart: SolarReturnChart,
+        yearLord: Planet,
+        muntha: MunthaResult,
+        tajikaAspects: List<TajikaAspectResult>,
+        housePredictions: List<HousePrediction>
+    ): Float {
+        var rating = 3.0f
 
-        val avgHouseScore = housePredictions.map { it.strengthScore }.average()
-        score += ((avgHouseScore - 50) * 0.4).toInt()
-
-        score += (yearLordBala.totalBala - 10) * 2
-
-        if (muntha.house in listOf(1, 2, 4, 5, 7, 9, 10, 11)) score += 5
-        if (muntha.house in listOf(6, 8, 12)) score -= 5
-        if (muntha.lordStrength >= 60) score += 5
-
-        val ithasalaCount = aspects.count { it.aspect == TajikaAspect.ITHASALA }
-        val kamboolaCount = aspects.count { it.aspect == TajikaAspect.KAMBOOLA }
-        val dukphaliCount = aspects.count { it.aspect == TajikaAspect.DUKPHALI }
-
-        score += ithasalaCount * 2
-        score += kamboolaCount * 3
-        score -= dukphaliCount * 2
-
-        return score.coerceIn(0, 100)
-    }
-
-    private fun evaluatePlanetStrengthDescription(planet: Planet, chart: SolarReturnChart): String {
-        val score = evaluatePlanetStrengthScore(planet, chart)
-        return when {
-            score >= 80 -> "Excellent"
-            score >= 65 -> "Strong"
-            score >= 50 -> "Moderate"
-            score >= 35 -> "Weak"
-            else -> "Debilitated"
-        }
-    }
-
-    private fun evaluatePlanetStrengthScore(planet: Planet, chart: SolarReturnChart): Double {
-        var score = 50.0
-        val position = chart.planetPositions.find { it.planet == planet } ?: return score
-
-        if (position.sign.ruler == planet) score += 15.0
-
-        if (isExalted(planet, position.sign)) score += 20.0
-
-        if (isDebilitated(planet, position.sign)) score -= 25.0
-
-        when (position.house) {
-            1, 4, 7, 10 -> score += 15.0
-            5, 9 -> score += 12.0
-            2, 11 -> score += 8.0
-            3 -> score += 3.0
-            6, 8, 12 -> score -= 12.0
+        val yearLordStrength = evaluatePlanetStrengthDescription(yearLord, chart)
+        rating += when (yearLordStrength) {
+            "Exalted" -> 0.8f
+            "Strong" -> 0.5f
+            "Angular" -> 0.3f
+            "Debilitated" -> -0.5f
+            else -> 0.0f
         }
 
-        if (position.isRetrograde) {
-            score -= 5.0
+        rating += when (muntha.lordStrength) {
+            "Exalted", "Strong" -> 0.3f
+            "Moderate" -> 0.1f
+            "Debilitated" -> -0.3f
+            else -> 0.0f
         }
 
-        val friendlyPlanets = when (planet) {
-            Planet.SUN -> listOf(Planet.MOON, Planet.MARS, Planet.JUPITER)
-            Planet.MOON -> listOf(Planet.SUN, Planet.MERCURY)
-            Planet.MARS -> listOf(Planet.SUN, Planet.MOON, Planet.JUPITER)
-            Planet.MERCURY -> listOf(Planet.SUN, Planet.VENUS)
-            Planet.JUPITER -> listOf(Planet.SUN, Planet.MOON, Planet.MARS)
-            Planet.VENUS -> listOf(Planet.MERCURY, Planet.SATURN)
-            Planet.SATURN -> listOf(Planet.MERCURY, Planet.VENUS)
-            else -> emptyList()
+        if (muntha.house in listOf(1, 2, 4, 5, 9, 10, 11)) rating += 0.2f
+
+        val positiveAspects = tajikaAspects.count { it.type.isPositive && it.strength.weight >= 0.6 }
+        val negativeAspects = tajikaAspects.count { !it.type.isPositive && it.strength.weight >= 0.6 }
+        rating += (positiveAspects * 0.1f - negativeAspects * 0.1f).coerceIn(-0.5f, 0.5f)
+
+        val averageHouseRating = housePredictions.map { it.rating }.average().toFloat()
+        rating += (averageHouseRating - 3.0f) * 0.3f
+
+        val beneficsAngular = chart.planetPositions.count { (planet, pos) ->
+            planet in listOf(Planet.JUPITER, Planet.VENUS) && pos.house in listOf(1, 4, 7, 10)
         }
+        rating += beneficsAngular * 0.15f
 
-        for (friendPos in chart.planetPositions) {
-            if (friendPos.planet in friendlyPlanets && friendPos.house == position.house) {
-                score += 5.0
-            }
-        }
-
-        return score.coerceIn(0.0, 100.0)
-    }
-
-    private fun isExalted(planet: Planet, sign: ZodiacSign): Boolean {
-        return when (planet) {
-            Planet.SUN -> sign == ZodiacSign.ARIES
-            Planet.MOON -> sign == ZodiacSign.TAURUS
-            Planet.MARS -> sign == ZodiacSign.CAPRICORN
-            Planet.MERCURY -> sign == ZodiacSign.VIRGO
-            Planet.JUPITER -> sign == ZodiacSign.CANCER
-            Planet.VENUS -> sign == ZodiacSign.PISCES
-            Planet.SATURN -> sign == ZodiacSign.LIBRA
-            Planet.RAHU -> sign == ZodiacSign.TAURUS || sign == ZodiacSign.GEMINI
-            Planet.KETU -> sign == ZodiacSign.SCORPIO || sign == ZodiacSign.SAGITTARIUS
-            else -> false
-        }
-    }
-
-    private fun isDebilitated(planet: Planet, sign: ZodiacSign): Boolean {
-        return when (planet) {
-            Planet.SUN -> sign == ZodiacSign.LIBRA
-            Planet.MOON -> sign == ZodiacSign.SCORPIO
-            Planet.MARS -> sign == ZodiacSign.CANCER
-            Planet.MERCURY -> sign == ZodiacSign.PISCES
-            Planet.JUPITER -> sign == ZodiacSign.CAPRICORN
-            Planet.VENUS -> sign == ZodiacSign.VIRGO
-            Planet.SATURN -> sign == ZodiacSign.ARIES
-            Planet.RAHU -> sign == ZodiacSign.SCORPIO || sign == ZodiacSign.SAGITTARIUS
-            Planet.KETU -> sign == ZodiacSign.TAURUS || sign == ZodiacSign.GEMINI
-            else -> false
-        }
-    }
-
-    private fun generateMunthaInterpretation(
-        sign: ZodiacSign,
-        house: Int,
-        lord: Planet,
-        lordHouse: Int
-    ): String {
-        val houseInterpretation = when (house) {
-            1 -> "Personal growth, health improvements, and enhanced self-confidence are highlighted. New beginnings in personal matters."
-            2 -> "Focus on finances, family harmony, and accumulation of wealth. Good for savings and family gatherings."
-            3 -> "Communication, courage, and short journeys emphasized. Sibling relationships gain importance."
-            4 -> "Domestic happiness, property matters, and mother's well-being are priorities. Possible vehicle or property acquisition."
-            5 -> "Children, creativity, romance, and speculative gains favored. Good for education and intellectual pursuits."
-            6 -> "Health consciousness required. Victory over enemies possible but avoid unnecessary conflicts. Service and work emphasized."
-            7 -> "Partnerships, marriage proposals, and public dealings prominent. Business collaborations favored."
-            8 -> "Transformation, inheritance matters, and hidden knowledge surface. Health of spouse needs attention."
-            9 -> "Fortune smiles. Long journeys, higher education, father's blessings, and spiritual advancement indicated."
-            10 -> "Career advancement, public recognition, and professional success highlighted. Authority and status improve."
-            11 -> "Gains from multiple sources, social circle expands, elder sibling relations improve. Wishes get fulfilled."
-            12 -> "Expenses increase but for good causes. Foreign connections, spiritual retreats, and liberation themes prominent."
-            else -> "Mixed influences throughout the year."
-        }
-
-        val lordInfluence = when {
-            lordHouse in listOf(1, 5, 9) -> "The Muntha lord in a trine strengthens beneficial results."
-            lordHouse in listOf(4, 7, 10) -> "The Muntha lord in a kendra provides stability and success."
-            lordHouse in listOf(2, 11) -> "The Muntha lord in wealth houses supports financial growth."
-            lordHouse in listOf(6, 8, 12) -> "The Muntha lord in dusthana requires caution and remedial measures."
-            else -> "The Muntha lord's placement gives moderate support."
-        }
-
-        return "$houseInterpretation $lordInfluence"
-    }
-
-    private fun generateSahamInterpretation(
-        saham: Saham,
-        sign: ZodiacSign,
-        house: Int,
-        lord: Planet
-    ): String {
-        val signQuality = when (sign.element) {
-            "Fire" -> "dynamic and action-oriented"
-            "Earth" -> "practical and material"
-            "Air" -> "intellectual and communicative"
-            "Water" -> "emotional and intuitive"
-            else -> "mixed"
-        }
-
-        val houseInfluence = when {
-            house in listOf(1, 5, 9) -> "Favorable placement in trine supports this saham's significations."
-            house in listOf(4, 7, 10) -> "Angular placement gives prominence to this saham."
-            house in listOf(2, 11) -> "Placement supports material manifestation."
-            house in listOf(6, 8, 12) -> "Challenging placement may create obstacles."
-            else -> "Moderate influence on this saham."
-        }
-
-        return "${saham.description}: $signQuality energy through ${sign.displayName} in House $house. $houseInfluence Lord ${lord.displayName} governs outcomes."
-    }
-
-    private fun generateTajikaInterpretation(
-        planet1: Planet,
-        planet2: Planet,
-        aspect: TajikaAspect,
-        aspectType: String,
-        isApplying: Boolean
-    ): String {
-        val p1Name = planet1.displayName
-        val p2Name = planet2.displayName
-
-        val aspectNature = when (aspectType) {
-            "Conjunction" -> "united"
-            "Trine" -> "harmoniously"
-            "Sextile" -> "supportively"
-            "Square" -> "with tension"
-            "Opposition" -> "in polarity"
-            else -> "connected"
-        }
-
-        val timing = if (isApplying) "developing and will manifest" else "completing from past influences"
-
-        return when (aspect) {
-            TajikaAspect.ITHASALA -> "$p1Name and $p2Name are $aspectNature $timing. Promises fulfillment of their combined significations."
-            TajikaAspect.EASARAPHA -> "$p1Name and $p2Name separation indicates matters are $timing. Past efforts now showing results."
-            TajikaAspect.KAMBOOLA -> "$p1Name and $p2Name in mutual reception greatly enhance each other. Excellent for their significations."
-            TajikaAspect.NAKTA -> "$p1Name and $p2Name connection through intermediary. Results come through third party involvement."
-            TajikaAspect.YAMAYA -> "$p1Name and $p2Name connection obstructed. Delays and obstacles in their combined matters."
-            TajikaAspect.MANAU -> "$p1Name and $p2Name aspect frustrated. Denial or significant reduction of expected results."
-            TajikaAspect.GAIRI_KAMBOOLA -> "$p1Name and $p2Name weak reception. Results diminished but not completely denied."
-            TajikaAspect.KHALASARA -> "$p1Name and $p2Name both separating. Dissolution of their combined influence."
-            TajikaAspect.RADDA -> "$p1Name and $p2Name retrograde influence. Reconsideration and review of matters."
-            TajikaAspect.DUKPHALI -> "$p1Name and $p2Name connection obstructed by malefic. External obstacles create delays."
-        }
-    }
-
-    private fun calculatePlanetPosition(
-        planet: Planet,
-        julianDay: Double,
-        latitude: Double,
-        longitude: Double
-    ): PlanetPosition {
-        val xx = DoubleArray(6)
-        val serr = StringBuffer()
-
-        val planetId = when (planet) {
-            Planet.KETU -> SweConst.SE_MEAN_NODE
-            Planet.RAHU -> SweConst.SE_MEAN_NODE
-            else -> planet.swissEphId
-        }
-
-        swissEph.swe_calc_ut(
-            julianDay,
-            planetId,
-            SEFLG_SIDEREAL or SEFLG_SPEED,
-            xx,
-            serr
-        )
-
-        var planetLongitude = xx[0]
-
-        if (planet == Planet.KETU) {
-            planetLongitude = normalizeAngle360(planetLongitude + 180.0)
-        }
-
-        planetLongitude = normalizeAngle360(planetLongitude)
-
-        val (nakshatra, pada) = Nakshatra.fromLongitude(planetLongitude)
-        val signDegree = planetLongitude % 30.0
-        val degree = floor(signDegree)
-        val minutesFull = (signDegree - degree) * 60.0
-        val minutes = floor(minutesFull)
-        val seconds = (minutesFull - minutes) * 60.0
-
-        val cusps = DoubleArray(13)
-        val ascmc = DoubleArray(10)
-        swissEph.swe_houses(julianDay, SweConst.SEFLG_SIDEREAL, latitude, longitude, 'W'.code, cusps, ascmc)
-        val ascendant = cusps[1]
-        val house = calculateWholeSignHouse(planetLongitude, ascendant)
-
-        return PlanetPosition(
-            planet = planet,
-            longitude = planetLongitude,
-            latitude = xx[1],
-            distance = xx[2],
-            speed = xx[3],
-            isRetrograde = xx[3] < 0,
-            sign = ZodiacSign.fromLongitude(planetLongitude),
-            degree = degree,
-            minutes = minutes,
-            seconds = seconds,
-            nakshatra = nakshatra,
-            nakshatraPada = pada,
-            house = house
-        )
-    }
-
-    private fun getPlanetLongitude(planetId: Int, julianDay: Double): Double {
-        val xx = DoubleArray(6)
-        val serr = StringBuffer()
-
-        swissEph.swe_calc_ut(
-            julianDay,
-            planetId,
-            SEFLG_SIDEREAL or SEFLG_SPEED,
-            xx,
-            serr
-        )
-
-        return normalizeAngle360(xx[0])
-    }
-
-    private fun normalizeAngle360(angle: Double): Double {
-        var normalized = angle % 360.0
-        if (normalized < 0) normalized += 360.0
-        return normalized
+        return rating.coerceIn(1.0f, 5.0f)
     }
 
     private fun calculateJulianDay(dateTime: LocalDateTime): Double {
-        val decimalHours = dateTime.hour +
-                (dateTime.minute / 60.0) +
-                (dateTime.second / 3600.0) +
-                (dateTime.nano / 3600000000000.0)
+        var y = dateTime.year
+        var m = dateTime.monthValue
+        val d = dateTime.dayOfMonth + dateTime.hour / 24.0 + dateTime.minute / 1440.0 + dateTime.second / 86400.0
 
-        val sweDate = SweDate(
-            dateTime.year,
-            dateTime.monthValue,
-            dateTime.dayOfMonth,
-            decimalHours,
-            SweDate.SE_GREG_CAL
-        )
-        return sweDate.julDay
+        if (m <= 2) {
+            y -= 1
+            m += 12
+        }
+
+        val a = y / 100
+        val b = 2 - a + a / 4
+
+        return (365.25 * (y + 4716)).toLong() + (30.6001 * (m + 1)).toLong() + d + b - 1524.5
     }
 
-    private fun jdToLocalDateTime(jd: Double, timezone: String): LocalDateTime {
-        val sweDate = SweDate(jd)
+    private fun jdToLocalDateTime(julianDay: Double, timezone: String): LocalDateTime {
+        val z = floor(julianDay + 0.5).toLong()
+        val f = julianDay + 0.5 - z
 
-        val year = sweDate.year
-        val month = sweDate.month
-        val day = sweDate.day
-        val hourDecimal = sweDate.hour
+        val a = if (z < 2299161) z else {
+            val alpha = floor((z - 1867216.25) / 36524.25).toLong()
+            z + 1 + alpha - alpha / 4
+        }
 
-        val hour = hourDecimal.toInt()
-        val minuteDecimal = (hourDecimal - hour) * 60.0
-        val minute = minuteDecimal.toInt()
-        val secondDecimal = (minuteDecimal - minute) * 60.0
-        val second = secondDecimal.toInt()
-        val nano = ((secondDecimal - second) * 1_000_000_000).toLong()
+        val b = a + 1524
+        val c = floor((b - 122.1) / 365.25).toLong()
+        val d = floor(365.25 * c).toLong()
+        val e = floor((b - d) / 30.6001).toLong()
 
-        val utcDateTime = LocalDateTime.of(
-            year,
-            month.coerceIn(1, 12),
-            day.coerceIn(1, 28),
-            hour.coerceIn(0, 23),
-            minute.coerceIn(0, 59),
-            second.coerceIn(0, 59),
-            nano.coerceIn(0, 999_999_999).toInt()
-        )
+        val day = (b - d - floor(30.6001 * e)).toInt()
+        val month = if (e < 14) e - 1 else e - 13
+        val year = if (month > 2) c - 4716 else c - 4715
 
-        return try {
-            val utcZoned = ZonedDateTime.of(utcDateTime, ZoneId.of("UTC"))
-            val localZoned = utcZoned.withZoneSameInstant(ZoneId.of(timezone))
-            localZoned.toLocalDateTime()
-        } catch (e: Exception) {
-            utcDateTime
+        val totalHours = f * 24.0
+        val hour = totalHours.toInt()
+        val totalMinutes = (totalHours - hour) * 60.0
+        val minute = totalMinutes.toInt()
+        val second = ((totalMinutes - minute) * 60.0).toInt()
+
+        val utcDateTime = LocalDateTime.of(year.toInt(), month.toInt(), day, hour, minute, second)
+        val utcZoned = ZonedDateTime.of(utcDateTime, ZoneId.of("UTC"))
+        val localZoned = utcZoned.withZoneSameInstant(ZoneId.of(timezone))
+
+        return localZoned.toLocalDateTime()
+    }
+
+    private fun normalizeAngle(angle: Double): Double {
+        var result = angle % 360.0
+        if (result < 0) result += 360.0
+        return result
+    }
+
+    private fun getZodiacSignFromLongitude(longitude: Double): ZodiacSign {
+        val normalizedLong = normalizeAngle(longitude)
+        val signIndex = (normalizedLong / 30.0).toInt().coerceIn(0, 11)
+        return STANDARD_ZODIAC_SIGNS[signIndex]
+    }
+
+    private fun getStandardZodiacIndex(sign: ZodiacSign): Int {
+        val index = STANDARD_ZODIAC_SIGNS.indexOf(sign)
+        return if (index >= 0) index else 0
+    }
+
+    private fun calculateWholeSignHouse(longitude: Double, ascendantLongitude: Double): Int {
+        val normalizedLong = normalizeAngle(longitude)
+        val normalizedAsc = normalizeAngle(ascendantLongitude)
+        val ascSign = (normalizedAsc / 30.0).toInt().coerceIn(0, 11)
+        val planetSign = (normalizedLong / 30.0).toInt().coerceIn(0, 11)
+        val house = ((planetSign - ascSign + 12) % 12) + 1
+        return house.coerceIn(1, 12)
+    }
+
+    private fun isDayChart(sunLongitude: Double, ascendant: Double): Boolean {
+        val normalizedSun = normalizeAngle(sunLongitude)
+        val normalizedAsc = normalizeAngle(ascendant)
+        val sunSign = (normalizedSun / 30.0).toInt().coerceIn(0, 11)
+        val ascSign = (normalizedAsc / 30.0).toInt().coerceIn(0, 11)
+        val houseOfSun = ((sunSign - ascSign + 12) % 12) + 1
+        return houseOfSun in listOf(7, 8, 9, 10, 11, 12, 1)
+    }
+
+    private fun getYearLordDignityDescription(planet: Planet, chart: SolarReturnChart): String {
+        val position = chart.planetPositions[planet] ?: return "Year Lord's position is undefined."
+
+        val dignityDetails = mutableListOf<String>()
+
+        when {
+            isExalted(planet, position.sign) -> dignityDetails.add("exalted in ${position.sign.displayName}")
+            OWN_SIGNS[planet]?.contains(position.sign) == true -> dignityDetails.add("in its own sign of ${position.sign.displayName}")
+            isDebilitated(planet, position.sign) -> dignityDetails.add("debilitated in ${position.sign.displayName}")
+            else -> {
+                val signLord = position.sign.ruler
+                when {
+                    areFriends(planet, signLord) -> dignityDetails.add("in the friendly sign of ${position.sign.displayName}")
+                    areNeutral(planet, signLord) -> dignityDetails.add("in the neutral sign of ${position.sign.displayName}")
+                    else -> dignityDetails.add("in the enemy sign of ${position.sign.displayName}")
+                }
+            }
+        }
+
+        when (position.house) {
+            1, 4, 7, 10 -> dignityDetails.add("in an angular house (Kendra)")
+            5, 9 -> dignityDetails.add("in a trine house (Trikona)")
+            2, 11 -> dignityDetails.add("in a house of gains")
+            3, 6 -> dignityDetails.add("in an upachaya house")
+            8, 12 -> dignityDetails.add("in a challenging house (Dusthana)")
+        }
+
+        if (position.isRetrograde) {
+            dignityDetails.add("and is retrograde")
+        }
+
+        return "The Year Lord ${planet.displayName} is ${dignityDetails.joinToString(", ")}. This suggests its influence will be potent and its results will manifest clearly throughout the year."
+    }
+
+    private fun evaluatePlanetStrengthDescription(planet: Planet, chart: SolarReturnChart): String {
+        val position = chart.planetPositions[planet] ?: return "Unknown"
+        val sign = position.sign
+
+        return when {
+            isExalted(planet, sign) -> "Exalted"
+            isDebilitated(planet, sign) -> "Debilitated"
+            OWN_SIGNS[planet]?.contains(sign) == true -> "Strong"
+            position.house in listOf(1, 4, 7, 10) -> "Angular"
+            position.isRetrograde -> "Retrograde"
+            else -> "Moderate"
         }
     }
 
-    fun close() {
-        swissEph.swe_close()
+    private fun isExalted(planet: Planet, sign: ZodiacSign): Boolean {
+        val exaltationDegree = EXALTATION_DEGREES[planet] ?: return false
+        val exaltationSign = getZodiacSignFromLongitude(exaltationDegree)
+        return sign == exaltationSign
     }
+
+    private fun isDebilitated(planet: Planet, sign: ZodiacSign): Boolean {
+        return DEBILITATION_SIGNS[planet] == sign
+    }
+
+    private fun areFriends(planet1: Planet, planet2: Planet): Boolean {
+        return FRIENDSHIPS[planet1]?.contains(planet2) == true
+    }
+
+    private fun areNeutral(planet1: Planet, planet2: Planet): Boolean {
+        return NEUTRALS[planet1]?.contains(planet2) == true
+    }
+
+    private fun getHouseSignificance(house: Int): String {
+        return when (house) {
+            1 -> "personal development and health"
+            2 -> "finances and family"
+            3 -> "communication and siblings"
+            4 -> "home and property"
+            5 -> "creativity and children"
+            6 -> "health and service"
+            7 -> "partnerships and marriage"
+            8 -> "transformation and inheritance"
+            9 -> "fortune and higher learning"
+            10 -> "career and status"
+            11 -> "gains and friendships"
+            12 -> "spirituality and foreign matters"
+            else -> "various life areas"
+        }
+    }
+
+    private fun getOrdinalSuffix(n: Int): String {
+        return when {
+            n in 11..13 -> "th"
+            n % 10 == 1 -> "st"
+            n % 10 == 2 -> "nd"
+            n % 10 == 3 -> "rd"
+            else -> "th"
+        }
+    }
+
+    fun getHouseMeaning(house: Int): String = getHouseSignificance(house)
+
+    fun getHouseKeywordsExternal(house: Int): List<String> = getHouseKeywords(house)
 }
-        

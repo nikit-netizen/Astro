@@ -2878,103 +2878,97 @@ private fun getManglikQuickStatus(result: MatchmakingCalculator.MatchmakingResul
     }
 }
 
+private fun getMoonPosition(chart: VedicChart) = chart.planetPositions.find {
+    it.planet == com.astro.storm.data.model.Planet.MOON
+}
+
 private fun getNakshatraName(chart: VedicChart): String {
-    val moonPosition = chart.planetPositions.find {
-        it.planet.name.equals("Moon", ignoreCase = true)
-    } ?: return "Unknown"
-    
-    val moonLongitude = moonPosition.longitude
-    val nakshatraIndex = ((moonLongitude / 13.333333333) % 27.0).toInt()
-    return nakshatraNames.getOrElse(nakshatraIndex) { "Unknown" }
+    return getMoonPosition(chart)?.nakshatra?.displayName ?: "Unknown"
 }
 
 private fun getRashiName(chart: VedicChart): String {
-    val moonPosition = chart.planetPositions.find {
-        it.planet.name.equals("Moon", ignoreCase = true)
-    } ?: return "Unknown"
-    
-    val moonLongitude = moonPosition.longitude
-    val rashiIndex = (moonLongitude / 30.0).toInt() % 12
-    return rashiNames.getOrElse(rashiIndex) { "Unknown" }
+    val moonPosition = getMoonPosition(chart) ?: return "Unknown"
+    return moonPosition.sign.displayName
 }
 
 private fun getPada(chart: VedicChart): String {
-    val moonPosition = chart.planetPositions.find {
-        it.planet.name.equals("Moon", ignoreCase = true)
-    } ?: return "Unknown"
-    
-    val moonLongitude = moonPosition.longitude
-    val nakshatraDegree = moonLongitude % 13.333333333
-    val pada = (nakshatraDegree / 3.333333333).toInt() + 1
-    return "Pada $pada"
+    val moonPosition = getMoonPosition(chart) ?: return "Unknown"
+    return "Pada ${moonPosition.nakshatraPada}"
 }
 
 private fun getNakshatraLord(chart: VedicChart): String {
-    val moonPosition = chart.planetPositions.find {
-        it.planet.name.equals("Moon", ignoreCase = true)
-    } ?: return "Unknown"
-    
-    val moonLongitude = moonPosition.longitude
-    val nakshatraIndex = ((moonLongitude / 13.333333333) % 27.0).toInt()
-    return nakshatraLords.getOrElse(nakshatraIndex) { "Unknown" }
+    val moonPosition = getMoonPosition(chart) ?: return "Unknown"
+    return moonPosition.nakshatra.ruler.displayName
 }
 
 private fun getGana(chart: VedicChart): String {
-    val moonPosition = chart.planetPositions.find {
-        it.planet.name.equals("Moon", ignoreCase = true)
-    } ?: return "Unknown"
-    
-    val moonLongitude = moonPosition.longitude
-    val nakshatraIndex = ((moonLongitude / 13.333333333) % 27.0).toInt()
-    return nakshatraGana.getOrElse(nakshatraIndex) { "Unknown" }
+    val moonPosition = getMoonPosition(chart) ?: return "Unknown"
+    return nakshatraGanaMap[moonPosition.nakshatra] ?: "Unknown"
 }
 
 private fun getYoni(chart: VedicChart): String {
-    val moonPosition = chart.planetPositions.find {
-        it.planet.name.equals("Moon", ignoreCase = true)
-    } ?: return "Unknown"
-    
-    val moonLongitude = moonPosition.longitude
-    val nakshatraIndex = ((moonLongitude / 13.333333333) % 27.0).toInt()
-    return nakshatraYoni.getOrElse(nakshatraIndex) { "Unknown" }
+    val moonPosition = getMoonPosition(chart) ?: return "Unknown"
+    return nakshatraYoniMap[moonPosition.nakshatra] ?: "Unknown"
 }
 
-private val nakshatraNames = listOf(
-    "Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashira", "Ardra",
-    "Punarvasu", "Pushya", "Ashlesha", "Magha", "Purva Phalguni", "Uttara Phalguni",
-    "Hasta", "Chitra", "Swati", "Vishakha", "Anuradha", "Jyeshtha",
-    "Mula", "Purva Ashadha", "Uttara Ashadha", "Shravana", "Dhanishta", "Shatabhisha",
-    "Purva Bhadrapada", "Uttara Bhadrapada", "Revati"
+// Gana mapping for each nakshatra
+private val nakshatraGanaMap = mapOf(
+    com.astro.storm.data.model.Nakshatra.ASHWINI to "Deva",
+    com.astro.storm.data.model.Nakshatra.BHARANI to "Manushya",
+    com.astro.storm.data.model.Nakshatra.KRITTIKA to "Rakshasa",
+    com.astro.storm.data.model.Nakshatra.ROHINI to "Manushya",
+    com.astro.storm.data.model.Nakshatra.MRIGASHIRA to "Deva",
+    com.astro.storm.data.model.Nakshatra.ARDRA to "Manushya",
+    com.astro.storm.data.model.Nakshatra.PUNARVASU to "Deva",
+    com.astro.storm.data.model.Nakshatra.PUSHYA to "Deva",
+    com.astro.storm.data.model.Nakshatra.ASHLESHA to "Rakshasa",
+    com.astro.storm.data.model.Nakshatra.MAGHA to "Rakshasa",
+    com.astro.storm.data.model.Nakshatra.PURVA_PHALGUNI to "Manushya",
+    com.astro.storm.data.model.Nakshatra.UTTARA_PHALGUNI to "Manushya",
+    com.astro.storm.data.model.Nakshatra.HASTA to "Deva",
+    com.astro.storm.data.model.Nakshatra.CHITRA to "Rakshasa",
+    com.astro.storm.data.model.Nakshatra.SWATI to "Deva",
+    com.astro.storm.data.model.Nakshatra.VISHAKHA to "Rakshasa",
+    com.astro.storm.data.model.Nakshatra.ANURADHA to "Deva",
+    com.astro.storm.data.model.Nakshatra.JYESHTHA to "Rakshasa",
+    com.astro.storm.data.model.Nakshatra.MULA to "Rakshasa",
+    com.astro.storm.data.model.Nakshatra.PURVA_ASHADHA to "Manushya",
+    com.astro.storm.data.model.Nakshatra.UTTARA_ASHADHA to "Manushya",
+    com.astro.storm.data.model.Nakshatra.SHRAVANA to "Deva",
+    com.astro.storm.data.model.Nakshatra.DHANISHTHA to "Rakshasa",
+    com.astro.storm.data.model.Nakshatra.SHATABHISHA to "Rakshasa",
+    com.astro.storm.data.model.Nakshatra.PURVA_BHADRAPADA to "Manushya",
+    com.astro.storm.data.model.Nakshatra.UTTARA_BHADRAPADA to "Manushya",
+    com.astro.storm.data.model.Nakshatra.REVATI to "Deva"
 )
 
-private val rashiNames = listOf(
-    "Mesha (Aries)", "Vrishabha (Taurus)", "Mithuna (Gemini)", "Karka (Cancer)",
-    "Simha (Leo)", "Kanya (Virgo)", "Tula (Libra)", "Vrishchika (Scorpio)",
-    "Dhanu (Sagittarius)", "Makara (Capricorn)", "Kumbha (Aquarius)", "Meena (Pisces)"
-)
-
-private val nakshatraLords = listOf(
-    "Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu",
-    "Jupiter", "Saturn", "Mercury", "Ketu", "Venus", "Sun",
-    "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury",
-    "Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu",
-    "Jupiter", "Saturn", "Mercury"
-)
-
-private val nakshatraGana = listOf(
-    "Deva", "Manushya", "Rakshasa", "Manushya", "Deva", "Manushya",
-    "Deva", "Deva", "Rakshasa", "Rakshasa", "Manushya", "Manushya",
-    "Deva", "Rakshasa", "Deva", "Rakshasa", "Deva", "Rakshasa",
-    "Rakshasa", "Manushya", "Manushya", "Deva", "Rakshasa", "Rakshasa",
-    "Manushya", "Manushya", "Deva"
-)
-
-private val nakshatraYoni = listOf(
-    "Horse (Male)", "Elephant (Male)", "Sheep (Female)", "Serpent (Male)", 
-    "Serpent (Female)", "Dog (Female)", "Cat (Female)", "Sheep (Male)", 
-    "Cat (Male)", "Rat (Male)", "Rat (Female)", "Cow (Male)",
-    "Buffalo (Female)", "Tiger (Female)", "Buffalo (Male)", "Tiger (Male)", 
-    "Deer (Female)", "Deer (Male)", "Dog (Male)", "Monkey (Male)", 
-    "Mongoose (Male)", "Monkey (Female)", "Lion (Female)", "Horse (Female)",
-    "Lion (Male)", "Cow (Female)", "Elephant (Female)"
+// Yoni mapping for each nakshatra
+private val nakshatraYoniMap = mapOf(
+    com.astro.storm.data.model.Nakshatra.ASHWINI to "Horse (Male)",
+    com.astro.storm.data.model.Nakshatra.BHARANI to "Elephant (Male)",
+    com.astro.storm.data.model.Nakshatra.KRITTIKA to "Sheep (Female)",
+    com.astro.storm.data.model.Nakshatra.ROHINI to "Serpent (Male)",
+    com.astro.storm.data.model.Nakshatra.MRIGASHIRA to "Serpent (Female)",
+    com.astro.storm.data.model.Nakshatra.ARDRA to "Dog (Female)",
+    com.astro.storm.data.model.Nakshatra.PUNARVASU to "Cat (Female)",
+    com.astro.storm.data.model.Nakshatra.PUSHYA to "Sheep (Male)",
+    com.astro.storm.data.model.Nakshatra.ASHLESHA to "Cat (Male)",
+    com.astro.storm.data.model.Nakshatra.MAGHA to "Rat (Male)",
+    com.astro.storm.data.model.Nakshatra.PURVA_PHALGUNI to "Rat (Female)",
+    com.astro.storm.data.model.Nakshatra.UTTARA_PHALGUNI to "Cow (Male)",
+    com.astro.storm.data.model.Nakshatra.HASTA to "Buffalo (Female)",
+    com.astro.storm.data.model.Nakshatra.CHITRA to "Tiger (Female)",
+    com.astro.storm.data.model.Nakshatra.SWATI to "Buffalo (Male)",
+    com.astro.storm.data.model.Nakshatra.VISHAKHA to "Tiger (Male)",
+    com.astro.storm.data.model.Nakshatra.ANURADHA to "Deer (Female)",
+    com.astro.storm.data.model.Nakshatra.JYESHTHA to "Deer (Male)",
+    com.astro.storm.data.model.Nakshatra.MULA to "Dog (Male)",
+    com.astro.storm.data.model.Nakshatra.PURVA_ASHADHA to "Monkey (Male)",
+    com.astro.storm.data.model.Nakshatra.UTTARA_ASHADHA to "Mongoose (Male)",
+    com.astro.storm.data.model.Nakshatra.SHRAVANA to "Monkey (Female)",
+    com.astro.storm.data.model.Nakshatra.DHANISHTHA to "Lion (Female)",
+    com.astro.storm.data.model.Nakshatra.SHATABHISHA to "Horse (Female)",
+    com.astro.storm.data.model.Nakshatra.PURVA_BHADRAPADA to "Lion (Male)",
+    com.astro.storm.data.model.Nakshatra.UTTARA_BHADRAPADA to "Cow (Female)",
+    com.astro.storm.data.model.Nakshatra.REVATI to "Elephant (Female)"
 )
