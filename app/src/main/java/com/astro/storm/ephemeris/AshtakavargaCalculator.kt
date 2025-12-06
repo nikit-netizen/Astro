@@ -697,8 +697,8 @@ object AshtakavargaCalculator {
      * Get sign at specific house from a reference sign
      */
     private fun getSignAtHouse(referenceSign: ZodiacSign, house: Int): ZodiacSign {
-        val targetNumber = ((referenceSign.number - 1 + house - 1) % 12) + 1
-        return ZodiacSign.entries.find { it.number == targetNumber }!!
+        val targetIndex = (referenceSign.ordinal + house - 1) % 12
+        return ZodiacSign.entries[targetIndex]
     }
 
     /**

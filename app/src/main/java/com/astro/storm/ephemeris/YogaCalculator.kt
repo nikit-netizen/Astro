@@ -1392,8 +1392,8 @@ object YogaCalculator {
     private fun getHouseLords(ascendantSign: ZodiacSign): Map<Int, Planet> {
         val lords = mutableMapOf<Int, Planet>()
         for (house in 1..12) {
-            val signNumber = ((ascendantSign.number - 1 + house - 1) % 12) + 1
-            val sign = ZodiacSign.entries.find { it.number == signNumber }!!
+            val signIndex = (ascendantSign.ordinal + house - 1) % 12
+            val sign = ZodiacSign.entries[signIndex]
             lords[house] = sign.ruler
         }
         return lords
