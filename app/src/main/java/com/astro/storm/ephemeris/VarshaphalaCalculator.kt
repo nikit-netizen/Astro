@@ -628,7 +628,7 @@ class VarshaphalaCalculator(context: Context) {
         val julianDay = calculateJulianDay(utcDateTime.toLocalDateTime())
         val ayanamsa = swissEph.swe_get_ayanamsa_ut(julianDay)
 
-        val cusps = DoubleArray(13)
+        val cusps = DoubleArray(14)
         val ascmc = DoubleArray(10)
         swissEph.swe_houses(julianDay, SEFLG_SIDEREAL, latitude, longitude, 'W'.code, cusps, ascmc)
 
