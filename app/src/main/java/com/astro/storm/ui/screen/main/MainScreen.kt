@@ -51,6 +51,14 @@ fun MainScreen(
     onNavigateToRemedies: () -> Unit = {},
     onNavigateToVarshaphala: () -> Unit = {},
     onNavigateToPrashna: () -> Unit = {},
+    onNavigateToBirthChart: () -> Unit = {},
+    onNavigateToPlanets: () -> Unit = {},
+    onNavigateToYogas: () -> Unit = {},
+    onNavigateToDashas: () -> Unit = {},
+    onNavigateToTransits: () -> Unit = {},
+    onNavigateToAshtakavarga: () -> Unit = {},
+    onNavigateToPanchanga: () -> Unit = {},
+    onNavigateToProfileEdit: () -> Unit = {},
     onExportChart: (ExportFormat) -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -98,10 +106,17 @@ fun MainScreen(
                                         InsightFeature.MATCHMAKING -> onNavigateToMatchmaking()
                                         InsightFeature.MUHURTA -> onNavigateToMuhurta()
                                         InsightFeature.PRASHNA -> onNavigateToPrashna()
-                                        // Features that require a chart
+                                        // Features that require a chart - navigate to individual screens
+                                        InsightFeature.FULL_CHART -> if (currentChart != null) onNavigateToBirthChart()
+                                        InsightFeature.PLANETS -> if (currentChart != null) onNavigateToPlanets()
+                                        InsightFeature.YOGAS -> if (currentChart != null) onNavigateToYogas()
+                                        InsightFeature.DASHAS -> if (currentChart != null) onNavigateToDashas()
+                                        InsightFeature.TRANSITS -> if (currentChart != null) onNavigateToTransits()
+                                        InsightFeature.ASHTAKAVARGA -> if (currentChart != null) onNavigateToAshtakavarga()
+                                        InsightFeature.PANCHANGA -> if (currentChart != null) onNavigateToPanchanga()
                                         InsightFeature.REMEDIES -> if (currentChart != null) onNavigateToRemedies()
                                         InsightFeature.VARSHAPHALA -> if (currentChart != null) onNavigateToVarshaphala()
-                                        // Standard chart analysis features
+                                        // Fallback to chart analysis for any remaining features
                                         else -> if (currentChart != null) onNavigateToChartAnalysis(feature)
                                     }
                                 }
@@ -117,7 +132,7 @@ fun MainScreen(
                         SettingsTab(
                             currentChart = currentChart,
                             savedCharts = savedCharts,
-                            onEditProfile = { /* Edit profile */ },
+                            onEditProfile = { onNavigateToProfileEdit() },
                             onDeleteProfile = { chartId ->
                                 viewModel.deleteChart(chartId)
                             },

@@ -26,5 +26,6 @@ data class ChartEntity(
     val planetPositionsJson: String,
     val houseCuspsJson: String,
     val houseSystem: String,
+    val gender: String = "PREFER_NOT_TO_SAY",
     val createdAt: Long = System.currentTimeMillis()
 )

@@ -33,6 +33,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.astro.storm.data.model.BirthData
+import com.astro.storm.data.model.Gender
+import com.astro.storm.ui.components.LocationSearchField
 import com.astro.storm.ui.viewmodel.ChartUiState
 import com.astro.storm.ui.viewmodel.ChartViewModel
 import kotlinx.coroutines.launch
@@ -65,6 +67,7 @@ fun ChartInputScreen(
     val focusManager = LocalFocusManager.current
 
     var name by remember { mutableStateOf("") }
+    var selectedGender by remember { mutableStateOf(Gender.PREFER_NOT_TO_SAY) }
     var locationLabel by remember { mutableStateOf("") }
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     var selectedTime by remember { mutableStateOf(LocalTime.of(10, 0)) }
@@ -199,14 +202,40 @@ fun ChartInputScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            StyledOutlinedTextField(
+            // Gender Selection
+            Text(
+                text = "Gender",
+                fontSize = 14.sp,
+                color = TextSecondary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Gender.entries.forEach { gender ->
+                    GenderChip(
+                        text = gender.displayName,
+                        isSelected = selectedGender == gender,
+                        onClick = { selectedGender = gender },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Location Search with Geocoding
+            LocationSearchField(
                 value = locationLabel,
                 onValueChange = { locationLabel = it },
-                label = "Location label (optional)",
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(
-                    onNext = { focusManager.moveFocus(FocusDirection.Down) }
-                )
+                onLocationSelected = { location, lat, lon ->
+                    locationLabel = location
+                    latitude = lat.toString()
+                    longitude = lon.toString()
+                },
+                label = "Location",
+                placeholder = "Search city or enter manually"
             )
 
             Spacer(modifier = Modifier.height(28.dp))
@@ -402,7 +431,8 @@ fun ChartInputScreen(
                             latitude = lat,
                             longitude = lon,
                             timezone = selectedTimezone,
-                            location = locationLabel.ifBlank { "Unknown" }
+                            location = locationLabel.ifBlank { "Unknown" },
+                            gender = selectedGender
                         )
                         chartCalculationInitiated = true
                         viewModel.calculateChart(birthData)
@@ -753,6 +783,34 @@ private fun TimePickerDialog(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun GenderChip(
+    text: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier.height(40.dp),
+        shape = RoundedCornerShape(20.dp),
+        color = if (isSelected) AccentColor else ChipBackground,
+        border = BorderStroke(1.dp, if (isSelected) AccentColor else BorderColor)
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Text(
+                text = text,
+                color = if (isSelected) ButtonText else TextPrimary,
+                fontSize = 12.sp,
+                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+            )
         }
     }
 }

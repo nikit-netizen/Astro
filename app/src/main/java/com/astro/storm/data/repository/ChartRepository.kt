@@ -78,7 +78,8 @@ class ChartRepository(private val chartDao: ChartDao) {
             midheaven = midheaven,
             planetPositionsJson = planetPositionsJson,
             houseCuspsJson = houseCuspsJson,
-            houseSystem = houseSystem.name
+            houseSystem = houseSystem.name,
+            gender = birthData.gender.name
         )
     }
 
@@ -117,7 +118,8 @@ class ChartRepository(private val chartDao: ChartDao) {
                     latitude = latitude,
                     longitude = longitude,
                     timezone = timezone,
-                    location = location
+                    location = location,
+                    gender = Gender.fromString(gender)
                 ),
                 julianDay = julianDay,
                 ayanamsa = ayanamsa,

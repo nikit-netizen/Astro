@@ -10,13 +10,21 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.astro.storm.data.model.VedicChart
+import com.astro.storm.ui.screen.AshtakavargaScreen
+import com.astro.storm.ui.screen.BirthChartScreen
 import com.astro.storm.ui.screen.ChartAnalysisScreen
 import com.astro.storm.ui.screen.ChartInputScreen
+import com.astro.storm.ui.screen.DashasScreen
 import com.astro.storm.ui.screen.MatchmakingScreen
 import com.astro.storm.ui.screen.MuhurtaScreen
+import com.astro.storm.ui.screen.PanchangaScreen
+import com.astro.storm.ui.screen.PlanetsScreen
 import com.astro.storm.ui.screen.PrashnaScreen
+import com.astro.storm.ui.screen.ProfileEditScreen
 import com.astro.storm.ui.screen.RemediesScreen
+import com.astro.storm.ui.screen.TransitsScreen
 import com.astro.storm.ui.screen.VarshaphalaScreen
+import com.astro.storm.ui.screen.YogasScreen
 import com.astro.storm.ui.screen.main.ExportFormat
 import com.astro.storm.ui.screen.main.InsightFeature
 import com.astro.storm.ui.screen.main.MainScreen
@@ -43,6 +51,32 @@ sealed class Screen(val route: String) {
         fun createRoute(chartId: Long) = "varshaphala/$chartId"
     }
     object Prashna : Screen("prashna")
+
+    // Individual chart analysis screens
+    object BirthChart : Screen("birth_chart/{chartId}") {
+        fun createRoute(chartId: Long) = "birth_chart/$chartId"
+    }
+    object Planets : Screen("planets/{chartId}") {
+        fun createRoute(chartId: Long) = "planets/$chartId"
+    }
+    object Yogas : Screen("yogas/{chartId}") {
+        fun createRoute(chartId: Long) = "yogas/$chartId"
+    }
+    object Dashas : Screen("dashas/{chartId}") {
+        fun createRoute(chartId: Long) = "dashas/$chartId"
+    }
+    object Transits : Screen("transits/{chartId}") {
+        fun createRoute(chartId: Long) = "transits/$chartId"
+    }
+    object Ashtakavarga : Screen("ashtakavarga/{chartId}") {
+        fun createRoute(chartId: Long) = "ashtakavarga/$chartId"
+    }
+    object Panchanga : Screen("panchanga/{chartId}") {
+        fun createRoute(chartId: Long) = "panchanga/$chartId"
+    }
+    object ProfileEdit : Screen("profile_edit/{chartId}") {
+        fun createRoute(chartId: Long) = "profile_edit/$chartId"
+    }
 
     // Legacy routes for backward compatibility
     object Home : Screen("home")
@@ -117,6 +151,46 @@ fun AstroStormNavigation(
                 },
                 onNavigateToPrashna = {
                     navController.navigate(Screen.Prashna.route)
+                },
+                onNavigateToBirthChart = {
+                    selectedChartId?.let { chartId ->
+                        navController.navigate(Screen.BirthChart.createRoute(chartId))
+                    }
+                },
+                onNavigateToPlanets = {
+                    selectedChartId?.let { chartId ->
+                        navController.navigate(Screen.Planets.createRoute(chartId))
+                    }
+                },
+                onNavigateToYogas = {
+                    selectedChartId?.let { chartId ->
+                        navController.navigate(Screen.Yogas.createRoute(chartId))
+                    }
+                },
+                onNavigateToDashas = {
+                    selectedChartId?.let { chartId ->
+                        navController.navigate(Screen.Dashas.createRoute(chartId))
+                    }
+                },
+                onNavigateToTransits = {
+                    selectedChartId?.let { chartId ->
+                        navController.navigate(Screen.Transits.createRoute(chartId))
+                    }
+                },
+                onNavigateToAshtakavarga = {
+                    selectedChartId?.let { chartId ->
+                        navController.navigate(Screen.Ashtakavarga.createRoute(chartId))
+                    }
+                },
+                onNavigateToPanchanga = {
+                    selectedChartId?.let { chartId ->
+                        navController.navigate(Screen.Panchanga.createRoute(chartId))
+                    }
+                },
+                onNavigateToProfileEdit = {
+                    selectedChartId?.let { chartId ->
+                        navController.navigate(Screen.ProfileEdit.createRoute(chartId))
+                    }
                 },
                 onExportChart = { format ->
                     currentChart?.let { chart ->
@@ -259,6 +333,161 @@ fun AstroStormNavigation(
             PrashnaScreen(
                 chart = currentChart,
                 onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Birth Chart screen
+        composable(
+            route = Screen.BirthChart.route,
+            arguments = listOf(navArgument("chartId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val chartId = backStackEntry.arguments?.getLong("chartId") ?: return@composable
+
+            LaunchedEffect(chartId) {
+                if (selectedChartId != chartId) {
+                    viewModel.loadChart(chartId)
+                }
+            }
+
+            BirthChartScreen(
+                chart = currentChart,
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Planets screen
+        composable(
+            route = Screen.Planets.route,
+            arguments = listOf(navArgument("chartId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val chartId = backStackEntry.arguments?.getLong("chartId") ?: return@composable
+
+            LaunchedEffect(chartId) {
+                if (selectedChartId != chartId) {
+                    viewModel.loadChart(chartId)
+                }
+            }
+
+            PlanetsScreen(
+                chart = currentChart,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Yogas screen
+        composable(
+            route = Screen.Yogas.route,
+            arguments = listOf(navArgument("chartId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val chartId = backStackEntry.arguments?.getLong("chartId") ?: return@composable
+
+            LaunchedEffect(chartId) {
+                if (selectedChartId != chartId) {
+                    viewModel.loadChart(chartId)
+                }
+            }
+
+            YogasScreen(
+                chart = currentChart,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Dashas screen
+        composable(
+            route = Screen.Dashas.route,
+            arguments = listOf(navArgument("chartId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val chartId = backStackEntry.arguments?.getLong("chartId") ?: return@composable
+
+            LaunchedEffect(chartId) {
+                if (selectedChartId != chartId) {
+                    viewModel.loadChart(chartId)
+                }
+            }
+
+            DashasScreen(
+                chart = currentChart,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Transits screen
+        composable(
+            route = Screen.Transits.route,
+            arguments = listOf(navArgument("chartId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val chartId = backStackEntry.arguments?.getLong("chartId") ?: return@composable
+
+            LaunchedEffect(chartId) {
+                if (selectedChartId != chartId) {
+                    viewModel.loadChart(chartId)
+                }
+            }
+
+            TransitsScreen(
+                chart = currentChart,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Ashtakavarga screen
+        composable(
+            route = Screen.Ashtakavarga.route,
+            arguments = listOf(navArgument("chartId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val chartId = backStackEntry.arguments?.getLong("chartId") ?: return@composable
+
+            LaunchedEffect(chartId) {
+                if (selectedChartId != chartId) {
+                    viewModel.loadChart(chartId)
+                }
+            }
+
+            AshtakavargaScreen(
+                chart = currentChart,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Panchanga screen
+        composable(
+            route = Screen.Panchanga.route,
+            arguments = listOf(navArgument("chartId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val chartId = backStackEntry.arguments?.getLong("chartId") ?: return@composable
+
+            LaunchedEffect(chartId) {
+                if (selectedChartId != chartId) {
+                    viewModel.loadChart(chartId)
+                }
+            }
+
+            PanchangaScreen(
+                chart = currentChart,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Profile Edit screen
+        composable(
+            route = Screen.ProfileEdit.route,
+            arguments = listOf(navArgument("chartId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val chartId = backStackEntry.arguments?.getLong("chartId") ?: return@composable
+
+            LaunchedEffect(chartId) {
+                if (selectedChartId != chartId) {
+                    viewModel.loadChart(chartId)
+                }
+            }
+
+            ProfileEditScreen(
+                chart = currentChart,
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() },
+                onSaveComplete = { navController.popBackStack() }
             )
         }
 
