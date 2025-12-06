@@ -1,7 +1,7 @@
 package com.astro.storm.ui.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.astro.storm.data.model.VedicChart
 import com.astro.storm.ephemeris.DashaCalculator
@@ -45,7 +45,7 @@ sealed class InsightsUiState {
     data object Idle : InsightsUiState()
 }
 
-class InsightsViewModel(private val application: Application) : ViewModel() {
+class InsightsViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow<InsightsUiState>(InsightsUiState.Idle)
     val uiState = _uiState.asStateFlow()
