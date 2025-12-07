@@ -162,6 +162,17 @@ fun BirthChartScreen(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
+            ChartTabContent(
+                chart = chart,
+                chartRenderer = chartRenderer,
+                onChartClick = { title, divisionalData ->
+                    fullScreenChartTitle = title
+                    fullScreenDivisionalData = divisionalData
+                    showFullScreenChart = true
+                },
+                onPlanetClick = { selectedPlanetPosition = it },
+                onHouseClick = { selectedHouse = it }
+            )
         }
     }
 }
