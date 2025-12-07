@@ -7,24 +7,51 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.roundToInt
 
 class HoroscopeCalculator(private val context: Context) : AutoCloseable {
 
-    private val ephemerisEngine = SwissEphemerisEngine.create(context)
-    private val transitCache = ConcurrentHashMap<TransitCacheKey, VedicChart>()
-    private val dailyHoroscopeCache = ConcurrentHashMap<DailyHoroscopeCacheKey, DailyHoroscope>()
+    private val ephemerisEngine: SwissEphemerisEngine by lazy {
+        SwissEphemerisEngine.create(context)
+    }
+
+    private val transitCache = LRUCache<TransitCacheKey, VedicChart>(MAX_TRANSIT_CACHE_SIZE)
+    private val dailyHoroscopeCache = LRUCache<DailyHoroscopeCacheKey, DailyHoroscope>(MAX_HOROSCOPE_CACHE_SIZE)
+    private val natalDataCache = LRUCache<String, NatalChartCachedData>(MAX_NATAL_CACHE_SIZE)
+
+    private val isClosed = AtomicBoolean(false)
 
     private data class TransitCacheKey(
         val date: LocalDate,
-        val latitude: Double,
-        val longitude: Double,
+        val latitudeInt: Int,
+        val longitudeInt: Int,
         val timezone: String
-    )
+    ) {
+        companion object {
+            fun from(date: LocalDate, latitude: Double, longitude: Double, timezone: String): TransitCacheKey {
+                return TransitCacheKey(
+                    date = date,
+                    latitudeInt = (latitude * 1000).toInt(),
+                    longitudeInt = (longitude * 1000).toInt(),
+                    timezone = timezone
+                )
+            }
+        }
+    }
 
     private data class DailyHoroscopeCacheKey(
-        val chartHashCode: Int,
+        val chartId: String,
         val date: LocalDate
+    )
+
+    private data class NatalChartCachedData(
+        val planetMap: Map<Planet, PlanetPosition>,
+        val moonSign: ZodiacSign,
+        val moonHouse: Int,
+        val ascendantSign: ZodiacSign,
+        val ashtakavarga: AshtakavargaCalculator.AshtakavargaAnalysis?,
+        val dashaTimeline: DashaCalculator.DashaTimeline
     )
 
     data class DailyHoroscope(
@@ -105,29 +132,89 @@ class HoroscopeCalculator(private val context: Context) : AutoCloseable {
         data class Error(val message: String, val cause: Throwable? = null) : HoroscopeResult<Nothing>()
     }
 
+    private data class VedhaInfo(
+        val hasVedha: Boolean,
+        val obstructingPlanet: Planet? = null,
+        val obstructingHouse: Int? = null
+    )
+
+    private fun ensureNotClosed() {
+        if (isClosed.get()) {
+            throw IllegalStateException("HoroscopeCalculator has been closed")
+        }
+    }
+
+    private fun getChartId(chart: VedicChart): String {
+        val birthData = chart.birthData
+        return "${birthData.name}_${birthData.dateTime}_${birthData.latitude}_${birthData.longitude}"
+    }
+
+    private fun getOrComputeNatalData(chart: VedicChart): NatalChartCachedData {
+        val chartId = getChartId(chart)
+        
+        natalDataCache[chartId]?.let { return it }
+
+        val planetMap = chart.planetPositions.associateBy { it.planet }
+        val moonPosition = planetMap[Planet.MOON]
+        val moonSign = moonPosition?.sign ?: ZodiacSign.ARIES
+        val moonHouse = moonPosition?.house ?: 1
+        val ascendantSign = ZodiacSign.fromLongitude(chart.ascendant)
+
+        val ashtakavarga = try {
+            AshtakavargaCalculator.calculateAshtakavarga(chart)
+        } catch (e: Exception) {
+            Log.w(TAG, "Ashtakavarga calculation failed", e)
+            null
+        }
+
+        val dashaTimeline = DashaCalculator.calculateDashaTimeline(chart)
+
+        return NatalChartCachedData(
+            planetMap = planetMap,
+            moonSign = moonSign,
+            moonHouse = moonHouse,
+            ascendantSign = ascendantSign,
+            ashtakavarga = ashtakavarga,
+            dashaTimeline = dashaTimeline
+        ).also { natalDataCache[chartId] = it }
+    }
+
     fun calculateDailyHoroscope(chart: VedicChart, date: LocalDate = LocalDate.now()): DailyHoroscope {
-        val cacheKey = DailyHoroscopeCacheKey(chart.hashCode(), date)
+        ensureNotClosed()
+
+        val chartId = getChartId(chart)
+        val cacheKey = DailyHoroscopeCacheKey(chartId, date)
         dailyHoroscopeCache[cacheKey]?.let { return it }
 
-        val transitChart = getOrCalculateTransitChart(chart, date)
-        val dashaTimeline = DashaCalculator.calculateDashaTimeline(chart)
-        val activeDasha = formatActiveDasha(dashaTimeline)
+        val natalData = getOrComputeNatalData(chart)
+        val transitChart = getOrCalculateTransitChart(chart.birthData, date)
+        val transitPlanetMap = transitChart.planetPositions.associateBy { it.planet }
 
-        val transitMoon = transitChart.planetPositions.find { it.planet == Planet.MOON }
-        val natalMoon = chart.planetPositions.find { it.planet == Planet.MOON }
-        
-        val moonSign = transitMoon?.sign ?: natalMoon?.sign ?: ZodiacSign.ARIES
+        val transitMoon = transitPlanetMap[Planet.MOON]
+        val moonSign = transitMoon?.sign ?: natalData.moonSign
         val moonNakshatra = transitMoon?.nakshatra ?: Nakshatra.ASHWINI
-        val moonHouse = natalMoon?.house ?: 1
 
-        val planetaryInfluences = analyzePlanetaryInfluences(chart, transitChart, moonHouse)
-        val lifeAreaPredictions = calculateLifeAreaPredictions(chart, transitChart, dashaTimeline, date)
-        val overallEnergy = calculateOverallEnergy(planetaryInfluences, lifeAreaPredictions, dashaTimeline)
-        val (theme, themeDescription) = calculateDailyTheme(chart, transitChart, dashaTimeline, date)
-        val luckyElements = calculateLuckyElements(chart, transitChart, date)
-        val recommendations = generateRecommendations(chart, transitChart, dashaTimeline, lifeAreaPredictions)
-        val cautions = generateCautions(chart, transitChart, planetaryInfluences)
-        val affirmation = generateAffirmation(dashaTimeline, moonSign, date)
+        val planetaryInfluences = analyzePlanetaryInfluences(
+            natalData = natalData,
+            transitPlanetMap = transitPlanetMap,
+            transitChart = transitChart
+        )
+
+        val lifeAreaPredictions = calculateLifeAreaPredictions(
+            chart = chart,
+            natalData = natalData,
+            transitChart = transitChart,
+            transitPlanetMap = transitPlanetMap,
+            date = date
+        )
+
+        val overallEnergy = calculateOverallEnergy(planetaryInfluences, lifeAreaPredictions, natalData.dashaTimeline)
+        val (theme, themeDescription) = calculateDailyTheme(transitPlanetMap, natalData.dashaTimeline)
+        val luckyElements = calculateLuckyElements(natalData, transitPlanetMap, date)
+        val activeDasha = formatActiveDasha(natalData.dashaTimeline)
+        val recommendations = generateRecommendations(natalData.dashaTimeline, lifeAreaPredictions, transitPlanetMap)
+        val cautions = generateCautions(transitPlanetMap, planetaryInfluences)
+        val affirmation = generateAffirmation(natalData.dashaTimeline.currentMahadasha?.planet)
 
         return DailyHoroscope(
             date = date,
@@ -156,29 +243,34 @@ class HoroscopeCalculator(private val context: Context) : AutoCloseable {
     }
 
     fun calculateWeeklyHoroscope(chart: VedicChart, startDate: LocalDate = LocalDate.now()): WeeklyHoroscope {
+        ensureNotClosed()
+
         val endDate = startDate.plusDays(6)
-        val dashaTimeline = DashaCalculator.calculateDashaTimeline(chart)
+        val natalData = getOrComputeNatalData(chart)
 
         val dailyHoroscopes = (0 until 7).mapNotNull { dayOffset ->
             val date = startDate.plusDays(dayOffset.toLong())
             try {
                 calculateDailyHoroscope(chart, date)
             } catch (e: Exception) {
-                Log.w(TAG, "Failed to calculate horoscope for $date, using fallback", e)
+                Log.w(TAG, "Failed to calculate horoscope for $date", e)
                 null
             }
         }
 
-        val dailyHighlights = dailyHoroscopes.map { horoscope ->
-            DailyHighlight(
-                date = horoscope.date,
-                dayOfWeek = horoscope.date.dayOfWeek.name.lowercase().replaceFirstChar { it.uppercase() },
-                energy = horoscope.overallEnergy,
-                focus = horoscope.theme,
-                brief = horoscope.themeDescription.take(100) + 
-                        if (horoscope.themeDescription.length > 100) "..." else ""
-            )
-        }.ifEmpty {
+        val dailyHighlights = if (dailyHoroscopes.isNotEmpty()) {
+            dailyHoroscopes.map { horoscope ->
+                DailyHighlight(
+                    date = horoscope.date,
+                    dayOfWeek = horoscope.date.dayOfWeek.name.lowercase().replaceFirstChar { it.uppercase() },
+                    energy = horoscope.overallEnergy,
+                    focus = horoscope.theme,
+                    brief = horoscope.themeDescription.take(100).let {
+                        if (horoscope.themeDescription.length > 100) "$it..." else it
+                    }
+                )
+            }
+        } else {
             (0 until 7).map { dayOffset ->
                 val date = startDate.plusDays(dayOffset.toLong())
                 DailyHighlight(
@@ -191,10 +283,10 @@ class HoroscopeCalculator(private val context: Context) : AutoCloseable {
             }
         }
 
-        val keyDates = calculateKeyDates(chart, startDate, endDate)
-        val weeklyPredictions = calculateWeeklyPredictionsOptimized(dailyHoroscopes, dashaTimeline)
-        val (weeklyTheme, weeklyOverview) = calculateWeeklyTheme(chart, dashaTimeline, startDate, dailyHighlights)
-        val weeklyAdvice = generateWeeklyAdvice(chart, dashaTimeline, keyDates)
+        val keyDates = calculateKeyDates(startDate, endDate)
+        val weeklyPredictions = calculateWeeklyPredictions(dailyHoroscopes, natalData.dashaTimeline)
+        val (weeklyTheme, weeklyOverview) = calculateWeeklyTheme(natalData.dashaTimeline, dailyHighlights)
+        val weeklyAdvice = generateWeeklyAdvice(natalData.dashaTimeline, keyDates)
 
         return WeeklyHoroscope(
             startDate = startDate,
@@ -217,13 +309,8 @@ class HoroscopeCalculator(private val context: Context) : AutoCloseable {
         }
     }
 
-    private fun getOrCalculateTransitChart(chart: VedicChart, date: LocalDate): VedicChart {
-        val cacheKey = TransitCacheKey(
-            date = date,
-            latitude = chart.birthData.latitude,
-            longitude = chart.birthData.longitude,
-            timezone = chart.birthData.timezone
-        )
+    private fun getOrCalculateTransitChart(birthData: BirthData, date: LocalDate): VedicChart {
+        val cacheKey = TransitCacheKey.from(date, birthData.latitude, birthData.longitude, birthData.timezone)
 
         transitCache[cacheKey]?.let { return it }
 
@@ -231,154 +318,234 @@ class HoroscopeCalculator(private val context: Context) : AutoCloseable {
         val transitBirthData = BirthData(
             name = "Transit",
             dateTime = transitDateTime,
-            latitude = chart.birthData.latitude,
-            longitude = chart.birthData.longitude,
-            timezone = chart.birthData.timezone,
-            location = chart.birthData.location
+            latitude = birthData.latitude,
+            longitude = birthData.longitude,
+            timezone = birthData.timezone,
+            location = birthData.location
         )
 
         return try {
             ephemerisEngine.calculateVedicChart(transitBirthData).also {
                 transitCache[cacheKey] = it
-                cleanupCacheIfNeeded()
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Transit calculation failed for $date: ${e.message}", e)
+            Log.e(TAG, "Transit calculation failed for $date", e)
             throw HoroscopeCalculationException(
-                "Unable to calculate planetary positions for $date. " +
-                "This may be due to ephemeris data limitations for this date range.",
+                "Unable to calculate planetary positions for $date. This may be due to ephemeris data limitations.",
                 e
             )
         }
     }
 
-    private fun cleanupCacheIfNeeded() {
-        if (transitCache.size > MAX_TRANSIT_CACHE_SIZE) {
-            val today = LocalDate.now()
-            transitCache.keys.filter { it.date.isBefore(today.minusDays(7)) }
-                .forEach { transitCache.remove(it) }
-        }
-        if (dailyHoroscopeCache.size > MAX_HOROSCOPE_CACHE_SIZE) {
-            val today = LocalDate.now()
-            dailyHoroscopeCache.keys.filter { it.date.isBefore(today.minusDays(7)) }
-                .forEach { dailyHoroscopeCache.remove(it) }
-        }
-    }
-
     private fun formatActiveDasha(timeline: DashaCalculator.DashaTimeline): String {
-        return buildString {
-            timeline.currentMahadasha?.let { md ->
-                append(md.planet.displayName)
-                timeline.currentAntardasha?.let { ad ->
-                    append("-${ad.planet.displayName}")
-                }
-            } ?: append("Calculating...")
+        val md = timeline.currentMahadasha ?: return "Calculating..."
+        val ad = timeline.currentAntardasha
+        return if (ad != null) {
+            "${md.planet.displayName}-${ad.planet.displayName}"
+        } else {
+            md.planet.displayName
         }
     }
 
     private fun analyzePlanetaryInfluences(
-        natalChart: VedicChart,
-        transitChart: VedicChart,
-        natalMoonHouse: Int
+        natalData: NatalChartCachedData,
+        transitPlanetMap: Map<Planet, PlanetPosition>,
+        transitChart: VedicChart
     ): List<PlanetaryInfluence> {
-        return transitChart.planetPositions
-            .filter { it.planet in Planet.MAIN_PLANETS }
-            .map { transitPos ->
-                val natalPos = natalChart.planetPositions.find { it.planet == transitPos.planet }
-                val houseFromMoon = calculateHouseFromMoon(transitPos.sign, natalChart)
-                val (influence, strength, isPositive) = analyzeGocharaEffect(
-                    transitPos.planet,
-                    houseFromMoon,
-                    transitPos.isRetrograde,
-                    natalPos
-                )
-                PlanetaryInfluence(
-                    planet = transitPos.planet,
-                    influence = influence,
-                    strength = strength,
-                    isPositive = isPositive
-                )
-            }
-            .sortedByDescending { it.strength }
+        return Planet.MAIN_PLANETS.mapNotNull { planet ->
+            val transitPos = transitPlanetMap[planet] ?: return@mapNotNull null
+            val natalPos = natalData.planetMap[planet]
+            val houseFromMoon = calculateHouseFromMoon(transitPos.sign, natalData.moonSign)
+
+            val vedhaInfo = checkGocharaVedha(planet, houseFromMoon, transitPlanetMap, natalData.moonSign)
+            val ashtakavargaScore = getAshtakavargaTransitScore(planet, transitPos.sign, natalData.ashtakavarga)
+
+            val (influence, strength, isPositive) = analyzeGocharaEffect(
+                planet = planet,
+                houseFromMoon = houseFromMoon,
+                isRetrograde = transitPos.isRetrograde,
+                natalPosition = natalPos,
+                vedhaInfo = vedhaInfo,
+                ashtakavargaScore = ashtakavargaScore,
+                transitSign = transitPos.sign
+            )
+
+            PlanetaryInfluence(
+                planet = planet,
+                influence = influence,
+                strength = strength,
+                isPositive = isPositive
+            )
+        }.sortedByDescending { it.strength }
     }
 
-    private fun calculateHouseFromMoon(transitSign: ZodiacSign, natalChart: VedicChart): Int {
-        val natalMoon = natalChart.planetPositions.find { it.planet == Planet.MOON }
-        val natalMoonSign = natalMoon?.sign ?: ZodiacSign.ARIES
-        val moonSignIndex = natalMoonSign.ordinal
-        val transitSignIndex = transitSign.ordinal
-        return ((transitSignIndex - moonSignIndex + 12) % 12) + 1
+    private fun checkGocharaVedha(
+        planet: Planet,
+        houseFromMoon: Int,
+        transitPlanetMap: Map<Planet, PlanetPosition>,
+        natalMoonSign: ZodiacSign
+    ): VedhaInfo {
+        val vedhaPairs = GOCHARA_VEDHA_PAIRS[planet] ?: return VedhaInfo(false)
+        val vedhaHouse = vedhaPairs[houseFromMoon] ?: return VedhaInfo(false)
+
+        for ((otherPlanet, otherPos) in transitPlanetMap) {
+            if (otherPlanet == planet || otherPlanet !in Planet.MAIN_PLANETS) continue
+            
+            val otherHouseFromMoon = calculateHouseFromMoon(otherPos.sign, natalMoonSign)
+            if (otherHouseFromMoon == vedhaHouse) {
+                return VedhaInfo(
+                    hasVedha = true,
+                    obstructingPlanet = otherPlanet,
+                    obstructingHouse = vedhaHouse
+                )
+            }
+        }
+
+        return VedhaInfo(false)
+    }
+
+    private fun getAshtakavargaTransitScore(
+        planet: Planet,
+        transitSign: ZodiacSign,
+        ashtakavarga: AshtakavargaCalculator.AshtakavargaAnalysis?
+    ): Int? {
+        if (ashtakavarga == null) return null
+        val bav = ashtakavarga.bhinnashtakavarga[planet] ?: return null
+        return bav.getBindusForSign(transitSign)
+    }
+
+    private fun calculateHouseFromMoon(transitSign: ZodiacSign, natalMoonSign: ZodiacSign): Int {
+        return ((transitSign.ordinal - natalMoonSign.ordinal + 12) % 12) + 1
     }
 
     private fun analyzeGocharaEffect(
         planet: Planet,
         houseFromMoon: Int,
         isRetrograde: Boolean,
-        natalPosition: PlanetPosition?
+        natalPosition: PlanetPosition?,
+        vedhaInfo: VedhaInfo,
+        ashtakavargaScore: Int?,
+        transitSign: ZodiacSign
     ): Triple<String, Int, Boolean> {
         val favorableHouses = GOCHARA_FAVORABLE_HOUSES[planet] ?: emptyList()
-        val isFavorable = houseFromMoon in favorableHouses
+        var isFavorable = houseFromMoon in favorableHouses
 
-        val (influence, baseStrength) = getGocharaInfluence(planet, houseFromMoon, isFavorable)
-        
-        val adjustedStrength = when {
-            isRetrograde && isFavorable -> baseStrength - 1
-            isRetrograde && !isFavorable -> baseStrength + 1
-            else -> baseStrength
-        }.coerceIn(1, 10)
+        val influenceBuilder = StringBuilder()
+        var (baseInfluence, baseStrength) = getGocharaInfluence(planet, houseFromMoon, isFavorable)
+        influenceBuilder.append(baseInfluence)
 
-        return Triple(influence, adjustedStrength, isFavorable)
+        if (vedhaInfo.hasVedha && isFavorable) {
+            influenceBuilder.append(" However, ${vedhaInfo.obstructingPlanet?.displayName} creates Vedha obstruction, reducing benefits.")
+            baseStrength = (baseStrength * 0.5).toInt().coerceAtLeast(2)
+            if (baseStrength <= 3) isFavorable = false
+        }
+
+        ashtakavargaScore?.let { score ->
+            when {
+                score >= 5 -> {
+                    influenceBuilder.append(" Ashtakavarga ($score/8) strengthens results.")
+                    baseStrength = (baseStrength * 1.3).toInt()
+                }
+                score in 2..3 -> {
+                    influenceBuilder.append(" Ashtakavarga ($score/8) moderates results.")
+                    baseStrength = (baseStrength * 0.85).toInt()
+                }
+                score < 2 -> {
+                    influenceBuilder.append(" Low Ashtakavarga ($score/8) weakens results.")
+                    if (isFavorable) isFavorable = false
+                    baseStrength = (baseStrength * 0.6).toInt()
+                }
+            }
+        }
+
+        val retrogradeAdjustment = when {
+            isRetrograde && isFavorable -> {
+                influenceBuilder.append(" ${planet.displayName}'s retrograde motion delays manifestation.")
+                -1
+            }
+            isRetrograde && !isFavorable -> {
+                influenceBuilder.append(" ${planet.displayName}'s retrograde provides some relief from challenges.")
+                1
+            }
+            else -> 0
+        }
+
+        val dignityModifier = when {
+            isInOwnSign(planet, transitSign) -> {
+                influenceBuilder.append(" Strong in own sign.")
+                if (isFavorable) 2 else 0
+            }
+            isExalted(planet, transitSign) -> {
+                influenceBuilder.append(" Exalted - excellent results.")
+                if (isFavorable) 3 else 1
+            }
+            isDebilitated(planet, transitSign) -> {
+                influenceBuilder.append(" Debilitated - results weakened.")
+                if (isFavorable) -2 else -1
+            }
+            else -> 0
+        }
+
+        val adjustedStrength = (baseStrength + retrogradeAdjustment + dignityModifier).coerceIn(1, 10)
+
+        return Triple(influenceBuilder.toString(), adjustedStrength, isFavorable)
     }
 
     private fun getGocharaInfluence(planet: Planet, house: Int, isFavorable: Boolean): Pair<String, Int> {
-        return when {
-            isFavorable -> FAVORABLE_GOCHARA_EFFECTS[planet]?.get(house)
-                ?: ("Positive ${planet.displayName} energy" to 7)
-            else -> UNFAVORABLE_GOCHARA_EFFECTS[planet]?.get(house)
-                ?: ("Challenging ${planet.displayName} transit" to 4)
+        return if (isFavorable) {
+            FAVORABLE_GOCHARA_EFFECTS_DETAILED[planet]?.get(house)
+                ?: ("Favorable ${planet.displayName} transit in house $house." to 7)
+        } else {
+            UNFAVORABLE_GOCHARA_EFFECTS_DETAILED[planet]?.get(house)
+                ?: ("Challenging ${planet.displayName} transit in house $house." to 4)
         }
+    }
+
+    private fun isInOwnSign(planet: Planet, sign: ZodiacSign): Boolean {
+        return PLANET_OWN_SIGNS[planet]?.contains(sign) == true
+    }
+
+    private fun isExalted(planet: Planet, sign: ZodiacSign): Boolean {
+        return PLANET_EXALTATION[planet] == sign
+    }
+
+    private fun isDebilitated(planet: Planet, sign: ZodiacSign): Boolean {
+        return PLANET_DEBILITATION[planet] == sign
     }
 
     private fun calculateLifeAreaPredictions(
         chart: VedicChart,
+        natalData: NatalChartCachedData,
         transitChart: VedicChart,
-        dashaTimeline: DashaCalculator.DashaTimeline,
+        transitPlanetMap: Map<Planet, PlanetPosition>,
         date: LocalDate
     ): List<LifeAreaPrediction> {
+        val dashaLordName = natalData.dashaTimeline.currentMahadasha?.planet?.displayName ?: "current"
+        
         return LifeArea.entries.map { area ->
-            val (rating, prediction, advice) = analyzeLifeArea(chart, transitChart, dashaTimeline, area, date)
+            val dashaInfluence = calculateDashaInfluenceOnArea(natalData.dashaTimeline, area, natalData.planetMap)
+            val transitInfluence = calculateTransitInfluenceOnArea(natalData.moonSign, transitPlanetMap, area)
+            val rating = ((dashaInfluence + transitInfluence) / 2).coerceIn(1, 5)
+
+            val prediction = LIFE_AREA_PREDICTIONS[area]?.get(rating)
+                ?.replace("{dashaLord}", dashaLordName)
+                ?: "Balanced energy in this area."
+            
+            val advice = LIFE_AREA_ADVICES[area]?.get(getRatingCategory(rating))
+                ?: "Stay mindful and balanced."
+
             LifeAreaPrediction(area = area, rating = rating, prediction = prediction, advice = advice)
         }
-    }
-
-    private fun analyzeLifeArea(
-        chart: VedicChart,
-        transitChart: VedicChart,
-        dashaTimeline: DashaCalculator.DashaTimeline,
-        area: LifeArea,
-        date: LocalDate
-    ): Triple<Int, String, String> {
-        val primaryHouse = area.houses.first()
-        val primaryHouseCusp = chart.houseCusps.getOrElse(primaryHouse - 1) { 0.0 }
-        val houseLordSign = ZodiacSign.fromLongitude(primaryHouseCusp)
-        val houseLord = houseLordSign.ruler
-
-        val dashaInfluence = calculateDashaInfluenceOnArea(dashaTimeline, area, chart)
-        val transitInfluence = calculateTransitInfluenceOnArea(chart, transitChart, area)
-        val rating = ((dashaInfluence + transitInfluence) / 2).coerceIn(1, 5)
-
-        val (prediction, advice) = generateAreaPrediction(area, rating, dashaTimeline, houseLord, date)
-        return Triple(rating, prediction, advice)
     }
 
     private fun calculateDashaInfluenceOnArea(
         timeline: DashaCalculator.DashaTimeline,
         area: LifeArea,
-        chart: VedicChart
+        planetMap: Map<Planet, PlanetPosition>
     ): Int {
         val currentMahadasha = timeline.currentMahadasha ?: return 3
         val mahadashaPlanet = currentMahadasha.planet
-        val planetPosition = chart.planetPositions.find { it.planet == mahadashaPlanet }
+        val planetPosition = planetMap[mahadashaPlanet]
         val planetHouse = planetPosition?.house ?: return 3
         val isInAreaHouse = planetHouse in area.houses
         val isBenefic = mahadashaPlanet in NATURAL_BENEFICS
@@ -393,15 +560,15 @@ class HoroscopeCalculator(private val context: Context) : AutoCloseable {
     }
 
     private fun calculateTransitInfluenceOnArea(
-        natalChart: VedicChart,
-        transitChart: VedicChart,
+        natalMoonSign: ZodiacSign,
+        transitPlanetMap: Map<Planet, PlanetPosition>,
         area: LifeArea
     ): Int {
         var score = 3
-        transitChart.planetPositions.forEach { transitPos ->
-            val houseFromMoon = calculateHouseFromMoon(transitPos.sign, natalChart)
+        for ((planet, position) in transitPlanetMap) {
+            val houseFromMoon = calculateHouseFromMoon(position.sign, natalMoonSign)
             if (houseFromMoon in area.houses) {
-                score += when (transitPos.planet) {
+                score += when (planet) {
                     in NATURAL_BENEFICS -> 1
                     in NATURAL_MALEFICS -> -1
                     else -> 0
@@ -409,24 +576,6 @@ class HoroscopeCalculator(private val context: Context) : AutoCloseable {
             }
         }
         return score.coerceIn(1, 5)
-    }
-
-    private fun generateAreaPrediction(
-        area: LifeArea,
-        rating: Int,
-        dashaTimeline: DashaCalculator.DashaTimeline,
-        houseLord: Planet,
-        date: LocalDate
-    ): Pair<String, String> {
-        val currentDashaLord = dashaTimeline.currentMahadasha?.planet?.displayName ?: "current"
-        val predictions = LIFE_AREA_PREDICTIONS[area] ?: emptyMap()
-        val advices = LIFE_AREA_ADVICES[area] ?: emptyMap()
-        
-        val prediction = predictions[rating]?.replace("{dashaLord}", currentDashaLord)
-            ?: "Balanced energy in this area."
-        val advice = advices[getRatingCategory(rating)] ?: "Stay mindful and balanced."
-        
-        return Pair(prediction, advice)
     }
 
     private fun getRatingCategory(rating: Int): String = when {
@@ -440,56 +589,59 @@ class HoroscopeCalculator(private val context: Context) : AutoCloseable {
         lifeAreas: List<LifeAreaPrediction>,
         dashaTimeline: DashaCalculator.DashaTimeline
     ): Int {
-        val planetaryAvg = influences.map { it.strength }.average().takeIf { !it.isNaN() } ?: 5.0
-        val lifeAreaAvg = lifeAreas.map { it.rating * 2.0 }.average().takeIf { !it.isNaN() } ?: 5.0
+        val planetaryAvg = if (influences.isNotEmpty()) {
+            influences.sumOf { it.strength }.toDouble() / influences.size
+        } else 5.0
+
+        val lifeAreaAvg = if (lifeAreas.isNotEmpty()) {
+            lifeAreas.sumOf { it.rating * 2 }.toDouble() / lifeAreas.size
+        } else 5.0
 
         val dashaBonus = DASHA_ENERGY_MODIFIERS[dashaTimeline.currentMahadasha?.planet] ?: 0.0
         val rawEnergy = (planetaryAvg * 0.4) + (lifeAreaAvg * 0.4) + (5.0 + dashaBonus) * 0.2
-        
-        return rawEnergy.toInt().coerceIn(1, 10)
+
+        return rawEnergy.roundToInt().coerceIn(1, 10)
     }
 
     private fun calculateDailyTheme(
-        chart: VedicChart,
-        transitChart: VedicChart,
-        dashaTimeline: DashaCalculator.DashaTimeline,
-        date: LocalDate
+        transitPlanetMap: Map<Planet, PlanetPosition>,
+        dashaTimeline: DashaCalculator.DashaTimeline
     ): Pair<String, String> {
-        val moonSign = transitChart.planetPositions.find { it.planet == Planet.MOON }?.sign ?: ZodiacSign.ARIES
+        val moonSign = transitPlanetMap[Planet.MOON]?.sign ?: ZodiacSign.ARIES
         val currentDashaLord = dashaTimeline.currentMahadasha?.planet ?: Planet.SUN
 
         val theme = determineTheme(moonSign, currentDashaLord)
         val description = THEME_DESCRIPTIONS[theme] ?: DEFAULT_THEME_DESCRIPTION
-        
+
         return Pair(theme, description)
     }
 
     private fun determineTheme(moonSign: ZodiacSign, dashaLord: Planet): String {
         val moonElement = moonSign.element
-        
+
         return when {
-            moonElement == "Fire" && dashaLord in listOf(Planet.SUN, Planet.MARS, Planet.JUPITER) -> "Dynamic Action"
-            moonElement == "Earth" && dashaLord in listOf(Planet.VENUS, Planet.MERCURY, Planet.SATURN) -> "Practical Progress"
-            moonElement == "Air" && dashaLord in listOf(Planet.MERCURY, Planet.VENUS, Planet.SATURN) -> "Social Connections"
-            moonElement == "Water" && dashaLord in listOf(Planet.MOON, Planet.MARS, Planet.JUPITER) -> "Emotional Insight"
+            moonElement == "Fire" && dashaLord in FIRE_PLANETS -> "Dynamic Action"
+            moonElement == "Earth" && dashaLord in EARTH_PLANETS -> "Practical Progress"
+            moonElement == "Air" && dashaLord in AIR_PLANETS -> "Social Connections"
+            moonElement == "Water" && dashaLord in WATER_PLANETS -> "Emotional Insight"
             else -> DASHA_LORD_THEMES[dashaLord] ?: "Balance & Equilibrium"
         }
     }
 
     private fun calculateLuckyElements(
-        chart: VedicChart,
-        transitChart: VedicChart,
+        natalData: NatalChartCachedData,
+        transitPlanetMap: Map<Planet, PlanetPosition>,
         date: LocalDate
     ): LuckyElements {
-        val moonSign = transitChart.planetPositions.find { it.planet == Planet.MOON }?.sign ?: ZodiacSign.ARIES
+        val moonSign = transitPlanetMap[Planet.MOON]?.sign ?: ZodiacSign.ARIES
         val dayOfWeek = date.dayOfWeek.value
-        val ascSign = ZodiacSign.fromLongitude(chart.ascendant)
+        val ascRuler = natalData.ascendantSign.ruler
 
         val luckyNumber = ((dayOfWeek + moonSign.ordinal) % 9) + 1
         val luckyColor = ELEMENT_COLORS[moonSign.element] ?: "White"
-        val luckyDirection = PLANET_DIRECTIONS[ascSign.ruler] ?: "East"
+        val luckyDirection = PLANET_DIRECTIONS[ascRuler] ?: "East"
         val luckyTime = DAY_HORA_TIMES[dayOfWeek] ?: "Morning hours"
-        val gemstone = PLANET_GEMSTONES[ascSign.ruler] ?: "Clear Quartz"
+        val gemstone = PLANET_GEMSTONES[ascRuler] ?: "Clear Quartz"
 
         return LuckyElements(
             number = luckyNumber,
@@ -501,12 +653,11 @@ class HoroscopeCalculator(private val context: Context) : AutoCloseable {
     }
 
     private fun generateRecommendations(
-        chart: VedicChart,
-        transitChart: VedicChart,
         dashaTimeline: DashaCalculator.DashaTimeline,
-        lifeAreas: List<LifeAreaPrediction>
+        lifeAreas: List<LifeAreaPrediction>,
+        transitPlanetMap: Map<Planet, PlanetPosition>
     ): List<String> {
-        val recommendations = mutableListOf<String>()
+        val recommendations = ArrayList<String>(3)
 
         dashaTimeline.currentMahadasha?.planet?.let { dashaLord ->
             DASHA_RECOMMENDATIONS[dashaLord]?.let { recommendations.add(it) }
@@ -516,7 +667,7 @@ class HoroscopeCalculator(private val context: Context) : AutoCloseable {
             BEST_AREA_RECOMMENDATIONS[bestArea.area]?.let { recommendations.add(it) }
         }
 
-        transitChart.planetPositions.find { it.planet == Planet.MOON }?.let { moon ->
+        transitPlanetMap[Planet.MOON]?.let { moon ->
             ELEMENT_RECOMMENDATIONS[moon.sign.element]?.let { recommendations.add(it) }
         }
 
@@ -524,19 +675,19 @@ class HoroscopeCalculator(private val context: Context) : AutoCloseable {
     }
 
     private fun generateCautions(
-        chart: VedicChart,
-        transitChart: VedicChart,
+        transitPlanetMap: Map<Planet, PlanetPosition>,
         influences: List<PlanetaryInfluence>
     ): List<String> {
-        val cautions = mutableListOf<String>()
+        val cautions = ArrayList<String>(3)
 
-        influences.filter { !it.isPositive && it.strength <= 4 }
+        influences.asSequence()
+            .filter { !it.isPositive && it.strength <= 4 }
             .take(2)
             .forEach { influence ->
                 PLANET_CAUTIONS[influence.planet]?.let { cautions.add(it) }
             }
 
-        transitChart.planetPositions
+        transitPlanetMap.values.asSequence()
             .filter { it.isRetrograde && it.planet in Planet.MAIN_PLANETS }
             .take(1)
             .forEach {
@@ -546,17 +697,12 @@ class HoroscopeCalculator(private val context: Context) : AutoCloseable {
         return cautions.take(2)
     }
 
-    private fun generateAffirmation(
-        dashaTimeline: DashaCalculator.DashaTimeline,
-        moonSign: ZodiacSign,
-        date: LocalDate
-    ): String {
-        val dashaLord = dashaTimeline.currentMahadasha?.planet ?: Planet.SUN
+    private fun generateAffirmation(dashaLord: Planet?): String {
         return DASHA_AFFIRMATIONS[dashaLord] ?: "I am aligned with cosmic energies and flow with life's rhythm."
     }
 
-    private fun calculateKeyDates(chart: VedicChart, startDate: LocalDate, endDate: LocalDate): List<KeyDate> {
-        val keyDates = mutableListOf<KeyDate>()
+    private fun calculateKeyDates(startDate: LocalDate, endDate: LocalDate): List<KeyDate> {
+        val keyDates = ArrayList<KeyDate>(6)
 
         LUNAR_PHASES.forEach { (dayOffset, event, significance) ->
             val date = startDate.plusDays(dayOffset.toLong())
@@ -565,7 +711,7 @@ class HoroscopeCalculator(private val context: Context) : AutoCloseable {
             }
         }
 
-        (0 until 7).forEach { offset ->
+        for (offset in 0 until 7) {
             val date = startDate.plusDays(offset.toLong())
             FAVORABLE_DAYS[date.dayOfWeek]?.let { desc ->
                 keyDates.add(KeyDate(
@@ -580,40 +726,39 @@ class HoroscopeCalculator(private val context: Context) : AutoCloseable {
         return keyDates.distinctBy { it.date }.take(4)
     }
 
-    private fun calculateWeeklyPredictionsOptimized(
+    private fun calculateWeeklyPredictions(
         dailyHoroscopes: List<DailyHoroscope>,
         dashaTimeline: DashaCalculator.DashaTimeline
     ): Map<LifeArea, String> {
         val currentDashaLord = dashaTimeline.currentMahadasha?.planet?.displayName ?: "current"
-        
+
         return LifeArea.entries.associateWith { area ->
             val weeklyRatings = dailyHoroscopes.mapNotNull { horoscope ->
                 horoscope.lifeAreas.find { it.area == area }?.rating
             }
-            val avgRating = if (weeklyRatings.isNotEmpty()) weeklyRatings.average() else 3.0
-            
-            generateWeeklyAreaPrediction(area, avgRating, currentDashaLord)
-        }
-    }
+            val avgRating = if (weeklyRatings.isNotEmpty()) {
+                weeklyRatings.sum().toDouble() / weeklyRatings.size
+            } else 3.0
 
-    private fun generateWeeklyAreaPrediction(area: LifeArea, avgRating: Double, dashaLord: String): String {
-        val ratingCategory = when {
-            avgRating >= 4 -> "excellent"
-            avgRating >= 3 -> "steady"
-            else -> "challenging"
+            val ratingCategory = when {
+                avgRating >= 4 -> "excellent"
+                avgRating >= 3 -> "steady"
+                else -> "challenging"
+            }
+
+            WEEKLY_PREDICTIONS[area]?.get(ratingCategory)?.replace("{dashaLord}", currentDashaLord)
+                ?: "A balanced week for ${area.displayName.lowercase()}."
         }
-        
-        return WEEKLY_PREDICTIONS[area]?.get(ratingCategory)?.replace("{dashaLord}", dashaLord)
-            ?: "A balanced week for ${area.displayName.lowercase()}."
     }
 
     private fun calculateWeeklyTheme(
-        chart: VedicChart,
         dashaTimeline: DashaCalculator.DashaTimeline,
-        startDate: LocalDate,
         dailyHighlights: List<DailyHighlight>
     ): Pair<String, String> {
-        val avgEnergy = dailyHighlights.map { it.energy }.average().takeIf { !it.isNaN() } ?: 5.0
+        val avgEnergy = if (dailyHighlights.isNotEmpty()) {
+            dailyHighlights.sumOf { it.energy }.toDouble() / dailyHighlights.size
+        } else 5.0
+
         val currentDashaLord = dashaTimeline.currentMahadasha?.planet ?: Planet.SUN
 
         val theme = when {
@@ -631,68 +776,131 @@ class HoroscopeCalculator(private val context: Context) : AutoCloseable {
         avgEnergy: Double,
         dailyHighlights: List<DailyHighlight>
     ): String {
-        return buildString {
-            append("This week under your ${dashaLord.displayName} Mahadasha brings ")
-            append(when {
-                avgEnergy >= 7 -> "excellent opportunities for growth and success. "
-                avgEnergy >= 5 -> "steady progress and balanced energy. "
-                else -> "challenges that, when navigated wisely, lead to growth. "
-            })
+        val builder = StringBuilder()
+        builder.append("This week under your ${dashaLord.displayName} Mahadasha brings ")
 
-            dailyHighlights.maxByOrNull { it.energy }?.let {
-                append("${it.dayOfWeek} appears most favorable for important activities. ")
-            }
-
-            dailyHighlights.minByOrNull { it.energy }?.let {
-                if (it.energy < 5) {
-                    append("${it.dayOfWeek} may require extra patience and care. ")
-                }
-            }
-
-            append("Trust in your cosmic guidance and make the most of each day's unique energy.")
+        when {
+            avgEnergy >= 7 -> builder.append("excellent opportunities for growth and success. ")
+            avgEnergy >= 5 -> builder.append("steady progress and balanced energy. ")
+            else -> builder.append("challenges that, when navigated wisely, lead to growth. ")
         }
+
+        dailyHighlights.maxByOrNull { it.energy }?.let {
+            builder.append("${it.dayOfWeek} appears most favorable for important activities. ")
+        }
+
+        dailyHighlights.minByOrNull { it.energy }?.let {
+            if (it.energy < 5) {
+                builder.append("${it.dayOfWeek} may require extra patience and care. ")
+            }
+        }
+
+        builder.append("Trust in your cosmic guidance and make the most of each day's unique energy.")
+
+        return builder.toString()
     }
 
     private fun generateWeeklyAdvice(
-        chart: VedicChart,
         dashaTimeline: DashaCalculator.DashaTimeline,
         keyDates: List<KeyDate>
     ): String {
         val currentDashaLord = dashaTimeline.currentMahadasha?.planet ?: Planet.SUN
         val baseAdvice = DASHA_WEEKLY_ADVICE[currentDashaLord] ?: "maintain balance and trust in divine timing."
 
-        return buildString {
-            append("During this ${currentDashaLord.displayName} period, ")
-            append(baseAdvice)
-            keyDates.firstOrNull { it.isPositive }?.let {
-                append(" Mark ${it.date.format(DateTimeFormatter.ofPattern("EEEE, MMM d"))} for important initiatives.")
-            }
+        val builder = StringBuilder()
+        builder.append("During this ${currentDashaLord.displayName} period, ")
+        builder.append(baseAdvice)
+
+        keyDates.firstOrNull { it.isPositive }?.let {
+            builder.append(" Mark ${it.date.format(DATE_FORMATTER)} for important initiatives.")
         }
+
+        return builder.toString()
     }
 
     fun clearCache() {
         transitCache.clear()
         dailyHoroscopeCache.clear()
+        natalDataCache.clear()
     }
 
     override fun close() {
-        try {
-            clearCache()
-            ephemerisEngine.close()
-        } catch (e: Exception) {
-            Log.w(TAG, "Error closing ephemeris engine", e)
+        if (isClosed.compareAndSet(false, true)) {
+            try {
+                clearCache()
+                ephemerisEngine.close()
+            } catch (e: Exception) {
+                Log.w(TAG, "Error closing ephemeris engine", e)
+            }
         }
     }
 
     class HoroscopeCalculationException(message: String, cause: Throwable? = null) : Exception(message, cause)
 
+    private class LRUCache<K, V>(private val maxSize: Int) {
+        private val cache = object : LinkedHashMap<K, V>(maxSize, 0.75f, true) {
+            override fun removeEldestEntry(eldest: MutableMap.MutableEntry<K, V>?): Boolean {
+                return size > maxSize
+            }
+        }
+
+        @Synchronized
+        operator fun get(key: K): V? = cache[key]
+
+        @Synchronized
+        operator fun set(key: K, value: V) {
+            cache[key] = value
+        }
+
+        @Synchronized
+        fun clear() = cache.clear()
+    }
+
     companion object {
         private const val TAG = "HoroscopeCalculator"
         private const val MAX_TRANSIT_CACHE_SIZE = 30
         private const val MAX_HOROSCOPE_CACHE_SIZE = 50
+        private const val MAX_NATAL_CACHE_SIZE = 10
 
-        private val NATURAL_BENEFICS = listOf(Planet.JUPITER, Planet.VENUS, Planet.MERCURY, Planet.MOON)
-        private val NATURAL_MALEFICS = listOf(Planet.SATURN, Planet.MARS, Planet.RAHU, Planet.KETU)
+        private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, MMM d")
+
+        private val NATURAL_BENEFICS = setOf(Planet.JUPITER, Planet.VENUS, Planet.MERCURY, Planet.MOON)
+        private val NATURAL_MALEFICS = setOf(Planet.SATURN, Planet.MARS, Planet.RAHU, Planet.KETU)
+
+        private val FIRE_PLANETS = setOf(Planet.SUN, Planet.MARS, Planet.JUPITER)
+        private val EARTH_PLANETS = setOf(Planet.VENUS, Planet.MERCURY, Planet.SATURN)
+        private val AIR_PLANETS = setOf(Planet.MERCURY, Planet.VENUS, Planet.SATURN)
+        private val WATER_PLANETS = setOf(Planet.MOON, Planet.MARS, Planet.JUPITER)
+
+        private val PLANET_OWN_SIGNS = mapOf(
+            Planet.SUN to setOf(ZodiacSign.LEO),
+            Planet.MOON to setOf(ZodiacSign.CANCER),
+            Planet.MARS to setOf(ZodiacSign.ARIES, ZodiacSign.SCORPIO),
+            Planet.MERCURY to setOf(ZodiacSign.GEMINI, ZodiacSign.VIRGO),
+            Planet.JUPITER to setOf(ZodiacSign.SAGITTARIUS, ZodiacSign.PISCES),
+            Planet.VENUS to setOf(ZodiacSign.TAURUS, ZodiacSign.LIBRA),
+            Planet.SATURN to setOf(ZodiacSign.CAPRICORN, ZodiacSign.AQUARIUS)
+        )
+
+        private val PLANET_EXALTATION = mapOf(
+            Planet.SUN to ZodiacSign.ARIES,
+            Planet.MOON to ZodiacSign.TAURUS,
+            Planet.MARS to ZodiacSign.CAPRICORN,
+            Planet.MERCURY to ZodiacSign.VIRGO,
+            Planet.JUPITER to ZodiacSign.CANCER,
+            Planet.VENUS to ZodiacSign.PISCES,
+            Planet.SATURN to ZodiacSign.LIBRA
+        )
+
+        private val PLANET_DEBILITATION = mapOf(
+            Planet.SUN to ZodiacSign.LIBRA,
+            Planet.MOON to ZodiacSign.SCORPIO,
+            Planet.MARS to ZodiacSign.CANCER,
+            Planet.MERCURY to ZodiacSign.PISCES,
+            Planet.JUPITER to ZodiacSign.CAPRICORN,
+            Planet.VENUS to ZodiacSign.VIRGO,
+            Planet.SATURN to ZodiacSign.ARIES
+        )
 
         private val GOCHARA_FAVORABLE_HOUSES = mapOf(
             Planet.SUN to listOf(3, 6, 10, 11),
@@ -706,40 +914,160 @@ class HoroscopeCalculator(private val context: Context) : AutoCloseable {
             Planet.KETU to listOf(3, 6, 9, 11)
         )
 
-        private val FAVORABLE_GOCHARA_EFFECTS = mapOf(
-            Planet.JUPITER to mapOf(
-                2 to ("Wealth and family prosperity" to 9),
-                5 to ("Intelligence, children, and creativity flourish" to 9),
-                7 to ("Partnership and relationship harmony" to 8),
-                9 to ("Fortune, spirituality, and wisdom" to 10),
-                11 to ("Gains and fulfillment of desires" to 9)
+        private val GOCHARA_VEDHA_PAIRS = mapOf(
+            Planet.SUN to mapOf(3 to 9, 6 to 12, 10 to 4, 11 to 5),
+            Planet.MOON to mapOf(1 to 5, 3 to 9, 6 to 12, 7 to 2, 10 to 4, 11 to 8),
+            Planet.MARS to mapOf(3 to 12, 6 to 9, 11 to 5),
+            Planet.MERCURY to mapOf(2 to 5, 4 to 3, 6 to 9, 8 to 1, 10 to 8, 11 to 12),
+            Planet.JUPITER to mapOf(2 to 12, 5 to 4, 7 to 3, 9 to 10, 11 to 8),
+            Planet.VENUS to mapOf(1 to 8, 2 to 7, 3 to 1, 4 to 10, 5 to 9, 8 to 5, 9 to 11, 11 to 6, 12 to 3),
+            Planet.SATURN to mapOf(3 to 12, 6 to 9, 11 to 5),
+            Planet.RAHU to mapOf(3 to 12, 6 to 9, 10 to 4, 11 to 5),
+            Planet.KETU to mapOf(3 to 12, 6 to 9, 9 to 10, 11 to 5)
+        )
+
+        private val FAVORABLE_GOCHARA_EFFECTS_DETAILED = mapOf(
+            Planet.SUN to mapOf(
+                3 to ("Courage and valor increase. Victory over rivals." to 8),
+                6 to ("Destruction of enemies. Health improves. Debts decrease." to 8),
+                10 to ("Professional success and recognition. Authority increases." to 9),
+                11 to ("Gains of wealth. Fulfillment of desires. Success in endeavors." to 9)
             ),
-            Planet.SATURN to mapOf(
-                3 to ("Courage and perseverance" to 7),
-                6 to ("Victory over obstacles" to 8),
-                11 to ("Long-term gains through patience" to 8)
+            Planet.MOON to mapOf(
+                1 to ("Mental peace and satisfaction. Good health and comforts." to 8),
+                3 to ("Courage increases. Success in short journeys. Good relations with siblings." to 7),
+                6 to ("Victory over enemies. Relief from debts and diseases." to 8),
+                7 to ("Pleasure through spouse. Partnership gains. Social happiness." to 8),
+                10 to ("Success in profession. Recognition from superiors." to 8),
+                11 to ("Financial gains. Fulfillment of desires. Social success." to 9)
+            ),
+            Planet.MARS to mapOf(
+                3 to ("Courage and determination. Victory in competitions. Energy for initiatives." to 8),
+                6 to ("Defeat of enemies. Success through effort. Good for legal matters." to 8),
+                11 to ("Financial gains through effort. Achievement of goals. Success in ventures." to 8)
+            ),
+            Planet.MERCURY to mapOf(
+                2 to ("Gains through speech and intellect. Family harmony. Financial gains." to 8),
+                4 to ("Domestic happiness. Property matters favorable. Mental peace." to 7),
+                6 to ("Victory over competitors. Success in studies. Sharp intellect." to 8),
+                8 to ("Gains through research. Understanding occult matters." to 7),
+                10 to ("Professional success. Recognition for intelligence. Business growth." to 8),
+                11 to ("Financial gains through communication. Network expansion." to 8)
+            ),
+            Planet.JUPITER to mapOf(
+                2 to ("Wealth increases. Family harmony. Sweet speech. Good food." to 9),
+                5 to ("Intelligence flourishes. Good for children. Romance. Creativity." to 9),
+                7 to ("Partnership success. Marriage prospects. Business partnerships." to 8),
+                9 to ("Spiritual growth. Luck and fortune. Father's blessings. Pilgrimage." to 10),
+                11 to ("Major gains. Fulfillment of desires. Eldest sibling's success." to 9)
             ),
             Planet.VENUS to mapOf(
-                1 to ("Personal charm and attractiveness" to 8),
-                4 to ("Domestic happiness and comfort" to 8),
-                5 to ("Romance and creative expression" to 9),
-                9 to ("Fortune through relationships" to 8)
+                1 to ("Personal charm increases. Attraction and luxury. Good health." to 8),
+                2 to ("Wealth and family happiness. Good food and comforts." to 8),
+                3 to ("Artistic talents shine. Harmonious relations with siblings." to 7),
+                4 to ("Domestic bliss. Vehicle and property gains. Mother's blessings." to 8),
+                5 to ("Romance and creativity. Pleasure through children. Entertainment." to 9),
+                8 to ("Unexpected gains. Inheritance matters favorable." to 7),
+                9 to ("Fortune through relationships. Spiritual partnerships." to 8),
+                11 to ("Major gains through arts/finance. Social success." to 9),
+                12 to ("Pleasures of bed. Foreign connections favorable." to 7)
+            ),
+            Planet.SATURN to mapOf(
+                3 to ("Perseverance pays off. Courage through discipline. Victory through patience." to 7),
+                6 to ("Victory over enemies through persistence. Health through discipline." to 8),
+                11 to ("Long-term gains materialize. Slow but steady prosperity." to 8)
+            ),
+            Planet.RAHU to mapOf(
+                3 to ("Courage for unconventional paths. Success through innovation." to 7),
+                6 to ("Victory over hidden enemies. Overcoming obstacles." to 7),
+                10 to ("Sudden rise in career. Foreign opportunities." to 8),
+                11 to ("Unexpected gains. Fulfillment of unusual desires." to 8)
+            ),
+            Planet.KETU to mapOf(
+                3 to ("Spiritual courage. Success in research." to 7),
+                6 to ("Healing abilities increase. Victory through spiritual means." to 7),
+                9 to ("Spiritual insights. Pilgrimage. Blessings from teachers." to 8),
+                11 to ("Gains through spiritual pursuits. Liberation from desires." to 7)
             )
         )
 
-        private val UNFAVORABLE_GOCHARA_EFFECTS = mapOf(
-            Planet.SATURN to mapOf(
-                1 to ("Physical challenges require attention" to 4),
-                4 to ("Domestic stress possible" to 3),
-                8 to ("Health vigilance needed" to 3),
-                12 to ("Expenses and isolation feeling" to 4)
+        private val UNFAVORABLE_GOCHARA_EFFECTS_DETAILED = mapOf(
+            Planet.SUN to mapOf(
+                1 to ("Health issues. Ego challenges. Conflicts with authority." to 4),
+                2 to ("Financial difficulties. Family disputes. Speech issues." to 4),
+                4 to ("Domestic unrest. Mental worry. Vehicle problems." to 4),
+                5 to ("Obstacles to children. Poor decisions. Speculation loss." to 4),
+                7 to ("Relationship strain. Partnership challenges." to 4),
+                8 to ("Health concerns. Unexpected problems. Hidden enemies." to 3),
+                9 to ("Obstacles in luck. Difficulties with father/teacher." to 4),
+                12 to ("Expenses increase. Sleep disturbances. Hidden losses." to 4)
+            ),
+            Planet.MOON to mapOf(
+                2 to ("Financial fluctuations. Emotional eating issues." to 4),
+                4 to ("Mental restlessness. Domestic worries." to 4),
+                5 to ("Emotional challenges with children. Poor speculation." to 4),
+                8 to ("Emotional turmoil. Hidden anxieties. Health vulnerabilities." to 3),
+                9 to ("Spiritual doubts. Emotional distance from teachers." to 4),
+                12 to ("Sleep issues. Expenses. Emotional withdrawal." to 4)
             ),
             Planet.MARS to mapOf(
-                1 to ("Impulsive actions may backfire" to 4),
-                4 to ("Family tensions possible" to 4),
-                7 to ("Relationship conflicts" to 3),
-                8 to ("Health caution needed" to 3),
-                12 to ("Hidden enemies active" to 4)
+                1 to ("Impulsive actions. Accidents. Health issues. Anger." to 4),
+                2 to ("Financial losses through haste. Family arguments." to 4),
+                4 to ("Domestic conflicts. Property disputes. Mother's health." to 4),
+                5 to ("Children's issues. Poor decisions. Speculation loss." to 4),
+                7 to ("Relationship conflicts. Partnership disputes." to 3),
+                8 to ("Accidents. Surgeries. Hidden enemies active." to 3),
+                9 to ("Conflicts with teachers. Father's health." to 4),
+                10 to ("Professional conflicts. Authority issues." to 4),
+                12 to ("Hidden enemies. Expenses. Hospitalization risk." to 3)
+            ),
+            Planet.MERCURY to mapOf(
+                1 to ("Nervous tension. Skin issues. Restless mind." to 4),
+                3 to ("Communication problems. Sibling issues. Short trips troubled." to 4),
+                5 to ("Poor decisions. Learning difficulties." to 4),
+                7 to ("Partnership misunderstandings. Contract issues." to 4),
+                9 to ("Educational obstacles. Communication with father strained." to 4),
+                12 to ("Mental anxieties. Hidden worries. Poor sleep." to 4)
+            ),
+            Planet.JUPITER to mapOf(
+                1 to ("Weight gain. Overconfidence. Health issues." to 4),
+                3 to ("Reduced courage. Sibling issues." to 5),
+                4 to ("Domestic expansion issues. Property disputes." to 4),
+                6 to ("Debts may increase. Enemy problems." to 4),
+                8 to ("Unexpected expenses. Health vulnerabilities." to 4),
+                10 to ("Professional setbacks. Reputation challenges." to 4),
+                12 to ("Expenses. Foreign troubles. Spiritual doubts." to 4)
+            ),
+            Planet.SATURN to mapOf(
+                1 to ("Health issues. Depression. Physical weakness." to 3),
+                2 to ("Financial constraints. Family separation. Speech issues." to 4),
+                4 to ("Domestic stress. Mother's health. Property issues." to 3),
+                5 to ("Children's problems. Poor decisions. Mental worry." to 4),
+                7 to ("Relationship strain. Partnership challenges. Delays in marriage." to 3),
+                8 to ("Chronic health issues. Hidden problems. Accidents." to 2),
+                9 to ("Father's troubles. Spiritual obstacles. Bad luck phase." to 3),
+                10 to ("Career setbacks. Authority conflicts. Reputation damage." to 4),
+                12 to ("Isolation. Expenses. Sleep issues. Foreign troubles." to 3)
+            ),
+            Planet.RAHU to mapOf(
+                1 to ("Confusion. Wrong decisions. Health anxieties." to 4),
+                2 to ("Financial deception. Family disharmony." to 4),
+                4 to ("Mental confusion. Domestic issues." to 4),
+                5 to ("Children's concerns. Poor speculation." to 4),
+                7 to ("Relationship deceptions. Partnership frauds." to 3),
+                8 to ("Sudden problems. Hidden enemies. Health scares." to 3),
+                9 to ("Spiritual confusion. Issues with teachers." to 4),
+                12 to ("Hidden enemies. Expenses. Foreign troubles." to 3)
+            ),
+            Planet.KETU to mapOf(
+                1 to ("Health vulnerabilities. Lack of direction." to 4),
+                2 to ("Financial losses. Family separation." to 4),
+                4 to ("Domestic detachment. Property losses." to 4),
+                5 to ("Children's issues. Poor decisions." to 4),
+                7 to ("Relationship detachment. Partnership dissolution." to 3),
+                8 to ("Sudden health issues. Accidents. Hidden problems." to 3),
+                10 to ("Career confusion. Direction loss." to 4),
+                12 to ("Expenses. Spiritual confusion. Isolation." to 4)
             )
         )
 

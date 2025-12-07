@@ -379,12 +379,13 @@ private fun YogasTabContentWrapper(chart: VedicChart) {
 
 @Composable
 private fun DashasTabContentWrapper(chart: VedicChart) {
+    val timeline = remember(chart) { DashaCalculator.calculateDashaTimeline(chart) }
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(AppTheme.ScreenBackground)
     ) {
-        DashasTabContent(chart = chart)
+        DashasTabContent(timeline = timeline)
     }
 }
 
