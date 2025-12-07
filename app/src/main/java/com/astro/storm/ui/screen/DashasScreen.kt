@@ -17,13 +17,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.astro.storm.data.model.VedicChart
 import com.astro.storm.ephemeris.DashaCalculator
 import com.astro.storm.ui.screen.chartdetail.tabs.DashasTabContent
 import com.astro.storm.ui.theme.AppTheme
+import com.astro.storm.ui.viewmodel.DashaUiState
+import com.astro.storm.ui.viewmodel.DashaViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
