@@ -337,7 +337,6 @@ private fun ChartTabContentWrapper(
         ChartTabContent(
             chart = chart,
             chartRenderer = chartRenderer,
-            context = context,
             onChartClick = onChartClick,
             onPlanetClick = onPlanetClick,
             onHouseClick = onHouseClick

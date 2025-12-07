@@ -224,8 +224,8 @@ private fun BirthInfoSummaryCard(
             BirthInfoItem(
                 icon = Icons.Outlined.LocationOn,
                 label = "Place",
-                value = birthData.location.placeName.takeIf { it.isNotBlank() }
-                    ?: "${String.format(Locale.US, "%.2f", birthData.location.latitude)}°, ${String.format(Locale.US, "%.2f", birthData.location.longitude)}°",
+                value = birthData.location.takeIf { it.isNotBlank() }
+                    ?: "${String.format(Locale.US, "%.2f", birthData.latitude)}°, ${String.format(Locale.US, "%.2f", birthData.longitude)}°",
                 modifier = Modifier.weight(1.2f)
             )
         }

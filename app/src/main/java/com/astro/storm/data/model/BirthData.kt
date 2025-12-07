@@ -9,14 +9,13 @@ import java.time.LocalDateTime
 enum class Gender(val displayName: String) {
     MALE("Male"),
     FEMALE("Female"),
-    OTHER("Other"),
-    PREFER_NOT_TO_SAY("Prefer not to say");
+    OTHER("Other");
 
     companion object {
         fun fromString(value: String?): Gender {
             return entries.find { it.name.equals(value, ignoreCase = true) }
                 ?: entries.find { it.displayName.equals(value, ignoreCase = true) }
-                ?: PREFER_NOT_TO_SAY
+                ?: OTHER
         }
     }
 }

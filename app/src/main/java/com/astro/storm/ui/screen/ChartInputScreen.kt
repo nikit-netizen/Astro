@@ -64,7 +64,7 @@ fun ChartInputScreen(
     val focusManager = LocalFocusManager.current
 
     var name by rememberSaveable { mutableStateOf("") }
-    var selectedGender by rememberSaveable { mutableStateOf(Gender.PREFER_NOT_TO_SAY) }
+    var selectedGender by rememberSaveable { mutableStateOf(Gender.OTHER) }
     var locationLabel by rememberSaveable { mutableStateOf("") }
     var selectedDateMillis by rememberSaveable { 
         mutableStateOf(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()) 

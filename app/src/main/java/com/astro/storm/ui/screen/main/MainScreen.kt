@@ -132,7 +132,7 @@ fun MainScreen(
                         SettingsTab(
                             currentChart = currentChart,
                             savedCharts = savedCharts,
-                            onEditProfile = { onNavigateToProfileEdit() },
+                            onEditProfile = onNavigateToProfileEdit,
                             onDeleteProfile = { chartId ->
                                 viewModel.deleteChart(chartId)
                             },

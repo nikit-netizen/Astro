@@ -39,7 +39,7 @@ import com.astro.storm.ui.theme.AppTheme
 fun SettingsTab(
     currentChart: VedicChart?,
     savedCharts: List<SavedChart>,
-    onEditProfile: (Long) -> Unit,
+    onEditProfile: () -> Unit,
     onDeleteProfile: (Long) -> Unit,
     onExportChart: (ExportFormat) -> Unit,
     onManageProfiles: () -> Unit
@@ -72,12 +72,21 @@ fun SettingsTab(
         }
 
         item {
-            SettingsItem(
-                icon = Icons.Outlined.People,
-                title = "Manage Profiles",
-                subtitle = "${savedCharts.size} saved charts",
-                onClick = onManageProfiles
-            )
+            if (currentChart != null) {
+                SettingsItem(
+                    icon = Icons.Outlined.Edit,
+                    title = "Edit Profile",
+                    subtitle = "Modify birth details",
+                    onClick = onEditProfile
+                )
+            } else {
+                SettingsItem(
+                    icon = Icons.Outlined.People,
+                    title = "Manage Profiles",
+                    subtitle = "No profile selected",
+                    onClick = onManageProfiles
+                )
+            }
         }
 
         // Export Section
