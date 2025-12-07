@@ -4,13 +4,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.astro.storm.data.model.VedicChart
 import com.astro.storm.ephemeris.DashaCalculator
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicReference
 
 sealed class DashaUiState {
     data object Loading : DashaUiState()
@@ -22,11 +27,19 @@ sealed class DashaUiState {
 class DashaViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow<DashaUiState>(DashaUiState.Idle)
-    val uiState = _uiState.asStateFlow()
+    val uiState: StateFlow<DashaUiState> = _uiState.asStateFlow()
+
+    private val _scrollToTodayEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val scrollToTodayEvent: SharedFlow<Unit> = _scrollToTodayEvent.asSharedFlow()
 
     private var calculationJob: Job? = null
-    private var cachedChartKey: String? = null
-    private var cachedTimeline: DashaCalculator.DashaTimeline? = null
+
+    private val cache = AtomicReference<CachedTimeline?>(null)
+
+    private data class CachedTimeline(
+        val chartKey: String,
+        val timeline: DashaCalculator.DashaTimeline
+    )
 
     fun loadDashaTimeline(chart: VedicChart?) {
         if (chart == null) {
@@ -36,12 +49,15 @@ class DashaViewModel : ViewModel() {
 
         val chartKey = generateChartKey(chart)
 
-        if (chartKey == cachedChartKey && cachedTimeline != null) {
-            _uiState.value = DashaUiState.Success(cachedTimeline!!)
-            return
+        cache.get()?.let { cached ->
+            if (cached.chartKey == chartKey) {
+                _uiState.value = DashaUiState.Success(cached.timeline)
+                return
+            }
         }
 
-        if (_uiState.value is DashaUiState.Loading && chartKey == cachedChartKey) {
+        val currentState = _uiState.value
+        if (currentState is DashaUiState.Loading) {
             return
         }
 
@@ -51,46 +67,51 @@ class DashaViewModel : ViewModel() {
         calculationJob = viewModelScope.launch {
             try {
                 val timeline = withContext(Dispatchers.Default) {
-                    if (!isActive) return@withContext null
                     DashaCalculator.calculateDashaTimeline(chart)
                 }
 
-                if (timeline != null && isActive) {
-                    cachedChartKey = chartKey
-                    cachedTimeline = timeline
-                    _uiState.value = DashaUiState.Success(timeline)
-                }
+                cache.set(CachedTimeline(chartKey, timeline))
+                _uiState.value = DashaUiState.Success(timeline)
+
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
-                if (isActive) {
-                    _uiState.value = DashaUiState.Error(
-                        e.message ?: "Failed to calculate Dasha timeline."
-                    )
+                val errorMessage = when {
+                    e.message?.contains("Moon", ignoreCase = true) == true ->
+                        "Unable to determine Moon's Nakshatra position. Please verify birth data."
+                    e.message?.contains("birth", ignoreCase = true) == true ->
+                        "Invalid birth data provided. Please check date, time, and location."
+                    else ->
+                        e.message ?: "Failed to calculate Dasha timeline. Please try again."
                 }
+                _uiState.value = DashaUiState.Error(errorMessage)
             }
         }
     }
 
+    fun requestScrollToToday() {
+        _scrollToTodayEvent.tryEmit(Unit)
+    }
+
     fun clearCache() {
-        cachedChartKey = null
-        cachedTimeline = null
+        cache.set(null)
     }
 
     private fun generateChartKey(chart: VedicChart): String {
         val birthData = chart.birthData
         return buildString {
-            append(birthData.dateTime.toString())
-            append("|")
-            append(birthData.latitude)
-            append("|")
-            append(birthData.longitude)
-            append("|")
-            append(chart.ayanamsa)
+            append(birthData.dateTime.toEpochSecond(java.time.ZoneOffset.UTC))
+            append('|')
+            append((birthData.latitude * 1_000_000).toLong())
+            append('|')
+            append((birthData.longitude * 1_000_000).toLong())
+            append('|')
+            append(chart.ayanamsa.ordinal)
         }
     }
 
     override fun onCleared() {
         super.onCleared()
         calculationJob?.cancel()
-        clearCache()
     }
 }
