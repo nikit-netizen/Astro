@@ -1,6 +1,5 @@
 package com.astro.storm.ui.screen.chartdetail.tabs
 
-import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -34,7 +33,6 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -53,7 +51,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -67,16 +67,11 @@ import com.astro.storm.ephemeris.DivisionalChartType
 import com.astro.storm.ui.chart.ChartRenderer
 import com.astro.storm.ui.screen.chartdetail.ChartDetailColors
 import com.astro.storm.ui.screen.chartdetail.ChartDetailUtils
-import java.time.format.DateTimeFormatter
 
-/**
- * Chart tab content displaying divisional charts and planetary positions.
- */
 @Composable
 fun ChartTabContent(
     chart: VedicChart,
     chartRenderer: ChartRenderer,
-    context: Context,
     onChartClick: (String, DivisionalChartData?) -> Unit,
     onPlanetClick: (PlanetPosition) -> Unit,
     onHouseClick: (Int) -> Unit
@@ -98,8 +93,8 @@ fun ChartTabContent(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
             ChartTypeSelector(
@@ -144,10 +139,6 @@ fun ChartTabContent(
         }
 
         item {
-            BirthInfoCard(chart = chart)
-        }
-
-        item {
             AstronomicalDataCard(
                 chart = chart,
                 isExpanded = "AstronomicalData" in expandedCardTitles,
@@ -159,6 +150,10 @@ fun ChartTabContent(
                     }
                 }
             )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }
@@ -346,7 +341,7 @@ private fun MainChartCard(
             ChartLegend()
 
             Text(
-                text = "Tap chart to view fullscreen with download option",
+                text = "Tap chart to view fullscreen",
                 fontSize = 11.sp,
                 color = ChartDetailColors.TextMuted,
                 textAlign = TextAlign.Center,
@@ -360,49 +355,143 @@ private fun MainChartCard(
 
 @Composable
 private fun ChartLegend() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color = ChartDetailColors.ChartBackground,
-                shape = RoundedCornerShape(8.dp)
-            )
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        color = ChartDetailColors.ChartBackground
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            LegendItem("*", "Retrograde")
-            LegendItem("^", "Combust")
-            LegendItem("\u00A4", "Vargottama")
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            LegendItem("\u2191", "Exalted")
-            LegendItem("\u2193", "Debilitated")
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                TextLegendItem(symbol = "*", label = "Retro", color = ChartDetailColors.AccentGold)
+                TextLegendItem(symbol = "^", label = "Combust", color = ChartDetailColors.AccentGold)
+                TextLegendItem(symbol = "\u00A4", label = "Vargottama", color = ChartDetailColors.AccentGold)
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                ArrowLegendItem(isExalted = true, label = "Exalted")
+                ArrowLegendItem(isExalted = false, label = "Debilitated")
+                ShapeLegendItem(isOwnSign = true, label = "Own Sign")
+                ShapeLegendItem(isOwnSign = false, label = "Mool Tri.")
+            }
         }
     }
 }
 
 @Composable
-private fun LegendItem(symbol: String, label: String) {
+private fun TextLegendItem(
+    symbol: String,
+    label: String,
+    color: Color
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Text(
             text = symbol,
-            fontSize = 14.sp,
+            fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
-            color = ChartDetailColors.AccentGold
+            color = color
         )
         Text(
             text = label,
-            fontSize = 11.sp,
+            fontSize = 10.sp,
+            color = ChartDetailColors.TextMuted
+        )
+    }
+}
+
+@Composable
+private fun ArrowLegendItem(
+    isExalted: Boolean,
+    label: String
+) {
+    val color = if (isExalted) Color(0xFF1E8449) else Color(0xFFC0392B)
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Canvas(modifier = Modifier.size(12.dp)) {
+            val arrowSize = size.minDimension * 0.9f
+            val centerX = size.width / 2
+            val centerY = size.height / 2
+
+            val path = Path().apply {
+                if (isExalted) {
+                    moveTo(centerX, centerY - arrowSize * 0.45f)
+                    lineTo(centerX - arrowSize * 0.35f, centerY + arrowSize * 0.1f)
+                    lineTo(centerX - arrowSize * 0.1f, centerY + arrowSize * 0.1f)
+                    lineTo(centerX - arrowSize * 0.1f, centerY + arrowSize * 0.45f)
+                    lineTo(centerX + arrowSize * 0.1f, centerY + arrowSize * 0.45f)
+                    lineTo(centerX + arrowSize * 0.1f, centerY + arrowSize * 0.1f)
+                    lineTo(centerX + arrowSize * 0.35f, centerY + arrowSize * 0.1f)
+                } else {
+                    moveTo(centerX, centerY + arrowSize * 0.45f)
+                    lineTo(centerX - arrowSize * 0.35f, centerY - arrowSize * 0.1f)
+                    lineTo(centerX - arrowSize * 0.1f, centerY - arrowSize * 0.1f)
+                    lineTo(centerX - arrowSize * 0.1f, centerY - arrowSize * 0.45f)
+                    lineTo(centerX + arrowSize * 0.1f, centerY - arrowSize * 0.45f)
+                    lineTo(centerX + arrowSize * 0.1f, centerY - arrowSize * 0.1f)
+                    lineTo(centerX + arrowSize * 0.35f, centerY - arrowSize * 0.1f)
+                }
+                close()
+            }
+            drawPath(path = path, color = color)
+        }
+        Text(
+            text = label,
+            fontSize = 10.sp,
+            color = ChartDetailColors.TextMuted
+        )
+    }
+}
+
+@Composable
+private fun ShapeLegendItem(
+    isOwnSign: Boolean,
+    label: String
+) {
+    val color = if (isOwnSign) Color(0xFF2874A6) else Color(0xFF6C3483)
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Canvas(modifier = Modifier.size(12.dp)) {
+            val shapeSize = size.minDimension * 0.85f
+            val centerX = size.width / 2
+            val centerY = size.height / 2
+
+            val path = Path().apply {
+                if (isOwnSign) {
+                    moveTo(centerX - shapeSize * 0.4f, centerY + shapeSize * 0.35f)
+                    lineTo(centerX - shapeSize * 0.4f, centerY - shapeSize * 0.15f)
+                    lineTo(centerX - shapeSize * 0.2f, centerY - shapeSize * 0.35f)
+                    lineTo(centerX, centerY - shapeSize * 0.45f)
+                    lineTo(centerX + shapeSize * 0.2f, centerY - shapeSize * 0.35f)
+                    lineTo(centerX + shapeSize * 0.4f, centerY - shapeSize * 0.15f)
+                    lineTo(centerX + shapeSize * 0.4f, centerY + shapeSize * 0.35f)
+                } else {
+                    moveTo(centerX, centerY - shapeSize * 0.4f)
+                    lineTo(centerX + shapeSize * 0.4f, centerY + shapeSize * 0.35f)
+                    lineTo(centerX - shapeSize * 0.4f, centerY + shapeSize * 0.35f)
+                }
+                close()
+            }
+            drawPath(path = path, color = color)
+        }
+        Text(
+            text = label,
+            fontSize = 10.sp,
             color = ChartDetailColors.TextMuted
         )
     }
@@ -644,14 +733,14 @@ private fun HouseCuspsCard(
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "Tap house for details",
+                        text = if (isExpanded) "Tap house for details" else "Tap to expand",
                         fontSize = 11.sp,
                         color = ChartDetailColors.TextMuted
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Icon(
                         Icons.Default.ExpandMore,
-                        contentDescription = null,
+                        contentDescription = if (isExpanded) "Collapse" else "Expand",
                         tint = ChartDetailColors.TextMuted,
                         modifier = Modifier.rotate(rotation)
                     )
@@ -736,48 +825,6 @@ private fun HouseCuspItem(
 }
 
 @Composable
-private fun BirthInfoCard(chart: VedicChart) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        color = ChartDetailColors.CardBackground
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 12.dp)
-            ) {
-                Icon(
-                    Icons.Outlined.Person,
-                    contentDescription = null,
-                    tint = ChartDetailColors.AccentTeal,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Birth Information",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = ChartDetailColors.TextPrimary
-                )
-            }
-
-            InfoRow("Name", chart.birthData.name)
-            InfoRow(
-                "Date & Time",
-                chart.birthData.dateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy • hh:mm:ss a"))
-            )
-            InfoRow("Location", chart.birthData.location)
-            InfoRow(
-                "Coordinates",
-                "${ChartDetailUtils.formatCoordinate(chart.birthData.latitude, true)}, ${ChartDetailUtils.formatCoordinate(chart.birthData.longitude, false)}"
-            )
-            InfoRow("Timezone", chart.birthData.timezone)
-        }
-    }
-}
-
-@Composable
 private fun AstronomicalDataCard(
     chart: VedicChart,
     isExpanded: Boolean,
@@ -816,12 +863,20 @@ private fun AstronomicalDataCard(
                         color = ChartDetailColors.TextPrimary
                     )
                 }
-                Icon(
-                    Icons.Default.ExpandMore,
-                    contentDescription = null,
-                    tint = ChartDetailColors.TextMuted,
-                    modifier = Modifier.rotate(rotation)
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = if (isExpanded) "" else "Tap to expand",
+                        fontSize = 11.sp,
+                        color = ChartDetailColors.TextMuted
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(
+                        Icons.Default.ExpandMore,
+                        contentDescription = if (isExpanded) "Collapse" else "Expand",
+                        tint = ChartDetailColors.TextMuted,
+                        modifier = Modifier.rotate(rotation)
+                    )
+                }
             }
 
             AnimatedVisibility(
