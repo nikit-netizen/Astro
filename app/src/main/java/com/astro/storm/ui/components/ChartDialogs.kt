@@ -36,6 +36,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.astro.storm.data.localization.Language
+import com.astro.storm.data.localization.LocalLanguage
+import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringResources
+import com.astro.storm.data.localization.getLocalizedName
+import com.astro.storm.data.localization.stringResource
 import com.astro.storm.data.model.*
 import com.astro.storm.ephemeris.DivisionalChartData
 import com.astro.storm.ephemeris.PlanetaryShadbala
@@ -179,11 +185,20 @@ fun FullScreenChartDialog(
                 IconButton(onClick = onDismiss) {
                     Icon(
                         Icons.Default.Close,
-                        contentDescription = "Close",
+                        contentDescription = stringResource(StringKey.DIALOG_CLOSE),
                         tint = TextPrimary
                     )
                 }
             }
+
+            // Pre-fetch localized strings for non-composable context
+            val resetLabel = stringResource(StringKey.DIALOG_RESET)
+            val zoomInLabel = stringResource(StringKey.DIALOG_ZOOM_IN)
+            val zoomOutLabel = stringResource(StringKey.DIALOG_ZOOM_OUT)
+            val savingLabel = stringResource(StringKey.DIALOG_SAVING)
+            val downloadLabel = stringResource(StringKey.DIALOG_DOWNLOAD)
+            val chartSavedMsg = stringResource(StringKey.DIALOG_CHART_SAVED)
+            val chartSaveFailedMsg = stringResource(StringKey.DIALOG_CHART_SAVE_FAILED)
 
             // Bottom action bar
             Row(
@@ -198,7 +213,7 @@ fun FullScreenChartDialog(
                 // Reset zoom button
                 ActionButton(
                     icon = Icons.Default.CenterFocusStrong,
-                    label = "Reset",
+                    label = resetLabel,
                     onClick = {
                         scale = 1f
                         offsetX = 0f
@@ -209,21 +224,21 @@ fun FullScreenChartDialog(
                 // Zoom in button
                 ActionButton(
                     icon = Icons.Default.ZoomIn,
-                    label = "Zoom In",
+                    label = zoomInLabel,
                     onClick = { scale = (scale * 1.2f).coerceAtMost(3f) }
                 )
 
                 // Zoom out button
                 ActionButton(
                     icon = Icons.Default.ZoomOut,
-                    label = "Zoom Out",
+                    label = zoomOutLabel,
                     onClick = { scale = (scale / 1.2f).coerceAtLeast(0.5f) }
                 )
 
                 // Download button
                 ActionButton(
                     icon = if (isDownloading) Icons.Default.HourglassEmpty else Icons.Default.Download,
-                    label = if (isDownloading) "Saving..." else "Download",
+                    label = if (isDownloading) savingLabel else downloadLabel,
                     onClick = {
                         if (!isDownloading) {
                             isDownloading = true
@@ -242,7 +257,7 @@ fun FullScreenChartDialog(
                                 withContext(Dispatchers.Main) {
                                     Toast.makeText(
                                         context,
-                                        if (success) "Chart saved to gallery!" else "Failed to save chart",
+                                        if (success) chartSavedMsg else chartSaveFailedMsg,
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
@@ -503,7 +518,7 @@ private fun PlanetDialogHeader(
                 }
             }
             IconButton(onClick = onDismiss) {
-                Icon(Icons.Default.Close, contentDescription = "Close", tint = TextPrimary)
+                Icon(Icons.Default.Close, contentDescription = stringResource(StringKey.DIALOG_CLOSE), tint = TextPrimary)
             }
         }
     }
@@ -511,16 +526,17 @@ private fun PlanetDialogHeader(
 
 @Composable
 private fun PlanetPositionCard(position: PlanetPosition) {
-    DialogCard(title = "Position Details", icon = Icons.Outlined.LocationOn) {
+    val language = LocalLanguage.current
+    DialogCard(title = stringResource(StringKey.DIALOG_POSITION_DETAILS), icon = Icons.Outlined.LocationOn) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            DetailRow("Zodiac Sign", position.sign.displayName, AccentTeal)
-            DetailRow("Degree", formatDegree(position.longitude), TextPrimary)
-            DetailRow("House", "House ${position.house}", AccentGold)
-            DetailRow("Nakshatra", "${position.nakshatra.displayName} (Pada ${position.nakshatraPada})", AccentPurple)
-            DetailRow("Nakshatra Lord", position.nakshatra.ruler.displayName, TextSecondary)
-            DetailRow("Nakshatra Deity", position.nakshatra.deity, TextSecondary)
+            DetailRow(stringResource(StringKey.DIALOG_ZODIAC_SIGN), position.sign.getLocalizedName(language), AccentTeal)
+            DetailRow(stringResource(StringKey.DIALOG_DEGREE), formatDegree(position.longitude), TextPrimary)
+            DetailRow(stringResource(StringKey.MISC_HOUSE), "${stringResource(StringKey.MISC_HOUSE)} ${position.house}", AccentGold)
+            DetailRow(stringResource(StringKey.CHART_NAKSHATRA), "${position.nakshatra.getLocalizedName(language)} (${stringResource(StringKey.MISC_PADA)} ${position.nakshatraPada})", AccentPurple)
+            DetailRow(stringResource(StringKey.MATCH_NAKSHATRA_LORD), position.nakshatra.ruler.getLocalizedName(language), TextSecondary)
+            DetailRow(stringResource(StringKey.DIALOG_DEITY), position.nakshatra.deity, TextSecondary)
             if (position.isRetrograde) {
-                DetailRow("Motion", "Retrograde", AccentOrange)
+                DetailRow(stringResource(StringKey.DIALOG_MOTION), stringResource(StringKey.DIALOG_RETROGRADE), AccentOrange)
             }
         }
     }
@@ -528,7 +544,12 @@ private fun PlanetPositionCard(position: PlanetPosition) {
 
 @Composable
 private fun ShadbalaCard(shadbala: PlanetaryShadbala) {
-    DialogCard(title = "Strength Analysis (Shadbala)", icon = Icons.Outlined.TrendingUp) {
+    val language = LocalLanguage.current
+    val rupasLabel = stringResource(StringKey.DIALOG_RUPAS)
+    val overallLabel = stringResource(StringKey.DIALOG_OVERALL)
+    val ofRequiredStrengthLabel = StringResources.get(StringKey.DIALOG_OF_REQUIRED_STRENGTH, language, String.format("%.1f", shadbala.percentageOfRequired))
+
+    DialogCard(title = stringResource(StringKey.DIALOG_STRENGTH_ANALYSIS), icon = Icons.Outlined.TrendingUp) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             // Overall strength bar
             val strengthPercentage = (shadbala.percentageOfRequired / 150.0).coerceIn(0.0, 1.0).toFloat()
@@ -538,7 +559,7 @@ private fun ShadbalaCard(shadbala: PlanetaryShadbala) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "Overall: ${String.format("%.2f", shadbala.totalRupas)} / ${String.format("%.2f", shadbala.requiredRupas)} Rupas",
+                        text = "$overallLabel: ${String.format("%.2f", shadbala.totalRupas)} / ${String.format("%.2f", shadbala.requiredRupas)} $rupasLabel",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = TextPrimary
@@ -570,7 +591,7 @@ private fun ShadbalaCard(shadbala: PlanetaryShadbala) {
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "${String.format("%.1f", shadbala.percentageOfRequired)}% of required strength",
+                    text = ofRequiredStrengthLabel,
                     fontSize = 12.sp,
                     color = TextMuted
                 )
@@ -579,14 +600,14 @@ private fun ShadbalaCard(shadbala: PlanetaryShadbala) {
             HorizontalDivider(color = DividerColor)
 
             // Breakdown
-            Text("Strength Breakdown (Virupas)", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
+            Text(stringResource(StringKey.DIALOG_STRENGTH_BREAKDOWN), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
 
-            StrengthRow("Sthana Bala (Positional)", shadbala.sthanaBala.total, 180.0)
-            StrengthRow("Dig Bala (Directional)", shadbala.digBala, 60.0)
-            StrengthRow("Kala Bala (Temporal)", shadbala.kalaBala.total, 180.0)
-            StrengthRow("Chesta Bala (Motional)", shadbala.chestaBala, 60.0)
-            StrengthRow("Naisargika Bala (Natural)", shadbala.naisargikaBala, 60.0)
-            StrengthRow("Drik Bala (Aspectual)", shadbala.drikBala, 60.0)
+            StrengthRow(stringResource(StringKey.DIALOG_STHANA_BALA), shadbala.sthanaBala.total, 180.0)
+            StrengthRow(stringResource(StringKey.DIALOG_DIG_BALA), shadbala.digBala, 60.0)
+            StrengthRow(stringResource(StringKey.DIALOG_KALA_BALA), shadbala.kalaBala.total, 180.0)
+            StrengthRow(stringResource(StringKey.DIALOG_CHESTA_BALA), shadbala.chestaBala, 60.0)
+            StrengthRow(stringResource(StringKey.DIALOG_NAISARGIKA_BALA), shadbala.naisargikaBala, 60.0)
+            StrengthRow(stringResource(StringKey.DIALOG_DRIK_BALA), shadbala.drikBala, 60.0)
         }
     }
 }
@@ -624,22 +645,23 @@ private fun StrengthRow(label: String, value: Double, maxValue: Double) {
 
 @Composable
 private fun SignificationsCard(planet: Planet) {
-    val significations = getPlanetSignifications(planet)
+    val language = LocalLanguage.current
+    val significations = getPlanetSignifications(planet, language)
 
-    DialogCard(title = "Significations & Nature", icon = Icons.Outlined.Info) {
+    DialogCard(title = stringResource(StringKey.DIALOG_SIGNIFICATIONS_NATURE), icon = Icons.Outlined.Info) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             // Nature
-            DetailRow("Nature", significations.nature, when (significations.nature) {
-                "Benefic" -> AccentGreen
-                "Malefic" -> AccentRose
+            DetailRow(stringResource(StringKey.DIALOG_NATURE), significations.nature, when (significations.natureType) {
+                NatureType.BENEFIC -> AccentGreen
+                NatureType.MALEFIC -> AccentRose
                 else -> AccentOrange
             })
 
             // Element
-            DetailRow("Element", significations.element, TextSecondary)
+            DetailRow(stringResource(StringKey.DIALOG_ELEMENT), significations.element, TextSecondary)
 
             // Represents
-            Text("Represents:", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
+            Text(stringResource(StringKey.DIALOG_REPRESENTS), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
             significations.represents.forEach { item ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
@@ -653,11 +675,11 @@ private fun SignificationsCard(planet: Planet) {
             }
 
             // Body Parts
-            Text("Body Parts:", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
+            Text(stringResource(StringKey.DIALOG_BODY_PARTS), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
             Text(text = significations.bodyParts, fontSize = 13.sp, color = TextPrimary)
 
             // Professions
-            Text("Professions:", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
+            Text(stringResource(StringKey.DIALOG_PROFESSIONS), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
             Text(text = significations.professions, fontSize = 13.sp, color = TextPrimary)
         }
     }
@@ -1373,9 +1395,13 @@ private fun formatDegreeInSign(longitude: Double): String {
     return "$deg° $min'"
 }
 
+// Enum for planetary nature type
+enum class NatureType { BENEFIC, MALEFIC, NEUTRAL }
+
 // Data classes for interpretations
 data class PlanetSignifications(
     val nature: String,
+    val natureType: NatureType,
     val element: String,
     val represents: List<String>,
     val bodyParts: String,
@@ -1420,72 +1446,89 @@ data class HouseDetails(
 )
 
 // Helper functions for getting interpretations (comprehensive data)
-private fun getPlanetSignifications(planet: Planet): PlanetSignifications {
+private fun getPlanetSignifications(planet: Planet, language: Language): PlanetSignifications {
+    val beneficStr = StringResources.get(StringKey.NATURE_BENEFIC, language)
+    val maleficStr = StringResources.get(StringKey.NATURE_MALEFIC, language)
+    val fireStr = StringResources.get(StringKey.ELEMENT_FIRE, language)
+    val waterStr = StringResources.get(StringKey.ELEMENT_WATER, language)
+    val earthStr = StringResources.get(StringKey.ELEMENT_EARTH, language)
+    val airStr = StringResources.get(StringKey.ELEMENT_AIR, language)
+    val etherStr = StringResources.get(StringKey.ELEMENT_ETHER, language)
+
     return when (planet) {
         Planet.SUN -> PlanetSignifications(
-            nature = "Malefic",
-            element = "Fire",
-            represents = listOf("Soul, Self, Ego", "Father, Authority Figures", "Government, Power", "Health, Vitality", "Fame, Recognition"),
-            bodyParts = "Heart, Spine, Right Eye, Bones",
-            professions = "Government jobs, Politics, Medicine, Administration, Leadership roles"
+            nature = maleficStr,
+            natureType = NatureType.MALEFIC,
+            element = fireStr,
+            represents = if (language == Language.NEPALI) listOf("आत्मा, आत्म, अहंकार", "पिता, अधिकारी", "सरकार, शक्ति", "स्वास्थ्य, जीवनशक्ति", "प्रसिद्धि, मान्यता") else listOf("Soul, Self, Ego", "Father, Authority Figures", "Government, Power", "Health, Vitality", "Fame, Recognition"),
+            bodyParts = if (language == Language.NEPALI) "हृदय, मेरुदण्ड, दायाँ आँखा, हड्डी" else "Heart, Spine, Right Eye, Bones",
+            professions = if (language == Language.NEPALI) "सरकारी जागिर, राजनीति, चिकित्सा, प्रशासन, नेतृत्व" else "Government jobs, Politics, Medicine, Administration, Leadership roles"
         )
         Planet.MOON -> PlanetSignifications(
-            nature = "Benefic",
-            element = "Water",
-            represents = listOf("Mind, Emotions", "Mother, Nurturing", "Public, Masses", "Comforts, Happiness", "Memory, Imagination"),
-            bodyParts = "Mind, Left Eye, Breast, Blood, Fluids",
-            professions = "Nursing, Hotel industry, Shipping, Agriculture, Psychology"
+            nature = beneficStr,
+            natureType = NatureType.BENEFIC,
+            element = waterStr,
+            represents = if (language == Language.NEPALI) listOf("मन, भावनाहरू", "आमा, पालन", "जनता, समूह", "सुविधा, खुशी", "स्मृति, कल्पना") else listOf("Mind, Emotions", "Mother, Nurturing", "Public, Masses", "Comforts, Happiness", "Memory, Imagination"),
+            bodyParts = if (language == Language.NEPALI) "मन, बायाँ आँखा, स्तन, रगत, तरल" else "Mind, Left Eye, Breast, Blood, Fluids",
+            professions = if (language == Language.NEPALI) "नर्सिङ, होटल उद्योग, जहाजरानी, कृषि, मनोविज्ञान" else "Nursing, Hotel industry, Shipping, Agriculture, Psychology"
         )
         Planet.MARS -> PlanetSignifications(
-            nature = "Malefic",
-            element = "Fire",
-            represents = listOf("Energy, Action, Courage", "Siblings, Younger Brothers", "Property, Land", "Competition, Sports", "Technical Skills"),
-            bodyParts = "Blood, Muscles, Marrow, Head injuries",
-            professions = "Military, Police, Surgery, Engineering, Sports, Real Estate"
+            nature = maleficStr,
+            natureType = NatureType.MALEFIC,
+            element = fireStr,
+            represents = if (language == Language.NEPALI) listOf("ऊर्जा, कार्य, साहस", "भाइबहिनी, सानो भाइ", "सम्पत्ति, जमिन", "प्रतिस्पर्धा, खेलकुद", "प्राविधिक सीप") else listOf("Energy, Action, Courage", "Siblings, Younger Brothers", "Property, Land", "Competition, Sports", "Technical Skills"),
+            bodyParts = if (language == Language.NEPALI) "रगत, मांसपेशी, मज्जा, टाउको चोट" else "Blood, Muscles, Marrow, Head injuries",
+            professions = if (language == Language.NEPALI) "सेना, प्रहरी, शल्यचिकित्सा, इन्जिनियरिङ, खेलकुद, जग्गा" else "Military, Police, Surgery, Engineering, Sports, Real Estate"
         )
         Planet.MERCURY -> PlanetSignifications(
-            nature = "Benefic",
-            element = "Earth",
-            represents = listOf("Intelligence, Communication", "Learning, Education", "Business, Trade", "Writing, Speech", "Siblings, Friends"),
-            bodyParts = "Nervous system, Skin, Speech, Hands",
-            professions = "Writing, Teaching, Accounting, Trading, IT, Media"
+            nature = beneficStr,
+            natureType = NatureType.BENEFIC,
+            element = earthStr,
+            represents = if (language == Language.NEPALI) listOf("बुद्धि, संचार", "सिकाइ, शिक्षा", "व्यापार, व्यापार", "लेखन, भाषण", "भाइबहिनी, साथी") else listOf("Intelligence, Communication", "Learning, Education", "Business, Trade", "Writing, Speech", "Siblings, Friends"),
+            bodyParts = if (language == Language.NEPALI) "स्नायु प्रणाली, छाला, वाणी, हात" else "Nervous system, Skin, Speech, Hands",
+            professions = if (language == Language.NEPALI) "लेखन, शिक्षण, लेखा, व्यापार, IT, मिडिया" else "Writing, Teaching, Accounting, Trading, IT, Media"
         )
         Planet.JUPITER -> PlanetSignifications(
-            nature = "Benefic",
-            element = "Ether",
-            represents = listOf("Wisdom, Knowledge", "Teachers, Gurus", "Fortune, Luck", "Children, Dharma", "Expansion, Growth"),
-            bodyParts = "Liver, Fat tissue, Ears, Thighs",
-            professions = "Teaching, Law, Priesthood, Banking, Counseling"
+            nature = beneficStr,
+            natureType = NatureType.BENEFIC,
+            element = etherStr,
+            represents = if (language == Language.NEPALI) listOf("ज्ञान, ज्ञान", "शिक्षक, गुरु", "भाग्य, भाग्य", "बच्चाहरू, धर्म", "विस्तार, वृद्धि") else listOf("Wisdom, Knowledge", "Teachers, Gurus", "Fortune, Luck", "Children, Dharma", "Expansion, Growth"),
+            bodyParts = if (language == Language.NEPALI) "कलेजो, बोसो ऊतक, कान, थाइ" else "Liver, Fat tissue, Ears, Thighs",
+            professions = if (language == Language.NEPALI) "शिक्षण, कानून, पुरोहित, बैंकिङ, परामर्श" else "Teaching, Law, Priesthood, Banking, Counseling"
         )
         Planet.VENUS -> PlanetSignifications(
-            nature = "Benefic",
-            element = "Water",
-            represents = listOf("Love, Beauty, Art", "Marriage, Relationships", "Luxuries, Comforts", "Vehicles, Pleasures", "Creativity"),
-            bodyParts = "Reproductive system, Face, Skin, Throat",
-            professions = "Entertainment, Fashion, Art, Hospitality, Beauty industry"
+            nature = beneficStr,
+            natureType = NatureType.BENEFIC,
+            element = waterStr,
+            represents = if (language == Language.NEPALI) listOf("प्रेम, सौन्दर्य, कला", "विवाह, सम्बन्ध", "विलासिता, सुविधा", "सवारी साधन, आनन्द", "रचनात्मकता") else listOf("Love, Beauty, Art", "Marriage, Relationships", "Luxuries, Comforts", "Vehicles, Pleasures", "Creativity"),
+            bodyParts = if (language == Language.NEPALI) "प्रजनन प्रणाली, अनुहार, छाला, घाँटी" else "Reproductive system, Face, Skin, Throat",
+            professions = if (language == Language.NEPALI) "मनोरञ्जन, फेशन, कला, होस्पिटालिटी, सौन्दर्य उद्योग" else "Entertainment, Fashion, Art, Hospitality, Beauty industry"
         )
         Planet.SATURN -> PlanetSignifications(
-            nature = "Malefic",
-            element = "Air",
-            represents = listOf("Discipline, Hard work", "Karma, Delays", "Longevity, Service", "Laborers, Servants", "Chronic issues"),
-            bodyParts = "Bones, Teeth, Knees, Joints, Nerves",
-            professions = "Mining, Agriculture, Labor, Judiciary, Real Estate"
+            nature = maleficStr,
+            natureType = NatureType.MALEFIC,
+            element = airStr,
+            represents = if (language == Language.NEPALI) listOf("अनुशासन, कडा मेहनत", "कर्म, ढिलाइ", "दीर्घायु, सेवा", "मजदुर, सेवक", "दीर्घकालीन समस्या") else listOf("Discipline, Hard work", "Karma, Delays", "Longevity, Service", "Laborers, Servants", "Chronic issues"),
+            bodyParts = if (language == Language.NEPALI) "हड्डी, दाँत, घुँडा, जोर्नी, स्नायु" else "Bones, Teeth, Knees, Joints, Nerves",
+            professions = if (language == Language.NEPALI) "खनन, कृषि, श्रम, न्यायपालिका, जग्गा" else "Mining, Agriculture, Labor, Judiciary, Real Estate"
         )
         Planet.RAHU -> PlanetSignifications(
-            nature = "Malefic",
-            element = "Air",
-            represents = listOf("Obsession, Illusion", "Foreign lands, Travel", "Technology, Innovation", "Unconventional paths", "Material desires"),
-            bodyParts = "Skin diseases, Nervous disorders",
-            professions = "Technology, Foreign affairs, Aviation, Politics, Research"
+            nature = maleficStr,
+            natureType = NatureType.MALEFIC,
+            element = airStr,
+            represents = if (language == Language.NEPALI) listOf("आवेश, भ्रम", "विदेशी भूमि, यात्रा", "प्रविधि, नवीनता", "अपरम्परागत मार्ग", "भौतिक इच्छा") else listOf("Obsession, Illusion", "Foreign lands, Travel", "Technology, Innovation", "Unconventional paths", "Material desires"),
+            bodyParts = if (language == Language.NEPALI) "छाला रोग, स्नायु विकार" else "Skin diseases, Nervous disorders",
+            professions = if (language == Language.NEPALI) "प्रविधि, विदेशी मामिला, उड्डयन, राजनीति, अनुसन्धान" else "Technology, Foreign affairs, Aviation, Politics, Research"
         )
         Planet.KETU -> PlanetSignifications(
-            nature = "Malefic",
-            element = "Fire",
-            represents = listOf("Spirituality, Liberation", "Past life karma", "Detachment, Isolation", "Occult, Mysticism", "Healing abilities"),
-            bodyParts = "Skin, Spine, Nervous system",
-            professions = "Spirituality, Research, Healing, Astrology, Philosophy"
+            nature = maleficStr,
+            natureType = NatureType.MALEFIC,
+            element = fireStr,
+            represents = if (language == Language.NEPALI) listOf("आध्यात्मिकता, मुक्ति", "पूर्व जन्म कर्म", "विरक्ति, एकान्त", "गुप्त, रहस्यवाद", "उपचार क्षमता") else listOf("Spirituality, Liberation", "Past life karma", "Detachment, Isolation", "Occult, Mysticism", "Healing abilities"),
+            bodyParts = if (language == Language.NEPALI) "छाला, मेरुदण्ड, स्नायु प्रणाली" else "Skin, Spine, Nervous system",
+            professions = if (language == Language.NEPALI) "आध्यात्मिकता, अनुसन्धान, उपचार, ज्योतिष, दर्शन" else "Spirituality, Research, Healing, Astrology, Philosophy"
         )
-        else -> PlanetSignifications("", "", emptyList(), "", "")
+        else -> PlanetSignifications("", NatureType.NEUTRAL, "", emptyList(), "", "")
     }
 }
 

@@ -112,6 +112,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.astro.storm.data.localization.Language
+import com.astro.storm.data.localization.LocalLanguage
+import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.stringResource
+import com.astro.storm.data.localization.getLocalizedName
 import com.astro.storm.data.model.VedicChart
 import com.astro.storm.ephemeris.MuhurtaCalculator
 import com.astro.storm.ui.theme.AppTheme
@@ -201,14 +206,14 @@ fun MuhurtaScreen(
         loadMuhurtaData(selectedDate)
     }
 
-    val tabs = remember { listOf("Today", "Find Muhurta") }
+    val tabs = listOf(stringResource(StringKey.MISC_TODAY), stringResource(StringKey.MUHURTA_FIND_AUSPICIOUS))
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        "Muhurta",
+                        stringResource(StringKey.FEATURE_MUHURTA),
                         fontWeight = FontWeight.SemiBold,
                         color = AppTheme.TextPrimary
                     )
@@ -222,7 +227,7 @@ fun MuhurtaScreen(
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Navigate back",
+                            contentDescription = stringResource(StringKey.MUHURTA_NAVIGATE_BACK),
                             tint = AppTheme.TextPrimary
                         )
                     }
@@ -346,12 +351,12 @@ private fun MuhurtaDatePickerDialog(
                     }
                 }
             ) {
-                Text("OK", color = AppTheme.AccentPrimary)
+                Text(stringResource(StringKey.BTN_OK), color = AppTheme.AccentPrimary)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = AppTheme.TextMuted)
+                Text(stringResource(StringKey.BTN_CANCEL), color = AppTheme.TextMuted)
             }
         },
         colors = DatePickerDefaults.colors(containerColor = AppTheme.CardBackground)
@@ -437,7 +442,7 @@ private fun DateSelectorBar(
         ) {
             IconButton(
                 onClick = { onDateChange(selectedDate.minusDays(1)) },
-                modifier = Modifier.semantics { contentDescription = "Previous day" }
+                modifier = Modifier.semantics { contentDescription = stringResource(StringKey.MUHURTA_PREV_DAY) }
             ) {
                 Icon(
                     Icons.Filled.ChevronLeft,
@@ -472,7 +477,7 @@ private fun DateSelectorBar(
                     )
                     if (isToday) {
                         Text(
-                            text = "Today",
+                            text = stringResource(StringKey.MISC_TODAY),
                             style = MaterialTheme.typography.labelSmall,
                             color = AppTheme.AccentPrimary
                         )
@@ -482,7 +487,7 @@ private fun DateSelectorBar(
 
             IconButton(
                 onClick = { onDateChange(selectedDate.plusDays(1)) },
-                modifier = Modifier.semantics { contentDescription = "Next day" }
+                modifier = Modifier.semantics { contentDescription = stringResource(StringKey.MUHURTA_NEXT_DAY) }
             ) {
                 Icon(
                     Icons.Filled.ChevronRight,
@@ -519,7 +524,7 @@ private fun LoadingContent() {
             CircularProgressIndicator(color = AppTheme.AccentPrimary, strokeWidth = 3.dp)
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                "Calculating muhurta...",
+                stringResource(StringKey.MUHURTA_CALCULATING),
                 style = MaterialTheme.typography.bodyMedium,
                 color = AppTheme.TextMuted
             )
@@ -549,7 +554,7 @@ private fun ErrorContent(
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                "Something went wrong",
+                stringResource(StringKey.MUHURTA_ERROR),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = AppTheme.TextPrimary
@@ -568,7 +573,7 @@ private fun ErrorContent(
             ) {
                 Icon(Icons.Filled.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Retry", color = AppTheme.ButtonText)
+                Text(stringResource(StringKey.BTN_RETRY), color = AppTheme.ButtonText)
             }
         }
     }
@@ -590,12 +595,12 @@ private fun TodayTabList(
         item(key = "choghadiya") { ChoghadiyaCard(choghadiyaList, muhurta.choghadiya) }
         if (muhurta.suitableActivities.isNotEmpty()) {
             item(key = "suitable_activities") {
-                ActivitiesCard(title = "Suitable Activities", activities = muhurta.suitableActivities, isPositive = true)
+                ActivitiesCard(title = stringResource(StringKey.MUHURTA_SUITABLE_ACTIVITIES), activities = muhurta.suitableActivities, isPositive = true)
             }
         }
         if (muhurta.avoidActivities.isNotEmpty()) {
             item(key = "avoid_activities") {
-                ActivitiesCard(title = "Activities to Avoid", activities = muhurta.avoidActivities, isPositive = false)
+                ActivitiesCard(title = stringResource(StringKey.MUHURTA_ACTIVITIES_TO_AVOID), activities = muhurta.avoidActivities, isPositive = false)
             }
         }
         if (muhurta.recommendations.isNotEmpty()) {
@@ -645,7 +650,7 @@ private fun CurrentMuhurtaCard(muhurta: MuhurtaCalculator.MuhurtaDetails) {
                             fontWeight = FontWeight.Bold,
                             color = AppTheme.TextPrimary
                         )
-                        Text("Score", style = MaterialTheme.typography.labelSmall, color = AppTheme.TextMuted)
+                        Text(stringResource(StringKey.MUHURTA_SCORE), style = MaterialTheme.typography.labelSmall, color = AppTheme.TextMuted)
                     }
                 }
 
@@ -1577,7 +1582,7 @@ private fun SearchButton(
                         strokeWidth = 2.dp
                     )
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text("Searching...", color = AppTheme.ButtonText, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(StringKey.MISC_SEARCHING), color = AppTheme.ButtonText, fontWeight = FontWeight.SemiBold)
                 } else {
                     Icon(
                         Icons.Filled.Search,
@@ -1586,7 +1591,7 @@ private fun SearchButton(
                         tint = AppTheme.ButtonText
                     )
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text("Find Auspicious Dates", color = AppTheme.ButtonText, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(StringKey.MUHURTA_FIND_AUSPICIOUS), color = AppTheme.ButtonText, fontWeight = FontWeight.SemiBold)
                 }
             }
         }

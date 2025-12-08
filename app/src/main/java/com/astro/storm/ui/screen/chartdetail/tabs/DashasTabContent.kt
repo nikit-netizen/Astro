@@ -70,6 +70,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.astro.storm.data.localization.Language
+import com.astro.storm.data.localization.LocalLanguage
+import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.stringResource
+import com.astro.storm.data.localization.getLocalizedName
 import com.astro.storm.data.model.Planet
 import com.astro.storm.ephemeris.DashaCalculator
 import com.astro.storm.ui.screen.chartdetail.ChartDetailColors
@@ -267,7 +272,7 @@ private fun CurrentPeriodCard(timeline: DashaCalculator.DashaTimeline) {
                 Spacer(modifier = Modifier.width(14.dp))
                 Column {
                     Text(
-                        text = "Current Dasha Period",
+                        text = stringResource(StringKey.DASHA_CURRENT_DASHA_PERIOD),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = ChartDetailColors.TextPrimary,
@@ -415,7 +420,7 @@ private fun BirthNakshatraInfo(timeline: DashaCalculator.DashaTimeline) {
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Birth Nakshatra",
+                    text = stringResource(StringKey.DASHA_BIRTH_NAKSHATRA),
                     fontSize = 11.sp,
                     color = ChartDetailColors.TextMuted,
                     fontWeight = FontWeight.Medium,
@@ -432,7 +437,7 @@ private fun BirthNakshatraInfo(timeline: DashaCalculator.DashaTimeline) {
 
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "Lord",
+                    text = stringResource(StringKey.DASHA_LORD),
                     fontSize = 11.sp,
                     color = ChartDetailColors.TextMuted,
                     fontWeight = FontWeight.Medium
@@ -502,7 +507,7 @@ private fun SandhiAlertsCard(
                     Spacer(modifier = Modifier.width(14.dp))
                     Column {
                         Text(
-                            text = "Dasha Sandhi Alerts",
+                            text = stringResource(StringKey.DASHA_SANDHI_ALERTS),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = ChartDetailColors.TextPrimary,
@@ -916,7 +921,7 @@ private fun CurrentPeriodSummary(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Period Insights",
+                    text = stringResource(StringKey.DASHA_PERIOD_INSIGHTS),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = ChartDetailColors.AccentGold
@@ -972,7 +977,7 @@ private fun DashaTimelineCard(timeline: DashaCalculator.DashaTimeline) {
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
-                        text = "Dasha Timeline",
+                        text = stringResource(StringKey.DASHA_TIMELINE),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = ChartDetailColors.TextPrimary,
@@ -980,7 +985,7 @@ private fun DashaTimelineCard(timeline: DashaCalculator.DashaTimeline) {
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "Complete 120-year Vimshottari cycle",
+                        text = stringResource(StringKey.DASHA_COMPLETE_CYCLE),
                         fontSize = 12.sp,
                         color = ChartDetailColors.TextMuted
                     )
@@ -1183,7 +1188,7 @@ private fun MahadashaCard(
                                     color = planetColor.copy(alpha = 0.2f)
                                 ) {
                                     Text(
-                                        text = "Active",
+                                        text = stringResource(StringKey.DASHA_ACTIVE),
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = planetColor,
@@ -1240,7 +1245,7 @@ private fun MahadashaCard(
                         modifier = Modifier.padding(bottom = 12.dp)
                     ) {
                         Text(
-                            text = "Antardashas",
+                            text = stringResource(StringKey.DASHA_ANTARDASHA),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = ChartDetailColors.TextSecondary

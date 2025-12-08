@@ -62,6 +62,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.astro.storm.data.localization.Language
+import com.astro.storm.data.localization.LocalLanguage
+import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.stringResource
+import com.astro.storm.data.localization.getLocalizedName
 import com.astro.storm.data.model.PlanetPosition
 import com.astro.storm.data.model.VedicChart
 import com.astro.storm.data.model.ZodiacSign
@@ -361,7 +366,7 @@ private fun MainChartCard(
             ChartLegend()
 
             Text(
-                text = "Tap chart to view fullscreen",
+                text = stringResource(StringKey.CHART_TAP_FULLSCREEN),
                 fontSize = 11.sp,
                 color = ChartDetailColors.TextMuted,
                 textAlign = TextAlign.Center,
@@ -477,7 +482,7 @@ private fun BirthDetailsCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Birth Details",
+                        text = stringResource(StringKey.CHART_BIRTH_DETAILS),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = ChartDetailColors.TextPrimary
@@ -691,14 +696,14 @@ private fun ChartDetailsCard(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Planetary Positions",
+                    text = stringResource(StringKey.CHART_PLANETARY_POSITIONS),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = ChartDetailColors.TextPrimary
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
-                    text = "Tap for details",
+                    text = stringResource(StringKey.CHART_TAP_FOR_DETAILS),
                     fontSize = 11.sp,
                     color = ChartDetailColors.TextMuted
                 )
@@ -742,7 +747,7 @@ private fun AscendantRow(chart: VedicChart) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Ascendant (Lagna)",
+                text = stringResource(StringKey.CHART_ASCENDANT_LAGNA),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
                 color = ChartDetailColors.AccentGold
@@ -888,7 +893,7 @@ private fun HouseCuspsCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "House Cusps",
+                        text = stringResource(StringKey.CHART_HOUSE_CUSPS),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = ChartDetailColors.TextPrimary
@@ -1020,7 +1025,7 @@ private fun AstronomicalDataCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Astronomical Data",
+                        text = stringResource(StringKey.CHART_ASTRONOMICAL_DATA),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = ChartDetailColors.TextPrimary

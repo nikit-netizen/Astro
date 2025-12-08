@@ -51,6 +51,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.astro.storm.data.localization.Language
+import com.astro.storm.data.localization.LocalLanguage
+import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.stringResource
+import com.astro.storm.data.localization.getLocalizedName
 import com.astro.storm.data.model.Planet
 import com.astro.storm.data.model.VedicChart
 import com.astro.storm.data.model.ZodiacSign
@@ -140,7 +145,7 @@ private fun AshtakavargaSummaryCard(ashtakavarga: AshtakavargaCalculator.Ashtaka
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Ashtakavarga Summary",
+                    text = stringResource(StringKey.ASHTAKAVARGA_SUMMARY),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = ChartDetailColors.TextPrimary
@@ -174,7 +179,7 @@ private fun AshtakavargaSummaryCard(ashtakavarga: AshtakavargaCalculator.Ashtaka
             )
 
             Text(
-                text = "Quick Analysis",
+                text = stringResource(StringKey.ASHTAKAVARGA_QUICK_ANALYSIS),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = ChartDetailColors.TextSecondary,
@@ -281,7 +286,7 @@ private fun SarvashtakavargaCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Sarvashtakavarga (SAV)",
+                        text = stringResource(StringKey.ASHTAKAVARGA_SARVA),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = ChartDetailColors.TextPrimary
@@ -302,7 +307,7 @@ private fun SarvashtakavargaCard(
             ) {
                 Column(modifier = Modifier.padding(top = 12.dp)) {
                     Text(
-                        text = "Combined strength of all planets in each sign",
+                        text = stringResource(StringKey.ASHTAKAVARGA_COMBINED_STRENGTH),
                         fontSize = 12.sp,
                         color = ChartDetailColors.TextMuted,
                         modifier = Modifier.padding(bottom = 12.dp)
@@ -451,7 +456,7 @@ private fun BhinnashtakavargaCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Bhinnashtakavarga (BAV)",
+                        text = stringResource(StringKey.ASHTAKAVARGA_BHINNA),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = ChartDetailColors.TextPrimary
@@ -472,7 +477,7 @@ private fun BhinnashtakavargaCard(
             ) {
                 Column(modifier = Modifier.padding(top = 12.dp)) {
                     Text(
-                        text = "Individual planet strength in each sign (0-8 bindus)",
+                        text = stringResource(StringKey.ASHTAKAVARGA_INDIVIDUAL_STRENGTH),
                         fontSize = 12.sp,
                         color = ChartDetailColors.TextMuted,
                         modifier = Modifier.padding(bottom = 12.dp)
@@ -671,7 +676,7 @@ private fun InterpretationGuideCard(isExpanded: Boolean, onToggleExpand: (Boolea
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Interpretation Guide",
+                        text = stringResource(StringKey.ASHTAKAVARGA_INTERPRETATION_GUIDE),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = ChartDetailColors.TextPrimary

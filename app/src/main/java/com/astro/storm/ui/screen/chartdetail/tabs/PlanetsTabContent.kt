@@ -52,6 +52,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.astro.storm.data.localization.Language
+import com.astro.storm.data.localization.LocalLanguage
+import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.stringResource
+import com.astro.storm.data.localization.getLocalizedName
 import com.astro.storm.data.model.Nakshatra
 import com.astro.storm.data.model.Planet
 import com.astro.storm.data.model.PlanetPosition
@@ -211,7 +216,7 @@ private fun PlanetaryConditionsSummary(
         Column(modifier = Modifier.padding(16.dp)) {
             SectionHeader(
                 icon = Icons.Outlined.Info,
-                title = "Planetary Conditions",
+                title = stringResource(StringKey.FEATURE_PLANETS),
                 iconTint = ChartDetailColors.AccentPurple
             )
 
@@ -333,7 +338,7 @@ private fun ShadbalaOverviewCard(
             ) {
                 SectionHeader(
                     icon = Icons.Outlined.TrendingUp,
-                    title = "Shadbala Summary",
+                    title = stringResource(StringKey.FEATURE_SHADBALA),
                     iconTint = ChartDetailColors.AccentGold
                 )
                 ViewDetailsIndicator()
@@ -367,7 +372,7 @@ private fun ShadbalaOverviewCard(
 
 @Composable
 private fun ViewDetailsIndicator(
-    text: String = "View Details",
+    text: String = stringResource(StringKey.CHART_TAP_FOR_DETAILS),
     color: Color = ChartDetailColors.AccentGold
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -597,7 +602,7 @@ private fun ShadbalaProgressSection(shadbala: PlanetaryShadbala) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Shadbala",
+                text = stringResource(StringKey.FEATURE_SHADBALA),
                 fontSize = 12.sp,
                 color = ChartDetailColors.TextSecondary
             )
@@ -692,7 +697,7 @@ private fun TapForDetailsHint() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Tap for details",
+            text = stringResource(StringKey.CHART_TAP_FOR_DETAILS),
             fontSize = 11.sp,
             color = ChartDetailColors.TextMuted
         )

@@ -42,6 +42,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.astro.storm.data.localization.Language
+import com.astro.storm.data.localization.LocalLanguage
+import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.stringResource
+import com.astro.storm.data.localization.getLocalizedName
 import com.astro.storm.data.model.Planet
 import com.astro.storm.data.model.VedicChart
 import com.astro.storm.ephemeris.RemediesCalculator
@@ -68,7 +73,7 @@ fun RemediesScreen(
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var isSearchVisible by rememberSaveable { mutableStateOf(false) }
 
-    val tabs = remember { listOf("Overview", "Remedies", "Planets") }
+    val tabs = listOf(stringResource(StringKey.REMEDIES_OVERVIEW), stringResource(StringKey.FEATURE_REMEDIES), stringResource(StringKey.REMEDIES_PLANETS))
 
     val overviewListState = rememberLazyListState()
     val remediesListState = rememberLazyListState()
@@ -115,7 +120,7 @@ fun RemediesScreen(
                             )
                         } else {
                             Text(
-                                "Remedies",
+                                stringResource(StringKey.REMEDIES_TITLE),
                                 fontWeight = FontWeight.SemiBold,
                                 color = AppTheme.TextPrimary
                             )
@@ -136,7 +141,7 @@ fun RemediesScreen(
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(StringKey.BTN_BACK),
                             tint = AppTheme.TextPrimary
                         )
                     }
@@ -151,7 +156,7 @@ fun RemediesScreen(
                         ) {
                             Icon(
                                 Icons.Outlined.Search,
-                                contentDescription = "Search remedies",
+                                contentDescription = stringResource(StringKey.REMEDIES_SEARCH),
                                 tint = AppTheme.TextPrimary
                             )
                         }

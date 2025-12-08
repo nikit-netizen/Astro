@@ -840,7 +840,260 @@ enum class StringKey(val en: String, val ne: String) {
     MISC_EXPAND("Expand", "विस्तार"),
     MISC_COLLAPSE("Collapse", "संकुचन"),
     MISC_MORE("More", "थप"),
-    MISC_LESS("Less", "कम");
+    MISC_LESS("Less", "कम"),
+    MISC_ACTIVE("Active", "सक्रिय"),
+    MISC_TODAY("Today", "आज"),
+    MISC_ALL("All", "सबै"),
+    MISC_TOTAL("Total", "कुल"),
+    MISC_SCORE("Score", "अंक"),
+    MISC_SEARCHING("Searching...", "खोज्दै..."),
+    MISC_HOUSE("House", "भाव"),
+    MISC_PADA("Pada", "पद"),
+    MISC_OF("%d of %d", "%d मध्ये %d"),
+    MISC_PERCENT("%d%%", "%d%%"),
+
+    // ============================================
+    // CHART DIALOGS
+    // ============================================
+    DIALOG_CLOSE("Close", "बन्द गर्नुहोस्"),
+    DIALOG_RESET("Reset", "रिसेट"),
+    DIALOG_ZOOM_IN("Zoom In", "जुम इन"),
+    DIALOG_ZOOM_OUT("Zoom Out", "जुम आउट"),
+    DIALOG_DOWNLOAD("Download", "डाउनलोड"),
+    DIALOG_SAVING("Saving...", "सेभ हुँदैछ..."),
+    DIALOG_CHART_SAVED("Chart saved to gallery!", "कुण्डली ग्यालेरीमा सेभ भयो!"),
+    DIALOG_CHART_SAVE_FAILED("Failed to save chart", "कुण्डली सेभ गर्न असफल"),
+
+    // Position Details
+    DIALOG_POSITION_DETAILS("Position Details", "स्थिति विवरण"),
+    DIALOG_ZODIAC_SIGN("Zodiac Sign", "राशि"),
+    DIALOG_DEGREE("Degree", "अंश"),
+    DIALOG_MOTION("Motion", "गति"),
+    DIALOG_RETROGRADE("Retrograde", "वक्री"),
+
+    // Strength Analysis
+    DIALOG_STRENGTH_ANALYSIS("Strength Analysis (Shadbala)", "बल विश्लेषण (षड्बल)"),
+    DIALOG_OVERALL("Overall", "समग्र"),
+    DIALOG_RUPAS("Rupas", "रुपा"),
+    DIALOG_OF_REQUIRED_STRENGTH("%s%% of required strength", "%s%% आवश्यक बलको"),
+    DIALOG_STRENGTH_BREAKDOWN("Strength Breakdown (Virupas)", "बल विभाजन (विरुपा)"),
+    DIALOG_STHANA_BALA("Sthana Bala (Positional)", "स्थान बल"),
+    DIALOG_DIG_BALA("Dig Bala (Directional)", "दिग् बल"),
+    DIALOG_KALA_BALA("Kala Bala (Temporal)", "काल बल"),
+    DIALOG_CHESTA_BALA("Chesta Bala (Motional)", "चेष्टा बल"),
+    DIALOG_NAISARGIKA_BALA("Naisargika Bala (Natural)", "नैसर्गिक बल"),
+    DIALOG_DRIK_BALA("Drik Bala (Aspectual)", "दृक् बल"),
+
+    // Significations
+    DIALOG_SIGNIFICATIONS_NATURE("Significations & Nature", "कारकत्व र स्वभाव"),
+    DIALOG_NATURE("Nature", "स्वभाव"),
+    DIALOG_BENEFIC("Benefic", "शुभ"),
+    DIALOG_MALEFIC("Malefic", "अशुभ"),
+    DIALOG_ELEMENT("Element", "तत्व"),
+    DIALOG_REPRESENTS("Represents:", "प्रतिनिधित्व:"),
+    DIALOG_BODY_PARTS("Body Parts:", "शरीरका अंगहरू:"),
+    DIALOG_PROFESSIONS("Professions:", "पेशाहरू:"),
+
+    // House Placement
+    DIALOG_HOUSE_PLACEMENT("House %d Placement", "भाव %d स्थिति"),
+    DIALOG_HOUSE_INFORMATION("House Information", "भाव जानकारी"),
+    DIALOG_SIGN("Sign", "राशि"),
+    DIALOG_CUSP_DEGREE("Cusp Degree", "कस्प अंश"),
+    DIALOG_SIGN_LORD("Sign Lord", "राशि स्वामी"),
+    DIALOG_HOUSE_TYPE("House Type", "भाव प्रकार"),
+    DIALOG_SIGNIFICATIONS("Significations", "कारकत्वहरू"),
+    DIALOG_PLANETS_IN_HOUSE("Planets in House", "भावमा ग्रहहरू"),
+    DIALOG_DETAILED_INTERPRETATION("Detailed Interpretation", "विस्तृत व्याख्या"),
+
+    // Status & Conditions
+    DIALOG_STATUS_CONDITIONS("Status & Conditions", "स्थिति र अवस्थाहरू"),
+    DIALOG_DIGNITY("Dignity", "मर्यादा"),
+    DIALOG_EXALTED("Exalted", "उच्च"),
+    DIALOG_DEBILITATED("Debilitated", "नीच"),
+    DIALOG_OWN_SIGN("Own Sign", "स्वराशि"),
+    DIALOG_MOOLATRIKONA("Moolatrikona", "मूलत्रिकोण"),
+    DIALOG_NEUTRAL("Neutral", "तटस्थ"),
+    DIALOG_COMBUSTION("Combustion", "अस्त"),
+    DIALOG_PLANETARY_WAR("Planetary War", "ग्रह युद्ध"),
+    DIALOG_AT_WAR_WITH("At war with %s", "%s सँग युद्धमा"),
+
+    // Predictions & Insights
+    DIALOG_INSIGHTS_PREDICTIONS("Insights & Predictions", "अन्तर्दृष्टि र भविष्यवाणी"),
+    DIALOG_STRONG_PLANET("Strong %s", "बलवान %s"),
+    DIALOG_WEAK_PLANET("Weak %s", "कमजोर %s"),
+    DIALOG_STRONG_PLANET_DESC("This planet has sufficient strength to deliver positive results. Its significations will manifest more easily in your life.", "यो ग्रहसँग सकारात्मक परिणाम दिन पर्याप्त बल छ। यसको कारकत्वहरू तपाईंको जीवनमा सजिलै प्रकट हुनेछन्।"),
+    DIALOG_WEAK_PLANET_DESC("This planet lacks sufficient strength. You may face challenges in areas it governs. Remedial measures may help.", "यो ग्रहमा पर्याप्त बलको कमी छ। यसले शासन गर्ने क्षेत्रहरूमा चुनौतीहरू आउन सक्छन्। उपायहरू सहायक हुन सक्छन्।"),
+    DIALOG_EXALTED_PLANET("Exalted Planet", "उच्च ग्रह"),
+    DIALOG_EXALTED_DESC("%s is in its sign of exaltation, giving exceptional results in its significations.", "%s आफ्नो उच्च राशिमा छ, यसको कारकत्वहरूमा असाधारण परिणाम दिन्छ।"),
+    DIALOG_DEBILITATED_PLANET("Debilitated Planet", "नीच ग्रह"),
+    DIALOG_DEBILITATED_DESC("%s is in its fall. Its positive significations may be reduced or delayed.", "%s नीच राशिमा छ। यसको सकारात्मक कारकत्वहरू कम वा ढिला हुन सक्छन्।"),
+    DIALOG_OWN_SIGN_PLANET("Planet in Own Sign", "स्वराशिको ग्रह"),
+    DIALOG_OWN_SIGN_DESC("%s is comfortable in its own sign, giving stable and reliable results.", "%s आफ्नो राशिमा सहज छ, स्थिर र भरपर्दो परिणाम दिन्छ।"),
+    DIALOG_RETROGRADE_MOTION("Retrograde Motion", "वक्री गति"),
+    DIALOG_RETROGRADE_DESC("Retrograde planets work on an internal level. Results may be delayed but often more profound.", "वक्री ग्रहले आन्तरिक स्तरमा काम गर्छन्। परिणामहरू ढिला हुन सक्छन् तर प्रायः गहिरो हुन्छन्।"),
+    DIALOG_TRIKONA_PLACEMENT("Trikona Placement", "त्रिकोण स्थिति"),
+    DIALOG_TRIKONA_DESC("%s in house %d (Trikona) is auspicious for fortune and dharma.", "%s भाव %d (त्रिकोण) मा भाग्य र धर्मको लागि शुभ छ।"),
+    DIALOG_DUSTHANA_PLACEMENT("Dusthana Placement", "दुष्टान स्थिति"),
+    DIALOG_DUSTHANA_DESC("%s in house %d may face obstacles but can also give transformative experiences.", "%s भाव %d मा बाधाहरू आउन सक्छन् तर परिवर्तनकारी अनुभवहरू पनि दिन सक्छ।"),
+    DIALOG_KENDRA_PLACEMENT("Kendra Placement", "केन्द्र स्थिति"),
+    DIALOG_KENDRA_DESC("%s in house %d (Kendra) gains strength and visibility.", "%s भाव %d (केन्द्र) मा बल र दृश्यता प्राप्त गर्छ।"),
+
+    // Nakshatra Details
+    DIALOG_BASIC_INFORMATION("Basic Information", "आधारभूत जानकारी"),
+    DIALOG_NUMBER("Number", "नम्बर"),
+    DIALOG_DEGREE_RANGE("Degree Range", "अंश दायरा"),
+    DIALOG_RULING_PLANET("Ruling Planet", "शासक ग्रह"),
+    DIALOG_DEITY("Deity", "देवता"),
+    DIALOG_NAKSHATRA_NATURE("Nakshatra Nature", "नक्षत्र स्वभाव"),
+    DIALOG_SYMBOL("Symbol", "प्रतीक"),
+    DIALOG_GENDER("Gender", "लिङ्ग"),
+    DIALOG_GANA("Gana", "गण"),
+    DIALOG_GUNA("Guna", "गुण"),
+    DIALOG_PADA_CHARACTERISTICS("Pada %d Characteristics", "पद %d विशेषताहरू"),
+    DIALOG_NAVAMSA_SIGN("Navamsa Sign", "नवांश राशि"),
+    DIALOG_GENERAL_CHARACTERISTICS("General Characteristics", "सामान्य विशेषताहरू"),
+    DIALOG_CAREER_INDICATIONS("Career Indications", "क्यारियर संकेतहरू"),
+
+    // Shadbala Dialog
+    DIALOG_SHADBALA_ANALYSIS("Shadbala Analysis", "षड्बल विश्लेषण"),
+    DIALOG_SIXFOLD_STRENGTH("Six-fold Planetary Strength", "षड्विध ग्रह बल"),
+    DIALOG_OVERALL_SUMMARY("Overall Summary", "समग्र सारांश"),
+    DIALOG_CHART_STRENGTH("Chart Strength", "कुण्डली बल"),
+    DIALOG_STRONGEST("Strongest", "सबैभन्दा बलियो"),
+    DIALOG_WEAKEST("Weakest", "सबैभन्दा कमजोर"),
+    DIALOG_REQUIRED("Required: %s", "आवश्यक: %s"),
+    DIALOG_OF_REQUIRED("%s%% of required", "%s%% आवश्यकको"),
+
+    // ============================================
+    // CHART TAB CONTENT
+    // ============================================
+    CHART_VIEW_FULLSCREEN("View fullscreen", "पूर्ण स्क्रिनमा हेर्नुहोस्"),
+    CHART_TAP_FULLSCREEN("Tap chart to view fullscreen", "पूर्ण स्क्रिनमा हेर्न कुण्डली ट्याप गर्नुहोस्"),
+    CHART_BIRTH_DETAILS("Birth Details", "जन्म विवरण"),
+    CHART_PLANETARY_POSITIONS("Planetary Positions", "ग्रह स्थितिहरू"),
+    CHART_TAP_FOR_DETAILS("Tap for details", "विवरणको लागि ट्याप गर्नुहोस्"),
+    CHART_ASCENDANT_LAGNA("Ascendant (Lagna)", "लग्न"),
+    CHART_HOUSE_CUSPS("House Cusps", "भाव कस्पहरू"),
+    CHART_ASTRONOMICAL_DATA("Astronomical Data", "खगोलीय डाटा"),
+    CHART_VIEW_DETAILS("View details", "विवरण हेर्नुहोस्"),
+
+    // ============================================
+    // DASHA TAB CONTENT
+    // ============================================
+    DASHA_CURRENT_DASHA_PERIOD("Current Dasha Period", "हालको दशा अवधि"),
+    DASHA_BIRTH_NAKSHATRA("Birth Nakshatra", "जन्म नक्षत्र"),
+    DASHA_LORD("Lord", "स्वामी"),
+    DASHA_SANDHI_ALERTS("Dasha Sandhi Alerts", "दशा सन्धि सूचना"),
+    DASHA_TRANSITIONS("%d upcoming transition(s) within 90 days", "९० दिनभित्र %d आगामी संक्रमण"),
+    DASHA_SANDHI_DESC("Sandhi periods mark transitions between planetary periods. These can be times of change and adjustment.", "सन्धि अवधिहरूले ग्रह अवधिहरू बीचको संक्रमण चिन्ह लगाउँछन्। यी परिवर्तन र समायोजनको समय हुन सक्छ।"),
+    DASHA_TRANSITION("%s → %s", "%s → %s"),
+    DASHA_LEVEL_TRANSITION("%s transition", "%s संक्रमण"),
+    DASHA_UNABLE_CALCULATE("Unable to calculate current dasha period", "हालको दशा अवधि गणना गर्न असमर्थ"),
+    DASHA_PERCENT_COMPLETE("%s: %s, %d percent complete", "%s: %s, %d प्रतिशत पूरा"),
+    DASHA_PERIOD_INSIGHTS("Period Insights", "अवधि अन्तर्दृष्टि"),
+    DASHA_TIMELINE("Dasha Timeline", "दशा समयरेखा"),
+    DASHA_COMPLETE_CYCLE("Complete 120-year Vimshottari cycle", "पूर्ण १२० वर्षको विम्शोत्तरी चक्र"),
+    DASHA_MAHADASHA_LABEL("%s Mahadasha", "%s महादशा"),
+
+    // ============================================
+    // PANCHANGA TAB CONTENT
+    // ============================================
+    PANCHANGA_SUMMARY("Panchanga summary for birth time", "जन्म समयको पञ्चाङ्ग सारांश"),
+    PANCHANGA_LUNAR_DAY("Lunar Day • तिथि", "चन्द्र दिन • तिथि"),
+    PANCHANGA_LUNAR_MANSION("Lunar Mansion • नक्षत्र", "चन्द्र भवन • नक्षत्र"),
+    PANCHANGA_LUNI_SOLAR("Luni-Solar Combination • योग", "चन्द्र-सूर्य संयोजन • योग"),
+    PANCHANGA_HALF_LUNAR("Half Lunar Day • करण", "अर्ध चन्द्र दिन • करण"),
+    PANCHANGA_WEEKDAY("Weekday • वार", "हप्ताको दिन • वार"),
+    PANCHANGA_SANSKRIT("Sanskrit", "संस्कृत"),
+    PANCHANGA_PAKSHA("Paksha", "पक्ष"),
+    PANCHANGA_RULER("Ruler", "शासक"),
+    PANCHANGA_ANIMAL("Animal", "पशु"),
+    PANCHANGA_MEANING("Meaning", "अर्थ"),
+    PANCHANGA_TYPE("Type", "प्रकार"),
+    PANCHANGA_DIRECTION("Direction", "दिशा"),
+    PANCHANGA_SIGNIFICANCE("Significance", "महत्त्व"),
+    PANCHANGA_CHARACTERISTICS("Characteristics", "विशेषताहरू"),
+    PANCHANGA_EFFECTS("Effects", "प्रभावहरू"),
+    PANCHANGA_MOON_PHASE("Moon phase %d%% illuminated", "चन्द्रमा चरण %d%% प्रकाशित"),
+    PANCHANGA_TAP_EXPAND("Tap to %s", "%s गर्न ट्याप गर्नुहोस्"),
+
+    // ============================================
+    // ASHTAKAVARGA TAB
+    // ============================================
+    ASHTAKAVARGA_SUMMARY("Ashtakavarga Summary", "अष्टकवर्ग सारांश"),
+    ASHTAKAVARGA_QUICK_ANALYSIS("Quick Analysis", "द्रुत विश्लेषण"),
+    ASHTAKAVARGA_FAVORABLE_SIGNS("Favorable Signs (28+):", "अनुकूल राशिहरू (२८+):"),
+    ASHTAKAVARGA_CHALLENGING_SIGNS("Challenging Signs (<25):", "चुनौतीपूर्ण राशिहरू (<२५):"),
+    ASHTAKAVARGA_SIGNS_COUNT("%d signs", "%d राशिहरू"),
+    ASHTAKAVARGA_SARVA("Sarvashtakavarga (SAV)", "सर्वाष्टकवर्ग (SAV)"),
+    ASHTAKAVARGA_COMBINED_STRENGTH("Combined strength of all planets in each sign", "प्रत्येक राशिमा सबै ग्रहको संयुक्त बल"),
+    ASHTAKAVARGA_BHINNA("Bhinnashtakavarga (BAV)", "भिन्नाष्टकवर्ग (BAV)"),
+    ASHTAKAVARGA_INDIVIDUAL_STRENGTH("Individual planet strength in each sign (0-8 bindus)", "प्रत्येक राशिमा व्यक्तिगत ग्रहको बल (०-८ बिन्दु)"),
+    ASHTAKAVARGA_INTERPRETATION_GUIDE("Interpretation Guide", "व्याख्या मार्गदर्शन"),
+    ASHTAKAVARGA_TRANSIT_APPLICATION("Transit Application", "गोचर प्रयोग"),
+
+    // ============================================
+    // PLANETS TAB CONTENT
+    // ============================================
+    PLANETS_COUNT_LABEL("%d planets %s", "%d ग्रहहरू %s"),
+    PLANETS_SHADBALA_SUMMARY("Shadbala Summary. Overall strength %s percent. Tap to view details.", "षड्बल सारांश। समग्र बल %s प्रतिशत। विवरण हेर्न ट्याप गर्नुहोस्।"),
+    PLANETS_VIEW_NAKSHATRA("View nakshatra details", "नक्षत्र विवरण हेर्नुहोस्"),
+
+    // ============================================
+    // YOGAS TAB/SCREEN
+    // ============================================
+    YOGAS_BULLET_NAME("• %s: ", "• %s: "),
+
+    // ============================================
+    // MUHURTA SCREEN
+    // ============================================
+    MUHURTA_NAVIGATE_BACK("Navigate back", "पछाडि जानुहोस्"),
+    MUHURTA_SUITABLE_ACTIVITIES("Suitable Activities", "उपयुक्त गतिविधिहरू"),
+    MUHURTA_ACTIVITIES_TO_AVOID("Activities to Avoid", "बच्नुपर्ने गतिविधिहरू"),
+
+    // ============================================
+    // REMEDIES SCREEN
+    // ============================================
+    REMEDIES_TAB_DESC("%s tab", "%s ट्याब"),
+    REMEDIES_CLEAR_SEARCH("Clear search", "खोज हटाउनुहोस्"),
+    REMEDIES_PLANET_ATTENTION("%s requires attention", "%s लाई ध्यान चाहिन्छ"),
+
+    // ============================================
+    // VARSHAPHALA SCREEN
+    // ============================================
+    VARSHAPHALA_TITLE("Varshaphala", "वर्षफल"),
+
+    // ============================================
+    // PRASHNA SCREEN
+    // ============================================
+    PRASHNA_NAVIGATE_BACK("Navigate back", "पछाडि जानुहोस्"),
+
+    // ============================================
+    // CHART ANALYSIS SCREEN
+    // ============================================
+    CHART_ANALYSIS_TITLE("Chart Analysis", "कुण्डली विश्लेषण"),
+    CHART_ANALYSIS_EXPORT("Export", "निर्यात"),
+
+    // ============================================
+    // PROFILE SWITCHER
+    // ============================================
+    PROFILE_ADD_BIRTH_CHART("Add new birth chart", "नयाँ जन्म कुण्डली थप्नुहोस्"),
+
+    // ============================================
+    // ELEMENTS (Fire, Water, etc.)
+    // ============================================
+    ELEMENT_FIRE("Fire", "अग्नि"),
+    ELEMENT_WATER("Water", "जल"),
+    ELEMENT_EARTH("Earth", "पृथ्वी"),
+    ELEMENT_AIR("Air", "वायु"),
+    ELEMENT_ETHER("Ether", "आकाश"),
+
+    // ============================================
+    // PLANETARY NATURES
+    // ============================================
+    NATURE_BENEFIC("Benefic", "शुभ"),
+    NATURE_MALEFIC("Malefic", "अशुभ"),
+    NATURE_NEUTRAL("Neutral", "तटस्थ");
 
     companion object {
         /**
