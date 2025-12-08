@@ -36,6 +36,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.astro.storm.data.localization.LocalizationManager
+import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.stringResource
 import com.astro.storm.data.model.*
 import com.astro.storm.ephemeris.DivisionalChartData
 import com.astro.storm.ephemeris.PlanetaryShadbala
@@ -179,7 +182,7 @@ fun FullScreenChartDialog(
                 IconButton(onClick = onDismiss) {
                     Icon(
                         Icons.Default.Close,
-                        contentDescription = "Close",
+                        contentDescription = stringResource(StringKey.DIALOG_CLOSE),
                         tint = TextPrimary
                     )
                 }
@@ -198,7 +201,7 @@ fun FullScreenChartDialog(
                 // Reset zoom button
                 ActionButton(
                     icon = Icons.Default.CenterFocusStrong,
-                    label = "Reset",
+                    label = stringResource(StringKey.DIALOG_RESET),
                     onClick = {
                         scale = 1f
                         offsetX = 0f
@@ -209,21 +212,21 @@ fun FullScreenChartDialog(
                 // Zoom in button
                 ActionButton(
                     icon = Icons.Default.ZoomIn,
-                    label = "Zoom In",
+                    label = stringResource(StringKey.DIALOG_ZOOM_IN),
                     onClick = { scale = (scale * 1.2f).coerceAtMost(3f) }
                 )
 
                 // Zoom out button
                 ActionButton(
                     icon = Icons.Default.ZoomOut,
-                    label = "Zoom Out",
+                    label = stringResource(StringKey.DIALOG_ZOOM_OUT),
                     onClick = { scale = (scale / 1.2f).coerceAtLeast(0.5f) }
                 )
 
                 // Download button
                 ActionButton(
                     icon = if (isDownloading) Icons.Default.HourglassEmpty else Icons.Default.Download,
-                    label = if (isDownloading) "Saving..." else "Download",
+                    label = if (isDownloading) stringResource(StringKey.DIALOG_SAVING) else stringResource(StringKey.DIALOG_DOWNLOAD),
                     onClick = {
                         if (!isDownloading) {
                             isDownloading = true
@@ -240,9 +243,14 @@ fun FullScreenChartDialog(
                                 isDownloading = false
 
                                 withContext(Dispatchers.Main) {
+                                    val locManager = LocalizationManager.getInstance(context)
+                                    val message = if (success)
+                                        locManager.getString(StringKey.DIALOG_CHART_SAVED)
+                                    else
+                                        locManager.getString(StringKey.DIALOG_SAVE_FAILED)
                                     Toast.makeText(
                                         context,
-                                        if (success) "Chart saved to gallery!" else "Failed to save chart",
+                                        message,
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
@@ -503,7 +511,7 @@ private fun PlanetDialogHeader(
                 }
             }
             IconButton(onClick = onDismiss) {
-                Icon(Icons.Default.Close, contentDescription = "Close", tint = TextPrimary)
+                Icon(Icons.Default.Close, contentDescription = stringResource(StringKey.DIALOG_CLOSE), tint = TextPrimary)
             }
         }
     }
@@ -511,16 +519,16 @@ private fun PlanetDialogHeader(
 
 @Composable
 private fun PlanetPositionCard(position: PlanetPosition) {
-    DialogCard(title = "Position Details", icon = Icons.Outlined.LocationOn) {
+    DialogCard(title = stringResource(StringKey.DIALOG_POSITION_DETAILS), icon = Icons.Outlined.LocationOn) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            DetailRow("Zodiac Sign", position.sign.displayName, AccentTeal)
-            DetailRow("Degree", formatDegree(position.longitude), TextPrimary)
-            DetailRow("House", "House ${position.house}", AccentGold)
-            DetailRow("Nakshatra", "${position.nakshatra.displayName} (Pada ${position.nakshatraPada})", AccentPurple)
-            DetailRow("Nakshatra Lord", position.nakshatra.ruler.displayName, TextSecondary)
-            DetailRow("Nakshatra Deity", position.nakshatra.deity, TextSecondary)
+            DetailRow(stringResource(StringKey.DIALOG_ZODIAC_SIGN), position.sign.displayName, AccentTeal)
+            DetailRow(stringResource(StringKey.DIALOG_DEGREE), formatDegree(position.longitude), TextPrimary)
+            DetailRow(stringResource(StringKey.DIALOG_HOUSE), "${stringResource(StringKey.HOUSE)} ${position.house}", AccentGold)
+            DetailRow(stringResource(StringKey.DIALOG_NAKSHATRA), "${position.nakshatra.displayName} (${stringResource(StringKey.PANCHANGA_PADA)} ${position.nakshatraPada})", AccentPurple)
+            DetailRow(stringResource(StringKey.DIALOG_NAKSHATRA_LORD), position.nakshatra.ruler.displayName, TextSecondary)
+            DetailRow(stringResource(StringKey.DIALOG_NAKSHATRA_DEITY), position.nakshatra.deity, TextSecondary)
             if (position.isRetrograde) {
-                DetailRow("Motion", "Retrograde", AccentOrange)
+                DetailRow(stringResource(StringKey.DIALOG_MOTION), stringResource(StringKey.DIALOG_RETROGRADE), AccentOrange)
             }
         }
     }
@@ -528,7 +536,7 @@ private fun PlanetPositionCard(position: PlanetPosition) {
 
 @Composable
 private fun ShadbalaCard(shadbala: PlanetaryShadbala) {
-    DialogCard(title = "Strength Analysis (Shadbala)", icon = Icons.Outlined.TrendingUp) {
+    DialogCard(title = stringResource(StringKey.DIALOG_STRENGTH_ANALYSIS), icon = Icons.Outlined.TrendingUp) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             // Overall strength bar
             val strengthPercentage = (shadbala.percentageOfRequired / 150.0).coerceIn(0.0, 1.0).toFloat()
@@ -538,7 +546,7 @@ private fun ShadbalaCard(shadbala: PlanetaryShadbala) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "Overall: ${String.format("%.2f", shadbala.totalRupas)} / ${String.format("%.2f", shadbala.requiredRupas)} Rupas",
+                        text = stringResource(StringKey.DIALOG_OVERALL, String.format("%.2f", shadbala.totalRupas), String.format("%.2f", shadbala.requiredRupas)),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = TextPrimary
@@ -570,7 +578,7 @@ private fun ShadbalaCard(shadbala: PlanetaryShadbala) {
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "${String.format("%.1f", shadbala.percentageOfRequired)}% of required strength",
+                    text = stringResource(StringKey.DIALOG_PERCENT_OF_REQUIRED, String.format("%.1f", shadbala.percentageOfRequired)),
                     fontSize = 12.sp,
                     color = TextMuted
                 )
@@ -579,14 +587,14 @@ private fun ShadbalaCard(shadbala: PlanetaryShadbala) {
             HorizontalDivider(color = DividerColor)
 
             // Breakdown
-            Text("Strength Breakdown (Virupas)", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
+            Text(stringResource(StringKey.DIALOG_STRENGTH_BREAKDOWN), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
 
-            StrengthRow("Sthana Bala (Positional)", shadbala.sthanaBala.total, 180.0)
-            StrengthRow("Dig Bala (Directional)", shadbala.digBala, 60.0)
-            StrengthRow("Kala Bala (Temporal)", shadbala.kalaBala.total, 180.0)
-            StrengthRow("Chesta Bala (Motional)", shadbala.chestaBala, 60.0)
-            StrengthRow("Naisargika Bala (Natural)", shadbala.naisargikaBala, 60.0)
-            StrengthRow("Drik Bala (Aspectual)", shadbala.drikBala, 60.0)
+            StrengthRow(stringResource(StringKey.DIALOG_STHANA_BALA), shadbala.sthanaBala.total, 180.0)
+            StrengthRow(stringResource(StringKey.DIALOG_DIG_BALA), shadbala.digBala, 60.0)
+            StrengthRow(stringResource(StringKey.DIALOG_KALA_BALA), shadbala.kalaBala.total, 180.0)
+            StrengthRow(stringResource(StringKey.DIALOG_CHESTA_BALA), shadbala.chestaBala, 60.0)
+            StrengthRow(stringResource(StringKey.DIALOG_NAISARGIKA_BALA), shadbala.naisargikaBala, 60.0)
+            StrengthRow(stringResource(StringKey.DIALOG_DRIK_BALA), shadbala.drikBala, 60.0)
         }
     }
 }
@@ -626,20 +634,20 @@ private fun StrengthRow(label: String, value: Double, maxValue: Double) {
 private fun SignificationsCard(planet: Planet) {
     val significations = getPlanetSignifications(planet)
 
-    DialogCard(title = "Significations & Nature", icon = Icons.Outlined.Info) {
+    DialogCard(title = stringResource(StringKey.DIALOG_SIGNIFICATIONS), icon = Icons.Outlined.Info) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             // Nature
-            DetailRow("Nature", significations.nature, when (significations.nature) {
+            DetailRow(stringResource(StringKey.DIALOG_NATURE), significations.nature, when (significations.nature) {
                 "Benefic" -> AccentGreen
                 "Malefic" -> AccentRose
                 else -> AccentOrange
             })
 
             // Element
-            DetailRow("Element", significations.element, TextSecondary)
+            DetailRow(stringResource(StringKey.DIALOG_ELEMENT), significations.element, TextSecondary)
 
             // Represents
-            Text("Represents:", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
+            Text(stringResource(StringKey.DIALOG_REPRESENTS), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
             significations.represents.forEach { item ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
@@ -653,11 +661,11 @@ private fun SignificationsCard(planet: Planet) {
             }
 
             // Body Parts
-            Text("Body Parts:", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
+            Text(stringResource(StringKey.DIALOG_BODY_PARTS), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
             Text(text = significations.bodyParts, fontSize = 13.sp, color = TextPrimary)
 
             // Professions
-            Text("Professions:", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
+            Text(stringResource(StringKey.DIALOG_PROFESSIONS), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
             Text(text = significations.professions, fontSize = 13.sp, color = TextPrimary)
         }
     }
@@ -667,7 +675,7 @@ private fun SignificationsCard(planet: Planet) {
 private fun HousePlacementCard(position: PlanetPosition) {
     val interpretation = getHousePlacementInterpretation(position.planet, position.house)
 
-    DialogCard(title = "House ${position.house} Placement", icon = Icons.Outlined.Home) {
+    DialogCard(title = stringResource(StringKey.DIALOG_HOUSE_PLACEMENT, position.house), icon = Icons.Outlined.Home) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(
                 text = interpretation.houseName,
@@ -698,12 +706,12 @@ private fun PlanetStatusCard(position: PlanetPosition, chart: VedicChart) {
     }
     val planetCondition = conditions.getCondition(position.planet)
 
-    DialogCard(title = "Status & Conditions", icon = Icons.Outlined.FactCheck) {
+    DialogCard(title = stringResource(StringKey.DIALOG_STATUS_CONDITIONS), icon = Icons.Outlined.FactCheck) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             // Dignity
             val dignity = getDignity(position.planet, position.sign)
             StatusChip(
-                label = "Dignity",
+                label = stringResource(StringKey.DIALOG_DIGNITY),
                 value = dignity.status,
                 color = dignity.color
             )
@@ -711,8 +719,8 @@ private fun PlanetStatusCard(position: PlanetPosition, chart: VedicChart) {
             // Retrograde
             if (position.isRetrograde) {
                 StatusChip(
-                    label = "Motion",
-                    value = "Retrograde",
+                    label = stringResource(StringKey.DIALOG_MOTION),
+                    value = stringResource(StringKey.DIALOG_RETROGRADE),
                     color = AccentOrange
                 )
             }
@@ -721,7 +729,7 @@ private fun PlanetStatusCard(position: PlanetPosition, chart: VedicChart) {
             planetCondition?.let { cond ->
                 if (cond.combustionStatus != RetrogradeCombustionCalculator.CombustionStatus.NOT_COMBUST) {
                     StatusChip(
-                        label = "Combustion",
+                        label = stringResource(StringKey.DIALOG_COMBUSTION),
                         value = cond.combustionStatus.displayName,
                         color = AccentRose
                     )
@@ -730,8 +738,8 @@ private fun PlanetStatusCard(position: PlanetPosition, chart: VedicChart) {
                 // Planetary War
                 if (cond.isInPlanetaryWar) {
                     StatusChip(
-                        label = "Planetary War",
-                        value = "At war with ${cond.warData?.loser?.displayName}",
+                        label = stringResource(StringKey.DIALOG_PLANETARY_WAR),
+                        value = stringResource(StringKey.DIALOG_AT_WAR_WITH, cond.warData?.loser?.displayName ?: ""),
                         color = AccentPurple
                     )
                 }
@@ -748,7 +756,7 @@ private fun PredictionsCard(
 ) {
     val predictions = getPlanetPredictions(position, shadbala, chart)
 
-    DialogCard(title = "Insights & Predictions", icon = Icons.Outlined.AutoAwesome) {
+    DialogCard(title = stringResource(StringKey.DIALOG_INSIGHTS_PREDICTIONS), icon = Icons.Outlined.AutoAwesome) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             predictions.forEach { prediction ->
                 Row(
@@ -902,13 +910,13 @@ fun NakshatraDetailDialog(
                                 color = TextPrimary
                             )
                             Text(
-                                text = "Pada $pada • ${nakshatra.ruler.displayName} ruled",
+                                text = "${stringResource(StringKey.PANCHANGA_PADA)} $pada • ${nakshatra.ruler.displayName}",
                                 fontSize = 14.sp,
                                 color = TextSecondary
                             )
                         }
                         IconButton(onClick = onDismiss) {
-                            Icon(Icons.Default.Close, contentDescription = "Close", tint = TextPrimary)
+                            Icon(Icons.Default.Close, contentDescription = stringResource(StringKey.DIALOG_CLOSE), tint = TextPrimary)
                         }
                     }
                 }
@@ -920,36 +928,36 @@ fun NakshatraDetailDialog(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     item {
-                        DialogCard(title = "Basic Information", icon = Icons.Outlined.Info) {
+                        DialogCard(title = stringResource(StringKey.DIALOG_BASIC_INFO), icon = Icons.Outlined.Info) {
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                DetailRow("Number", "${nakshatra.number} of 27", TextPrimary)
-                                DetailRow("Degree Range", "${String.format("%.2f", nakshatra.startDegree)}° - ${String.format("%.2f", nakshatra.endDegree)}°", AccentTeal)
-                                DetailRow("Ruling Planet", nakshatra.ruler.displayName, AccentGold)
-                                DetailRow("Deity", nakshatra.deity, AccentPurple)
+                                DetailRow(stringResource(StringKey.DIALOG_NUMBER), "${nakshatra.number} / 27", TextPrimary)
+                                DetailRow(stringResource(StringKey.DIALOG_DEGREE_RANGE), "${String.format("%.2f", nakshatra.startDegree)}° - ${String.format("%.2f", nakshatra.endDegree)}°", AccentTeal)
+                                DetailRow(stringResource(StringKey.PANCHANGA_RULING_PLANET), nakshatra.ruler.displayName, AccentGold)
+                                DetailRow(stringResource(StringKey.DIALOG_NAKSHATRA_DEITY), nakshatra.deity, AccentPurple)
                             }
                         }
                     }
 
                     item {
-                        DialogCard(title = "Nakshatra Nature", icon = Icons.Outlined.Psychology) {
+                        DialogCard(title = stringResource(StringKey.DIALOG_NAKSHATRA_NATURE), icon = Icons.Outlined.Psychology) {
                             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                DetailRow("Symbol", details.symbol, TextPrimary)
-                                DetailRow("Nature", details.nature, when(details.nature) {
+                                DetailRow(stringResource(StringKey.PANCHANGA_SYMBOL), details.symbol, TextPrimary)
+                                DetailRow(stringResource(StringKey.DIALOG_NATURE), details.nature, when(details.nature) {
                                     "Fixed (Dhruva)" -> AccentBlue
                                     "Movable (Chara)" -> AccentGreen
                                     "Sharp (Tikshna)" -> AccentRose
                                     else -> TextSecondary
                                 })
-                                DetailRow("Gender", details.gender, TextSecondary)
-                                DetailRow("Gana", details.gana, TextSecondary)
-                                DetailRow("Guna", details.guna, TextSecondary)
-                                DetailRow("Element", details.element, TextSecondary)
+                                DetailRow(stringResource(StringKey.DIALOG_GENDER), details.gender, TextSecondary)
+                                DetailRow(stringResource(StringKey.PANCHANGA_GANA), details.gana, TextSecondary)
+                                DetailRow(stringResource(StringKey.PANCHANGA_GUNA), details.guna, TextSecondary)
+                                DetailRow(stringResource(StringKey.DIALOG_ELEMENT), details.element, TextSecondary)
                             }
                         }
                     }
 
                     item {
-                        DialogCard(title = "Pada ${pada} Characteristics", icon = Icons.Outlined.Star) {
+                        DialogCard(title = stringResource(StringKey.DIALOG_PADA_CHARACTERISTICS, pada), icon = Icons.Outlined.Star) {
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 val padaSign = when(pada) {
                                     1 -> nakshatra.pada1Sign
@@ -958,7 +966,7 @@ fun NakshatraDetailDialog(
                                     4 -> nakshatra.pada4Sign
                                     else -> nakshatra.pada1Sign
                                 }
-                                DetailRow("Navamsa Sign", padaSign.displayName, AccentTeal)
+                                DetailRow(stringResource(StringKey.DIALOG_NAVAMSA_SIGN), padaSign.displayName, AccentTeal)
                                 Text(
                                     text = getPadaDescription(nakshatra, pada),
                                     fontSize = 14.sp,
@@ -970,7 +978,7 @@ fun NakshatraDetailDialog(
                     }
 
                     item {
-                        DialogCard(title = "General Characteristics", icon = Icons.Outlined.Description) {
+                        DialogCard(title = stringResource(StringKey.DIALOG_GENERAL_CHARACTERISTICS), icon = Icons.Outlined.Description) {
                             Text(
                                 text = details.characteristics,
                                 fontSize = 14.sp,
@@ -981,7 +989,7 @@ fun NakshatraDetailDialog(
                     }
 
                     item {
-                        DialogCard(title = "Career Indications", icon = Icons.Outlined.Work) {
+                        DialogCard(title = stringResource(StringKey.DIALOG_CAREER_INDICATIONS), icon = Icons.Outlined.Work) {
                             Text(
                                 text = details.careers,
                                 fontSize = 14.sp,
@@ -1036,7 +1044,7 @@ fun HouseDetailDialog(
                     ) {
                         Column {
                             Text(
-                                text = "House $houseNumber",
+                                text = "${stringResource(StringKey.HOUSE)} $houseNumber",
                                 fontSize = 22.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = TextPrimary
@@ -1048,7 +1056,7 @@ fun HouseDetailDialog(
                             )
                         }
                         IconButton(onClick = onDismiss) {
-                            Icon(Icons.Default.Close, contentDescription = "Close", tint = TextPrimary)
+                            Icon(Icons.Default.Close, contentDescription = stringResource(StringKey.DIALOG_CLOSE), tint = TextPrimary)
                         }
                     }
                 }
@@ -1060,18 +1068,18 @@ fun HouseDetailDialog(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     item {
-                        DialogCard(title = "House Information", icon = Icons.Outlined.Home) {
+                        DialogCard(title = stringResource(StringKey.DIALOG_HOUSE_INFO), icon = Icons.Outlined.Home) {
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                DetailRow("Sign", sign.displayName, AccentTeal)
-                                DetailRow("Cusp Degree", formatDegree(houseCusp), TextPrimary)
-                                DetailRow("Sign Lord", sign.ruler.displayName, AccentGold)
-                                DetailRow("House Type", houseDetails.type, TextSecondary)
+                                DetailRow(stringResource(StringKey.DIALOG_ZODIAC_SIGN), sign.displayName, AccentTeal)
+                                DetailRow(stringResource(StringKey.DIALOG_CUSP_DEGREE), formatDegree(houseCusp), TextPrimary)
+                                DetailRow(stringResource(StringKey.DIALOG_SIGN_LORD), sign.ruler.displayName, AccentGold)
+                                DetailRow(stringResource(StringKey.DIALOG_HOUSE_TYPE), houseDetails.type, TextSecondary)
                             }
                         }
                     }
 
                     item {
-                        DialogCard(title = "Significations", icon = Icons.Outlined.ListAlt) {
+                        DialogCard(title = stringResource(StringKey.DIALOG_SIGNIFICATIONS), icon = Icons.Outlined.ListAlt) {
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 houseDetails.significations.forEach { signification ->
                                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1090,7 +1098,7 @@ fun HouseDetailDialog(
 
                     if (planetsInHouse.isNotEmpty()) {
                         item {
-                            DialogCard(title = "Planets in House", icon = Icons.Outlined.Star) {
+                            DialogCard(title = stringResource(StringKey.DIALOG_PLANETS_IN_HOUSE), icon = Icons.Outlined.Star) {
                                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                     planetsInHouse.forEach { planet ->
                                         Row(
@@ -1128,7 +1136,7 @@ fun HouseDetailDialog(
                     }
 
                     item {
-                        DialogCard(title = "Detailed Interpretation", icon = Icons.Outlined.Description) {
+                        DialogCard(title = stringResource(StringKey.DIALOG_DETAILED_INTERPRETATION), icon = Icons.Outlined.Description) {
                             Text(
                                 text = houseDetails.interpretation,
                                 fontSize = 14.sp,
@@ -1181,19 +1189,19 @@ fun ShadbalaDialog(
                     ) {
                         Column {
                             Text(
-                                text = "Shadbala Analysis",
+                                text = stringResource(StringKey.DIALOG_SHADBALA_ANALYSIS),
                                 fontSize = 22.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = TextPrimary
                             )
                             Text(
-                                text = "Six-fold Planetary Strength",
+                                text = stringResource(StringKey.DIALOG_SIXFOLD_STRENGTH),
                                 fontSize = 14.sp,
                                 color = TextSecondary
                             )
                         }
                         IconButton(onClick = onDismiss) {
-                            Icon(Icons.Default.Close, contentDescription = "Close", tint = TextPrimary)
+                            Icon(Icons.Default.Close, contentDescription = stringResource(StringKey.DIALOG_CLOSE), tint = TextPrimary)
                         }
                     }
                 }
@@ -1206,14 +1214,14 @@ fun ShadbalaDialog(
                 ) {
                     // Overall summary
                     item {
-                        DialogCard(title = "Overall Summary", icon = Icons.Outlined.Analytics) {
+                        DialogCard(title = stringResource(StringKey.DIALOG_OVERALL_SUMMARY), icon = Icons.Outlined.Analytics) {
                             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceEvenly
                                 ) {
                                     SummaryBadge(
-                                        label = "Chart Strength",
+                                        label = stringResource(StringKey.DIALOG_CHART_STRENGTH),
                                         value = "${String.format("%.1f", shadbalaAnalysis.overallStrengthScore)}%",
                                         color = when {
                                             shadbalaAnalysis.overallStrengthScore >= 100 -> AccentGreen
@@ -1222,12 +1230,12 @@ fun ShadbalaDialog(
                                         }
                                     )
                                     SummaryBadge(
-                                        label = "Strongest",
+                                        label = stringResource(StringKey.DIALOG_STRONGEST),
                                         value = shadbalaAnalysis.strongestPlanet.displayName,
                                         color = AccentGold
                                     )
                                     SummaryBadge(
-                                        label = "Weakest",
+                                        label = stringResource(StringKey.DIALOG_WEAKEST),
                                         value = shadbalaAnalysis.weakestPlanet.displayName,
                                         color = AccentPurple
                                     )
@@ -1531,6 +1539,7 @@ private fun getHousePlacementInterpretation(planet: Planet, house: Int): HousePl
     )
 }
 
+@Composable
 private fun getDignity(planet: Planet, sign: ZodiacSign): Dignity {
     // Exaltation check
     val exalted = when (planet) {
@@ -1543,7 +1552,7 @@ private fun getDignity(planet: Planet, sign: ZodiacSign): Dignity {
         Planet.SATURN -> sign == ZodiacSign.LIBRA
         else -> false
     }
-    if (exalted) return Dignity("Exalted", AccentGreen)
+    if (exalted) return Dignity(stringResource(StringKey.PLANETARY_STATUS_EXALTED), AccentGreen)
 
     // Debilitation check
     val debilitated = when (planet) {
@@ -1556,10 +1565,10 @@ private fun getDignity(planet: Planet, sign: ZodiacSign): Dignity {
         Planet.SATURN -> sign == ZodiacSign.ARIES
         else -> false
     }
-    if (debilitated) return Dignity("Debilitated", AccentRose)
+    if (debilitated) return Dignity(stringResource(StringKey.PLANETARY_STATUS_DEBILITATED), AccentRose)
 
     // Own sign check
-    if (sign.ruler == planet) return Dignity("Own Sign", AccentGold)
+    if (sign.ruler == planet) return Dignity(stringResource(StringKey.PLANETARY_STATUS_OWN_SIGN), AccentGold)
 
     // Moolatrikona check
     val moolatrikona = when (planet) {
@@ -1572,11 +1581,12 @@ private fun getDignity(planet: Planet, sign: ZodiacSign): Dignity {
         Planet.SATURN -> sign == ZodiacSign.AQUARIUS
         else -> false
     }
-    if (moolatrikona) return Dignity("Moolatrikona", AccentTeal)
+    if (moolatrikona) return Dignity(stringResource(StringKey.PLANETARY_STATUS_MOOLATRIKONA), AccentTeal)
 
-    return Dignity("Neutral", TextSecondary)
+    return Dignity(stringResource(StringKey.RELATION_NEUTRAL), TextSecondary)
 }
 
+@Composable
 private fun getPlanetPredictions(
     position: PlanetPosition,
     shadbala: PlanetaryShadbala,
@@ -1589,34 +1599,38 @@ private fun getPlanetPredictions(
     if (shadbala.isStrong) {
         predictions.add(Prediction(
             PredictionType.POSITIVE,
-            "Strong ${planet.displayName}",
-            "This planet has sufficient strength to deliver positive results. Its significations will manifest more easily in your life."
+            stringResource(StringKey.PREDICTION_STRONG_PLANET, planet.displayName),
+            stringResource(StringKey.PREDICTION_STRONG_DESC)
         ))
     } else {
         predictions.add(Prediction(
             PredictionType.NEGATIVE,
-            "Weak ${planet.displayName}",
-            "This planet lacks sufficient strength. You may face challenges in areas it governs. Remedial measures may help."
+            stringResource(StringKey.PREDICTION_WEAK_PLANET, planet.displayName),
+            stringResource(StringKey.PREDICTION_WEAK_DESC)
         ))
     }
 
     // Dignity-based predictions
     val dignity = getDignity(planet, position.sign)
+    val exaltedStatus = stringResource(StringKey.PLANETARY_STATUS_EXALTED)
+    val debilitatedStatus = stringResource(StringKey.PLANETARY_STATUS_DEBILITATED)
+    val ownSignStatus = stringResource(StringKey.PLANETARY_STATUS_OWN_SIGN)
+
     when (dignity.status) {
-        "Exalted" -> predictions.add(Prediction(
+        exaltedStatus -> predictions.add(Prediction(
             PredictionType.POSITIVE,
-            "Exalted Planet",
-            "${planet.displayName} is in its sign of exaltation, giving exceptional results in its significations."
+            stringResource(StringKey.PREDICTION_EXALTED),
+            stringResource(StringKey.PREDICTION_EXALTED_DESC, planet.displayName)
         ))
-        "Debilitated" -> predictions.add(Prediction(
+        debilitatedStatus -> predictions.add(Prediction(
             PredictionType.NEGATIVE,
-            "Debilitated Planet",
-            "${planet.displayName} is in its fall. Its positive significations may be reduced or delayed."
+            stringResource(StringKey.PREDICTION_DEBILITATED),
+            stringResource(StringKey.PREDICTION_DEBILITATED_DESC, planet.displayName)
         ))
-        "Own Sign" -> predictions.add(Prediction(
+        ownSignStatus -> predictions.add(Prediction(
             PredictionType.POSITIVE,
-            "Planet in Own Sign",
-            "${planet.displayName} is comfortable in its own sign, giving stable and reliable results."
+            stringResource(StringKey.PREDICTION_OWN_SIGN),
+            stringResource(StringKey.PREDICTION_OWN_SIGN_DESC, planet.displayName)
         ))
     }
 
@@ -1624,8 +1638,8 @@ private fun getPlanetPredictions(
     if (position.isRetrograde) {
         predictions.add(Prediction(
             PredictionType.NEUTRAL,
-            "Retrograde Motion",
-            "Retrograde planets work on an internal level. Results may be delayed but often more profound."
+            stringResource(StringKey.PREDICTION_RETROGRADE),
+            stringResource(StringKey.PREDICTION_RETROGRADE_DESC)
         ))
     }
 
@@ -1633,18 +1647,18 @@ private fun getPlanetPredictions(
     when (position.house) {
         1, 5, 9 -> predictions.add(Prediction(
             PredictionType.POSITIVE,
-            "Trikona Placement",
-            "${planet.displayName} in house ${position.house} (Trikona) is auspicious for fortune and dharma."
+            stringResource(StringKey.PREDICTION_TRIKONA),
+            stringResource(StringKey.PREDICTION_TRIKONA_DESC, planet.displayName, position.house)
         ))
         6, 8, 12 -> predictions.add(Prediction(
             PredictionType.NEUTRAL,
-            "Dusthana Placement",
-            "${planet.displayName} in house ${position.house} may face obstacles but can also give transformative experiences."
+            stringResource(StringKey.PREDICTION_DUSTHANA),
+            stringResource(StringKey.PREDICTION_DUSTHANA_DESC, planet.displayName, position.house)
         ))
-        1, 4, 7, 10 -> predictions.add(Prediction(
+        4, 7, 10 -> predictions.add(Prediction(
             PredictionType.POSITIVE,
-            "Kendra Placement",
-            "${planet.displayName} in house ${position.house} (Kendra) gains strength and visibility."
+            stringResource(StringKey.PREDICTION_KENDRA),
+            stringResource(StringKey.PREDICTION_KENDRA_DESC, planet.displayName, position.house)
         ))
     }
 

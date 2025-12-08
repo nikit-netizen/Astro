@@ -21,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.astro.storm.MainActivity
+import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.stringResource
 import com.astro.storm.ui.theme.AstroStormTheme
 import com.astro.storm.ui.theme.AppTheme
 
@@ -67,7 +69,7 @@ fun DebugScreen(
         containerColor = AppTheme.ScreenBackground,
         topBar = {
             TopAppBar(
-                title = { Text("Unhandled Exception", color = AppTheme.TextPrimary) },
+                title = { Text(stringResource(StringKey.DEBUG_UNHANDLED_EXCEPTION), color = AppTheme.TextPrimary) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = AppTheme.CardBackground)
             )
         }
@@ -80,7 +82,7 @@ fun DebugScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "An unexpected error occurred.",
+                text = stringResource(StringKey.DEBUG_ERROR_OCCURRED),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = AppTheme.TextPrimary
@@ -113,14 +115,14 @@ fun DebugScreen(
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = AppTheme.AccentPrimary)
                 ) {
-                    Text("Copy Log")
+                    Text(stringResource(StringKey.DEBUG_COPY_LOG))
                 }
                 Button(
                     onClick = onRestart,
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = AppTheme.AccentSecondary)
                 ) {
-                    Text("Restart App")
+                    Text(stringResource(StringKey.DEBUG_RESTART_APP))
                 }
             }
         }
