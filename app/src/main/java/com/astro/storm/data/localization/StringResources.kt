@@ -518,7 +518,7 @@ enum class StringKey(val en: String, val ne: String) {
     YOGA_GOT_IT("Got it", "बुझें"),
     YOGA_NO_DATA("No yoga data available", "कुनै योग डाटा उपलब्ध छैन"),
     YOGA_NO_CHART_MESSAGE("Select or create a birth profile to view yogas.", "योगहरू हेर्न जन्म प्रोफाइल छान्नुहोस् वा बनाउनुहोस्।"),
-    YOGAS_COUNT_DETECTED("%d yogas detected in %s", "%s मा %d योगहरू पत्ता लागेको"),
+    YOGAS_COUNT_DETECTED("%1\$d yogas detected in %2\$s", "%2\$s मा %1\$d योगहरू पत्ता लागेको"),
 
     // Yoga Categories
     YOGA_CATEGORY_WEALTH("Wealth Yogas", "धन योगहरू"),
@@ -545,6 +545,16 @@ enum class StringKey(val en: String, val ne: String) {
     YOGA_CATEGORY_SPECIAL_DESC("Rare and special combinations", "दुर्लभ र विशेष संयोजनहरू"),
     YOGA_CATEGORY_NEGATIVE("Negative Yogas", "नकारात्मक योगहरू"),
     YOGA_CATEGORY_NEGATIVE_DESC("Combinations indicating challenges", "चुनौतीहरू संकेत गर्ने संयोजनहरू"),
+
+    // Yoga Tab Content UI Strings
+    YOGA_MOST_SIGNIFICANT("Most Significant Yogas", "सबैभन्दा महत्त्वपूर्ण योगहरू"),
+    YOGA_SANSKRIT("Sanskrit", "संस्कृत"),
+    YOGA_EFFECTS("Effects", "प्रभावहरू"),
+    YOGA_ACTIVATION("Activation", "सक्रियता"),
+    YOGA_CANCELLATION_FACTORS("Cancellation/Mitigation Factors", "रद्द/न्यूनीकरण कारकहरू"),
+    YOGA_NO_CATEGORY_FOUND("No %s found", "कुनै %s फेला परेन"),
+    YOGA_NONE_DETECTED("No yogas detected", "कुनै योग पत्ता लागेन"),
+    YOGA_HOUSE_PREFIX("H", "भाव"),
 
     // ============================================
     // PROFILE SWITCHER
@@ -959,6 +969,43 @@ enum class StringKey(val en: String, val ne: String) {
     DASHA_LEVEL_PRANADASHA("Pranadasha", "प्राणदशा"),
     DASHA_LEVEL_DEHADASHA("Dehadasha", "देहदशा"),
 
+    // Dasha Tab Content Strings
+    DASHA_CURRENT_DASHA_PERIOD("Current Dasha Period", "हालको दशा अवधि"),
+    DASHA_BIRTH_NAKSHATRA("Birth Nakshatra", "जन्म नक्षत्र"),
+    DASHA_LORD("Lord", "स्वामी"),
+    DASHA_PADA("Pada", "पाद"),
+    DASHA_PERIOD_INSIGHTS("Period Insights", "अवधि अन्तर्दृष्टि"),
+    DASHA_SANDHI_ALERTS("Dasha Sandhi Alerts", "दशा सन्धि अलर्टहरू"),
+    DASHA_UPCOMING_TRANSITIONS("%1\$d upcoming transition(s) within %2\$d days", "%2\$d दिनभित्र %1\$d आगामी सन्क्रमण(हरू)"),
+    DASHA_TRANSITION("transition", "सन्क्रमण"),
+    DASHA_SANDHI_EXPLANATION("Sandhi periods mark transitions between planetary periods. These are sensitive times requiring careful attention as the energy shifts from one planet to another.", "सन्धि अवधिहरूले ग्रह अवधिहरूबीचको सन्क्रमण चिन्ह लगाउँछन्। यी संवेदनशील समयहरू हुन् जहाँ एउटा ग्रहबाट अर्को ग्रहमा ऊर्जा परिवर्तन हुन्छ।"),
+    DASHA_ACTIVE_NOW("Active Now", "अहिले सक्रिय"),
+    DASHA_TODAY("Today", "आज"),
+    DASHA_TOMORROW("Tomorrow", "भोलि"),
+    DASHA_IN_DAYS("In %d days", "%d दिनमा"),
+    DASHA_TIMELINE("Dasha Timeline", "दशा समयरेखा"),
+    DASHA_COMPLETE_CYCLE("Complete 120-year Vimshottari cycle", "पूर्ण १२०-वर्षे विम्शोत्तरी चक्र"),
+    DASHA_SUB_PERIODS("%d sub-periods", "%d उप-अवधिहरू"),
+    DASHA_ANTARDASHAS("Antardashas", "अन्तर्दशाहरू"),
+    DASHA_UNABLE_CALCULATE("Unable to calculate current dasha period", "हालको दशा अवधि गणना गर्न असक्षम"),
+    DASHA_ABOUT_VIMSHOTTARI("About Vimshottari Dasha", "विम्शोत्तरी दशाको बारेमा"),
+    DASHA_VIMSHOTTARI_DESC("The Vimshottari Dasha is the most widely used planetary period system in Vedic astrology (Jyotish). Derived from the Moon's nakshatra (lunar mansion) at birth, it divides the 120-year human lifespan into six levels of planetary periods. Starting from Mahadashas (major periods spanning years), it subdivides into Antardasha (months), Pratyantardasha (weeks), Sookshmadasha (days), Pranadasha (hours), and finally Dehadasha (minutes) — each governed by one of the nine Grahas.", "विम्शोत्तरी दशा वैदिक ज्योतिष (ज्योतिष) मा सबैभन्दा व्यापक रूपमा प्रयोग हुने ग्रह अवधि प्रणाली हो। जन्मको समयमा चन्द्रमाको नक्षत्रबाट व्युत्पन्न, यसले १२०-वर्षे मानव आयुलाई छ तहको ग्रह अवधिहरूमा विभाजन गर्छ।"),
+    DASHA_PERIODS_SEQUENCE("Dasha Periods (Vimshottari Sequence)", "दशा अवधिहरू (विम्शोत्तरी क्रम)"),
+    DASHA_TOTAL_CYCLE("Total Cycle: 120 Years", "कुल चक्र: १२० वर्ष"),
+    DASHA_HIERARCHY("Dasha Hierarchy", "दशा पदानुक्रम"),
+    DASHA_MAJOR_PERIOD_YEARS("Major period (years)", "मुख्य अवधि (वर्ष)"),
+    DASHA_SUB_PERIOD_MONTHS("Sub-period (months)", "उप-अवधि (महिना)"),
+    DASHA_SUB_SUB_PERIOD_WEEKS("Sub-sub-period (weeks)", "उप-उप-अवधि (हप्ता)"),
+    DASHA_SUBTLE_PERIOD_DAYS("Subtle period (days)", "सूक्ष्म अवधि (दिन)"),
+    DASHA_BREATH_PERIOD_HOURS("Breath period (hours)", "श्वास अवधि (घण्टा)"),
+    DASHA_BODY_PERIOD_MINUTES("Body period (minutes)", "शरीर अवधि (मिनेट)"),
+    DASHA_BHUKTI("Bhukti", "भुक्ति"),
+    DASHA_SANDHI_NOTE("Dasha Sandhi (junction periods) occur when transitioning between planetary periods and are considered sensitive times requiring careful attention.", "दशा सन्धि (जोड अवधिहरू) ग्रह अवधिहरूबीच सन्क्रमण हुँदा हुन्छ र यी संवेदनशील समयहरू मानिन्छन्।"),
+    DASHA_PERCENT_COMPLETE("%s%% complete", "%s%% पूरा"),
+    DASHA_YEARS_ABBR("yrs", "वर्ष"),
+    DASHA_COLLAPSE("Collapse", "संकुचन गर्नुहोस्"),
+    DASHA_EXPAND("Expand", "विस्तार गर्नुहोस्"),
+
     // ============================================
     // DASHA CALCULATOR - YOGINI DASHAS
     // ============================================
@@ -1369,35 +1416,25 @@ enum class StringKey(val en: String, val ne: String) {
     // ============================================
     // MUHURTA SCREEN SPECIFIC
     // ============================================
-    MUHURTA_TITLE("Muhurta", "मुहूर्त"),
-    MUHURTA_TODAY_PANCHANGA("Today's Panchanga", "आजको पञ्चाङ्ग"),
-    MUHURTA_DAILY_TIMINGS("Daily Muhurta Timings", "दैनिक मुहूर्त समय"),
-    MUHURTA_FIND_AUSPICIOUS("Find Auspicious Muhurta", "शुभ मुहूर्त खोज्नुहोस्"),
     MUHURTA_CHOGHADIYA("Choghadiya", "चौघडिया"),
     MUHURTA_RAHU_KAAL("Rahu Kaal", "राहुकाल"),
     MUHURTA_YAMA_GHANTAKA("Yama Ghantaka", "यम घण्टक"),
     MUHURTA_GULIKA_KAAL("Gulika Kaal", "गुलिका काल"),
     MUHURTA_ABHIJIT("Abhijit Muhurta", "अभिजित मुहूर्त"),
     MUHURTA_BRAHMA("Brahma Muhurta", "ब्रह्म मुहूर्त"),
-    MUHURTA_SELECT_EVENT("Select Event Type", "कार्यक्रम प्रकार चयन गर्नुहोस्"),
     MUHURTA_SELECT_DATE("Select Date", "मिति चयन गर्नुहोस्"),
     MUHURTA_SEARCH_RESULTS("Search Results", "खोज परिणामहरू"),
-    MUHURTA_NO_RESULTS("No auspicious muhurta found for selected criteria", "चयन गरिएको मापदण्डको लागि कुनै शुभ मुहूर्त फेला परेन"),
 
     // ============================================
     // VARSHAPHALA SCREEN SPECIFIC
     // ============================================
     VARSHAPHALA_TITLE("Varshaphala", "वर्षफल"),
     VARSHAPHALA_ANNUAL_CHART("Annual Chart", "वार्षिक चार्ट"),
-    VARSHAPHALA_YEAR_LORD("Year Lord", "वर्षेश"),
-    VARSHAPHALA_MUNTHA("Muntha", "मुन्था"),
     VARSHAPHALA_SAHAMS("Sahams", "सहमहरू"),
     VARSHAPHALA_TAJIKA("Tajika Aspects", "ताजिक दृष्टि"),
     VARSHAPHALA_YOGAS("Tajika Yogas", "ताजिक योग"),
     VARSHAPHALA_PREDICTIONS("Year Predictions", "वर्ष भविष्यवाणी"),
     VARSHAPHALA_SELECT_YEAR("Select Year", "वर्ष चयन गर्नुहोस्"),
-    VARSHAPHALA_SOLAR_RETURN("Solar Return", "सौर प्रत्यागमन"),
-    VARSHAPHALA_AGE("Annual Horoscope • Age %d", "वार्षिक कुण्डली • उमेर %d"),
     VARSHAPHALA_YEAR_OF_LIFE("Year %d of life", "जीवनको वर्ष %d"),
 
     // ============================================

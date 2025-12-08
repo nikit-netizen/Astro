@@ -58,7 +58,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.astro.storm.data.model.VedicChart
+import com.astro.storm.data.localization.Language
+import com.astro.storm.data.localization.LocalLanguage
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.getLocalizedName
 import com.astro.storm.data.localization.stringResource
 import com.astro.storm.ephemeris.YogaCalculator
 import com.astro.storm.ui.screen.chartdetail.ChartDetailColors
@@ -127,6 +130,7 @@ fun YogasTabContent(chart: VedicChart) {
 
 @Composable
 private fun YogaSummaryCard(analysis: YogaCalculator.YogaAnalysis) {
+    val language = LocalLanguage.current
     val positiveCount = analysis.allYogas.count { it.isAuspicious }
     val negativeCount = analysis.allYogas.count { !it.isAuspicious }
     val topYogas = analysis.allYogas.sortedByDescending { it.strengthPercentage }.take(3)
@@ -149,7 +153,7 @@ private fun YogaSummaryCard(analysis: YogaCalculator.YogaAnalysis) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Yoga Analysis Summary",
+                    text = stringResource(StringKey.YOGA_ANALYSIS_SUMMARY),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = ChartDetailColors.TextPrimary
@@ -162,38 +166,38 @@ private fun YogaSummaryCard(analysis: YogaCalculator.YogaAnalysis) {
             ) {
                 StatusBadge(
                     count = analysis.allYogas.size,
-                    label = "Total Yogas",
+                    label = stringResource(StringKey.YOGA_TOTAL),
                     color = ChartDetailColors.AccentGold
                 )
                 StatusBadge(
                     count = positiveCount,
-                    label = "Auspicious",
+                    label = stringResource(StringKey.YOGA_AUSPICIOUS),
                     color = ChartDetailColors.SuccessColor
                 )
                 StatusBadge(
                     count = negativeCount,
-                    label = "Challenging",
+                    label = stringResource(StringKey.YOGA_CHALLENGING),
                     color = ChartDetailColors.WarningColor
                 )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            OverallStrengthBar(analysis.overallYogaStrength)
+            OverallStrengthBar(analysis.overallYogaStrength, language)
 
             if (topYogas.isNotEmpty()) {
                 HorizontalDivider(
                     color = ChartDetailColors.DividerColor,
                     modifier = Modifier.padding(vertical = 12.dp)
                 )
-                TopYogasSection(topYogas)
+                TopYogasSection(topYogas, language)
             }
         }
     }
 }
 
 @Composable
-private fun OverallStrengthBar(strength: Double) {
+private fun OverallStrengthBar(strength: Double, language: Language) {
     val progress = (strength / 100.0).coerceIn(0.0, 1.0).toFloat()
     val color = when {
         strength >= 75 -> ChartDetailColors.SuccessColor
@@ -208,12 +212,12 @@ private fun OverallStrengthBar(strength: Double) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Overall Yoga Strength",
+                text = stringResource(StringKey.YOGA_OVERALL_STRENGTH),
                 fontSize = 13.sp,
                 color = ChartDetailColors.TextSecondary
             )
             Text(
-                text = "${String.format("%.1f", strength)}%",
+                text = formatPercentage(strength, language),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
                 color = color
@@ -233,10 +237,10 @@ private fun OverallStrengthBar(strength: Double) {
 }
 
 @Composable
-private fun TopYogasSection(topYogas: List<YogaCalculator.Yoga>) {
+private fun TopYogasSection(topYogas: List<YogaCalculator.Yoga>, language: Language) {
     Column {
         Text(
-            text = "Most Significant Yogas",
+            text = stringResource(StringKey.YOGA_MOST_SIGNIFICANT),
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
             color = ChartDetailColors.AccentGold,
@@ -265,7 +269,7 @@ private fun TopYogasSection(topYogas: List<YogaCalculator.Yoga>) {
                     )
                 }
                 Text(
-                    text = yoga.strength.displayName,
+                    text = getLocalizedStrength(yoga.strength, language),
                     fontSize = 11.sp,
                     color = ChartDetailColors.TextMuted
                 )
@@ -281,6 +285,8 @@ private fun YogaCategoryFilter(
     yogaCounts: Map<YogaCalculator.YogaCategory, Int>,
     onCategorySelected: (YogaCalculator.YogaCategory?) -> Unit
 ) {
+    val language = LocalLanguage.current
+
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -310,7 +316,7 @@ private fun YogaCategoryFilter(
                 FilterChip(
                     selected = selectedCategory == category,
                     onClick = { onCategorySelected(category) },
-                    label = { Text("${getCategoryDisplayName(category)} ($count)", fontSize = 12.sp) },
+                    label = { Text("${getCategoryDisplayName(category, language)} (${formatNumber(count, language)})", fontSize = 12.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = getCategoryColor(category).copy(alpha = 0.2f),
                         selectedLabelColor = getCategoryColor(category),
@@ -336,6 +342,7 @@ private fun YogaCard(
     isExpanded: Boolean,
     onToggleExpand: (Boolean) -> Unit
 ) {
+    val language = LocalLanguage.current
     val rotation by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
         label = "rotation"
@@ -387,7 +394,7 @@ private fun YogaCard(
                             color = ChartDetailColors.TextPrimary
                         )
                         Text(
-                            text = getCategoryDisplayName(yoga.category),
+                            text = getCategoryDisplayName(yoga.category, language),
                             fontSize = 11.sp,
                             color = ChartDetailColors.TextMuted
                         )
@@ -395,7 +402,7 @@ private fun YogaCard(
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    YogaStrengthBadge(strength = yoga.strengthPercentage)
+                    YogaStrengthBadge(strength = yoga.strengthPercentage, language = language)
                     Spacer(modifier = Modifier.width(8.dp))
                     Icon(
                         Icons.Default.ExpandMore,
@@ -419,7 +426,7 @@ private fun YogaCard(
 
                     if (yoga.sanskritName.isNotEmpty() && yoga.sanskritName != yoga.name) {
                         Text(
-                            text = "Sanskrit: ${yoga.sanskritName}",
+                            text = "${stringResource(StringKey.YOGA_SANSKRIT)}: ${yoga.sanskritName}",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
                             color = ChartDetailColors.AccentPurple,
@@ -445,7 +452,7 @@ private fun YogaCard(
                                 color = ChartDetailColors.getPlanetColor(planet).copy(alpha = 0.15f)
                             ) {
                                 Text(
-                                    text = planet.displayName,
+                                    text = planet.getLocalizedName(language),
                                     fontSize = 11.sp,
                                     color = ChartDetailColors.getPlanetColor(planet),
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -459,7 +466,7 @@ private fun YogaCard(
                                 color = ChartDetailColors.AccentPurple.copy(alpha = 0.15f)
                             ) {
                                 Text(
-                                    text = "H$house",
+                                    text = "${stringResource(StringKey.YOGA_HOUSE_PREFIX)}${formatNumber(house, language)}",
                                     fontSize = 11.sp,
                                     color = ChartDetailColors.AccentPurple,
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -479,7 +486,7 @@ private fun YogaCard(
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
                             Text(
-                                text = "Effects",
+                                text = stringResource(StringKey.YOGA_EFFECTS),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = if (yoga.isAuspicious) ChartDetailColors.SuccessColor else ChartDetailColors.WarningColor
@@ -496,7 +503,7 @@ private fun YogaCard(
 
                     if (yoga.activationPeriod.isNotEmpty()) {
                         Text(
-                            text = "Activation: ${yoga.activationPeriod}",
+                            text = "${stringResource(StringKey.YOGA_ACTIVATION)}: ${yoga.activationPeriod}",
                             fontSize = 11.sp,
                             color = ChartDetailColors.AccentTeal,
                             modifier = Modifier.padding(top = 8.dp)
@@ -509,7 +516,7 @@ private fun YogaCard(
                             modifier = Modifier.padding(vertical = 8.dp)
                         )
                         Text(
-                            text = "Cancellation/Mitigation Factors:",
+                            text = "${stringResource(StringKey.YOGA_CANCELLATION_FACTORS)}:",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = ChartDetailColors.SuccessColor,
@@ -530,7 +537,7 @@ private fun YogaCard(
 }
 
 @Composable
-private fun YogaStrengthBadge(strength: Double) {
+private fun YogaStrengthBadge(strength: Double, language: Language) {
     val color = when {
         strength >= 80 -> ChartDetailColors.SuccessColor
         strength >= 60 -> ChartDetailColors.AccentTeal
@@ -543,7 +550,7 @@ private fun YogaStrengthBadge(strength: Double) {
         color = color.copy(alpha = 0.15f)
     ) {
         Text(
-            text = "${strength.toInt()}%",
+            text = formatPercentage(strength, language),
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
             color = color,
@@ -554,6 +561,8 @@ private fun YogaStrengthBadge(strength: Double) {
 
 @Composable
 private fun EmptyYogasMessage(category: YogaCalculator.YogaCategory?) {
+    val language = LocalLanguage.current
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -574,9 +583,9 @@ private fun EmptyYogasMessage(category: YogaCalculator.YogaCategory?) {
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = if (category != null) {
-                    "No ${getCategoryDisplayName(category)} yogas found"
+                    stringResource(StringKey.YOGA_NO_CATEGORY_FOUND, getCategoryDisplayName(category, language))
                 } else {
-                    "No yogas detected"
+                    stringResource(StringKey.YOGA_NONE_DETECTED)
                 },
                 fontSize = 16.sp,
                 color = ChartDetailColors.TextSecondary,
@@ -586,15 +595,43 @@ private fun EmptyYogasMessage(category: YogaCalculator.YogaCategory?) {
     }
 }
 
-private fun getCategoryDisplayName(category: YogaCalculator.YogaCategory): String = when (category) {
-    YogaCalculator.YogaCategory.RAJA_YOGA -> "Raja Yoga"
-    YogaCalculator.YogaCategory.DHANA_YOGA -> "Dhana Yoga"
-    YogaCalculator.YogaCategory.MAHAPURUSHA_YOGA -> "Mahapurusha Yoga"
-    YogaCalculator.YogaCategory.NABHASA_YOGA -> "Nabhasa Yoga"
-    YogaCalculator.YogaCategory.CHANDRA_YOGA -> "Chandra Yoga"
-    YogaCalculator.YogaCategory.SOLAR_YOGA -> "Solar Yoga"
-    YogaCalculator.YogaCategory.NEGATIVE_YOGA -> "Negative Yoga"
-    YogaCalculator.YogaCategory.SPECIAL_YOGA -> "Special Yoga"
+// ============================================
+// LOCALIZATION HELPER FUNCTIONS
+// ============================================
+
+private fun getCategoryDisplayName(category: YogaCalculator.YogaCategory, language: Language): String = when (category) {
+    YogaCalculator.YogaCategory.RAJA_YOGA -> when (language) {
+        Language.ENGLISH -> "Raja Yoga"
+        Language.NEPALI -> "राज योग"
+    }
+    YogaCalculator.YogaCategory.DHANA_YOGA -> when (language) {
+        Language.ENGLISH -> "Dhana Yoga"
+        Language.NEPALI -> "धन योग"
+    }
+    YogaCalculator.YogaCategory.MAHAPURUSHA_YOGA -> when (language) {
+        Language.ENGLISH -> "Mahapurusha Yoga"
+        Language.NEPALI -> "महापुरुष योग"
+    }
+    YogaCalculator.YogaCategory.NABHASA_YOGA -> when (language) {
+        Language.ENGLISH -> "Nabhasa Yoga"
+        Language.NEPALI -> "नाभस योग"
+    }
+    YogaCalculator.YogaCategory.CHANDRA_YOGA -> when (language) {
+        Language.ENGLISH -> "Chandra Yoga"
+        Language.NEPALI -> "चन्द्र योग"
+    }
+    YogaCalculator.YogaCategory.SOLAR_YOGA -> when (language) {
+        Language.ENGLISH -> "Solar Yoga"
+        Language.NEPALI -> "सूर्य योग"
+    }
+    YogaCalculator.YogaCategory.NEGATIVE_YOGA -> when (language) {
+        Language.ENGLISH -> "Negative Yoga"
+        Language.NEPALI -> "नकारात्मक योग"
+    }
+    YogaCalculator.YogaCategory.SPECIAL_YOGA -> when (language) {
+        Language.ENGLISH -> "Special Yoga"
+        Language.NEPALI -> "विशेष योग"
+    }
 }
 
 private fun getCategoryColor(category: YogaCalculator.YogaCategory): Color = when (category) {
@@ -606,4 +643,56 @@ private fun getCategoryColor(category: YogaCalculator.YogaCategory): Color = whe
     YogaCalculator.YogaCategory.SOLAR_YOGA -> ChartDetailColors.AccentOrange
     YogaCalculator.YogaCategory.NEGATIVE_YOGA -> ChartDetailColors.ErrorColor
     YogaCalculator.YogaCategory.SPECIAL_YOGA -> ChartDetailColors.AccentRose
+}
+
+private fun formatNumber(number: Int, language: Language): String {
+    return when (language) {
+        Language.ENGLISH -> number.toString()
+        Language.NEPALI -> {
+            val nepaliDigits = charArrayOf('०', '१', '२', '३', '४', '५', '६', '७', '८', '९')
+            number.toString().map { char ->
+                if (char.isDigit()) nepaliDigits[char.digitToInt()] else char
+            }.joinToString("")
+        }
+    }
+}
+
+private fun formatPercentage(value: Double, language: Language): String {
+    val formatted = String.format("%.1f", value)
+    return when (language) {
+        Language.ENGLISH -> "$formatted%"
+        Language.NEPALI -> {
+            val nepaliDigits = charArrayOf('०', '१', '२', '३', '४', '५', '६', '७', '८', '९')
+            val nepaliNumber = formatted.map { char ->
+                when {
+                    char.isDigit() -> nepaliDigits[char.digitToInt()]
+                    else -> char
+                }
+            }.joinToString("")
+            "$nepaliNumber%"
+        }
+    }
+}
+
+private fun getLocalizedStrength(strength: YogaCalculator.YogaStrength, language: Language): String = when (strength) {
+    YogaCalculator.YogaStrength.EXTREMELY_STRONG -> when (language) {
+        Language.ENGLISH -> "Extremely Strong"
+        Language.NEPALI -> "अत्यन्त बलियो"
+    }
+    YogaCalculator.YogaStrength.STRONG -> when (language) {
+        Language.ENGLISH -> "Strong"
+        Language.NEPALI -> "बलियो"
+    }
+    YogaCalculator.YogaStrength.MODERATE -> when (language) {
+        Language.ENGLISH -> "Moderate"
+        Language.NEPALI -> "मध्यम"
+    }
+    YogaCalculator.YogaStrength.WEAK -> when (language) {
+        Language.ENGLISH -> "Weak"
+        Language.NEPALI -> "कमजोर"
+    }
+    YogaCalculator.YogaStrength.VERY_WEAK -> when (language) {
+        Language.ENGLISH -> "Very Weak"
+        Language.NEPALI -> "धेरै कमजोर"
+    }
 }

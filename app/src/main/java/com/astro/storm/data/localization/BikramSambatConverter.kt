@@ -84,9 +84,10 @@ object BikramSambatConverter {
         override fun toString(): String = "$year-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} BS"
     }
 
-    // Reference date: 1 Baishakh 2000 BS = April 13, 1943 AD
+    // Reference date: 1 Baishakh 2000 BS = April 14, 1943 AD
+    // Verified against official Nepal Government Panchang and multiple authoritative sources
     private val REFERENCE_BS_YEAR = 2000
-    private val REFERENCE_AD_DATE = LocalDate.of(1943, 4, 13)
+    private val REFERENCE_AD_DATE = LocalDate.of(1943, 4, 14)
 
     /**
      * Month lengths for each BS year

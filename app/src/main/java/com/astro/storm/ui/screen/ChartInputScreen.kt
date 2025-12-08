@@ -90,6 +90,8 @@ fun ChartInputScreen(
     var showDatePicker by remember { mutableStateOf(false) }
     var showBSDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
+    // Allow users to select which date picker to use (independent of global setting)
+    var useBSPicker by remember { mutableStateOf(dateSystem == DateSystem.BS) }
     var showTimezoneDropdown by remember { mutableStateOf(false) }
     var showErrorDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
@@ -198,10 +200,10 @@ fun ChartInputScreen(
                 selectedTimezone = selectedTimezone,
                 timezones = timezones,
                 showTimezoneDropdown = showTimezoneDropdown,
-                dateSystem = dateSystem,
+                useBSPicker = useBSPicker,
                 language = language,
                 onShowDatePicker = {
-                    if (dateSystem == DateSystem.BS) {
+                    if (useBSPicker) {
                         showBSDatePicker = true
                     } else {
                         showDatePicker = true
@@ -212,7 +214,8 @@ fun ChartInputScreen(
                 onTimezoneSelected = {
                     selectedTimezone = it
                     showTimezoneDropdown = false
-                }
+                },
+                onToggleDateSystem = { useBSPicker = !useBSPicker }
             )
 
             Spacer(modifier = Modifier.height(28.dp))
@@ -450,16 +453,17 @@ private fun DateTimeSection(
     selectedTimezone: String,
     timezones: List<String>,
     showTimezoneDropdown: Boolean,
-    dateSystem: DateSystem,
+    useBSPicker: Boolean,
     language: Language,
     onShowDatePicker: () -> Unit,
     onShowTimePicker: () -> Unit,
     onTimezoneDropdownChange: (Boolean) -> Unit,
-    onTimezoneSelected: (String) -> Unit
+    onTimezoneSelected: (String) -> Unit,
+    onToggleDateSystem: () -> Unit
 ) {
-    // Format date based on selected date system
-    val dateDisplayText = remember(selectedDate, dateSystem, language) {
-        if (dateSystem == DateSystem.BS) {
+    // Format date based on selected picker type
+    val dateDisplayText = remember(selectedDate, useBSPicker, language) {
+        if (useBSPicker) {
             BikramSambatConverter.toBS(selectedDate)?.format(language)
                 ?: selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
         } else {
@@ -471,7 +475,21 @@ private fun DateTimeSection(
     val selectTimeText = stringResource(StringKey.INPUT_SELECT_TIME)
 
     Column {
-        SectionTitle(stringResource(StringKey.INPUT_DATE_TIME))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SectionTitle(stringResource(StringKey.INPUT_DATE_TIME))
+
+            // Date System Toggle (AD / BS)
+            DateSystemToggle(
+                useBSPicker = useBSPicker,
+                language = language,
+                onToggle = onToggleDateSystem
+            )
+        }
+
         Spacer(modifier = Modifier.height(12.dp))
 
         Row(
@@ -532,6 +550,67 @@ private fun DateTimeSection(
                         colors = MenuDefaults.itemColors(textColor = ChartInputTheme.TextPrimary)
                     )
                 }
+            }
+        }
+    }
+}
+
+/**
+ * Toggle component for switching between AD and BS date input
+ */
+@Composable
+private fun DateSystemToggle(
+    useBSPicker: Boolean,
+    language: Language,
+    onToggle: () -> Unit
+) {
+    val adLabel = when (language) {
+        Language.ENGLISH -> "AD"
+        Language.NEPALI -> "ई.सं."
+    }
+    val bsLabel = when (language) {
+        Language.ENGLISH -> "BS"
+        Language.NEPALI -> "वि.सं."
+    }
+
+    Surface(
+        onClick = onToggle,
+        shape = RoundedCornerShape(16.dp),
+        color = ChartInputTheme.ChipBackground,
+        border = BorderStroke(1.dp, ChartInputTheme.BorderColor)
+    ) {
+        Row(
+            modifier = Modifier.padding(2.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // AD option
+            Surface(
+                shape = RoundedCornerShape(14.dp),
+                color = if (!useBSPicker) ChartInputTheme.AccentColor else Color.Transparent,
+                modifier = Modifier.padding(1.dp)
+            ) {
+                Text(
+                    text = adLabel,
+                    fontSize = 12.sp,
+                    fontWeight = if (!useBSPicker) FontWeight.SemiBold else FontWeight.Normal,
+                    color = if (!useBSPicker) ChartInputTheme.ButtonText else ChartInputTheme.TextSecondary,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                )
+            }
+
+            // BS option
+            Surface(
+                shape = RoundedCornerShape(14.dp),
+                color = if (useBSPicker) ChartInputTheme.AccentColor else Color.Transparent,
+                modifier = Modifier.padding(1.dp)
+            ) {
+                Text(
+                    text = bsLabel,
+                    fontSize = 12.sp,
+                    fontWeight = if (useBSPicker) FontWeight.SemiBold else FontWeight.Normal,
+                    color = if (useBSPicker) ChartInputTheme.ButtonText else ChartInputTheme.TextSecondary,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                )
             }
         }
     }

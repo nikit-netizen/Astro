@@ -1,5 +1,6 @@
 package com.astro.storm.ui.components
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -7,6 +8,9 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,6 +40,8 @@ import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Today
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -57,6 +63,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -79,7 +87,9 @@ import java.time.LocalDate
  * - Year, Month, Day selection with localized labels
  * - Dynamic month lengths based on actual BS calendar data
  * - Responsive grid layout for day selection
- * - Animated transitions
+ * - Animated transitions with haptic feedback
+ * - Quick navigation arrows for month/year
+ * - Today button for quick selection
  * - Support for both English and Nepali display
  */
 @Composable
@@ -91,6 +101,8 @@ fun BSDatePickerDialog(
     maxYear: Int = BikramSambatConverter.maxBSYear
 ) {
     val language = LocalLanguage.current
+    val haptic = LocalHapticFeedback.current
+    val todayBS = remember { BikramSambatConverter.today() }
 
     var selectedYear by remember { mutableIntStateOf(initialDate.year.coerceIn(minYear, maxYear)) }
     var selectedMonth by remember { mutableIntStateOf(initialDate.month) }
@@ -108,20 +120,82 @@ fun BSDatePickerDialog(
         }
     }
 
+    // Navigation functions
+    fun goToPreviousMonth() {
+        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        if (selectedMonth > 1) {
+            selectedMonth--
+        } else if (selectedYear > minYear) {
+            selectedYear--
+            selectedMonth = 12
+        }
+    }
+
+    fun goToNextMonth() {
+        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        if (selectedMonth < 12) {
+            selectedMonth++
+        } else if (selectedYear < maxYear) {
+            selectedYear++
+            selectedMonth = 1
+        }
+    }
+
+    fun goToToday() {
+        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        selectedYear = todayBS.year
+        selectedMonth = todayBS.month
+        selectedDay = todayBS.day
+    }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = AppTheme.CardBackground,
         titleContentColor = AppTheme.TextPrimary,
         title = {
-            Text(
-                text = stringResource(StringKey.BS_DATE_PICKER_TITLE),
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 18.sp
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(StringKey.BS_DATE_PICKER_TITLE),
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 18.sp
+                )
+                // Today button
+                Surface(
+                    onClick = { goToToday() },
+                    shape = RoundedCornerShape(8.dp),
+                    color = AppTheme.AccentPrimary.copy(alpha = 0.1f)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Today,
+                            contentDescription = null,
+                            tint = AppTheme.AccentPrimary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = when (language) {
+                                Language.ENGLISH -> "Today"
+                                Language.NEPALI -> "आज"
+                            },
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = AppTheme.AccentPrimary
+                        )
+                    }
+                }
+            }
         },
         text = {
             Column {
-                // Current selection display
+                // Current selection display with animation
                 SelectedDateDisplay(
                     year = selectedYear,
                     month = selectedMonth,
@@ -133,6 +207,19 @@ fun BSDatePickerDialog(
                 HorizontalDivider(color = AppTheme.DividerColor)
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Month/Year navigation with arrows
+                MonthYearNavigator(
+                    selectedYear = selectedYear,
+                    selectedMonth = selectedMonth,
+                    language = language,
+                    onPreviousMonth = { goToPreviousMonth() },
+                    onNextMonth = { goToNextMonth() },
+                    canGoPrevious = selectedYear > minYear || selectedMonth > 1,
+                    canGoNext = selectedYear < maxYear || selectedMonth < 12
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
                 // Year and Month selectors in a row
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -141,7 +228,10 @@ fun BSDatePickerDialog(
                     // Year selector
                     YearSelector(
                         selectedYear = selectedYear,
-                        onYearChange = { selectedYear = it },
+                        onYearChange = {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            selectedYear = it
+                        },
                         minYear = minYear,
                         maxYear = maxYear,
                         language = language,
@@ -151,7 +241,10 @@ fun BSDatePickerDialog(
                     // Month selector
                     MonthSelector(
                         selectedMonth = selectedMonth,
-                        onMonthChange = { selectedMonth = it },
+                        onMonthChange = {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            selectedMonth = it
+                        },
                         language = language,
                         modifier = Modifier.weight(1.2f)
                     )
@@ -159,18 +252,23 @@ fun BSDatePickerDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Day grid
+                // Day grid with animations
                 DayGrid(
                     selectedDay = selectedDay,
                     daysInMonth = daysInMonth,
-                    onDaySelected = { selectedDay = it },
-                    language = language
+                    onDaySelected = {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        selectedDay = it
+                    },
+                    language = language,
+                    todayDay = if (selectedYear == todayBS.year && selectedMonth == todayBS.month) todayBS.day else null
                 )
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     onConfirm(BSDate(selectedYear, selectedMonth, selectedDay))
                 }
             ) {
@@ -191,6 +289,77 @@ fun BSDatePickerDialog(
         },
         shape = RoundedCornerShape(20.dp)
     )
+}
+
+/**
+ * Month/Year Navigator with arrows for quick navigation
+ */
+@Composable
+private fun MonthYearNavigator(
+    selectedYear: Int,
+    selectedMonth: Int,
+    language: Language,
+    onPreviousMonth: () -> Unit,
+    onNextMonth: () -> Unit,
+    canGoPrevious: Boolean,
+    canGoNext: Boolean
+) {
+    val bsMonth = BSMonth.fromIndex(selectedMonth)
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(
+            onClick = onPreviousMonth,
+            enabled = canGoPrevious,
+            modifier = Modifier.size(36.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.ChevronLeft,
+                contentDescription = when (language) {
+                    Language.ENGLISH -> "Previous month"
+                    Language.NEPALI -> "अघिल्लो महिना"
+                },
+                tint = if (canGoPrevious) AppTheme.TextPrimary else AppTheme.TextMuted
+            )
+        }
+
+        AnimatedContent(
+            targetState = Pair(selectedYear, selectedMonth),
+            transitionSpec = {
+                (slideInHorizontally { width -> width } + fadeIn()) togetherWith
+                        (slideOutHorizontally { width -> -width } + fadeOut())
+            },
+            label = "month_year_animation"
+        ) { (year, _) ->
+            Text(
+                text = when (language) {
+                    Language.ENGLISH -> "${bsMonth.englishName} $year"
+                    Language.NEPALI -> "${bsMonth.nepaliName} ${BikramSambatConverter.toNepaliNumerals(year)}"
+                },
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = AppTheme.TextPrimary
+            )
+        }
+
+        IconButton(
+            onClick = onNextMonth,
+            enabled = canGoNext,
+            modifier = Modifier.size(36.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = when (language) {
+                    Language.ENGLISH -> "Next month"
+                    Language.NEPALI -> "अर्को महिना"
+                },
+                tint = if (canGoNext) AppTheme.TextPrimary else AppTheme.TextMuted
+            )
+        }
+    }
 }
 
 @Composable
@@ -428,7 +597,8 @@ private fun DayGrid(
     selectedDay: Int,
     daysInMonth: Int,
     onDaySelected: (Int) -> Unit,
-    language: Language
+    language: Language,
+    todayDay: Int? = null
 ) {
     Column {
         Text(
@@ -437,6 +607,29 @@ private fun DayGrid(
             color = AppTheme.TextMuted,
             modifier = Modifier.padding(bottom = 8.dp)
         )
+
+        // Weekday headers
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            val weekdays = when (language) {
+                Language.ENGLISH -> listOf("Su", "Mo", "Tu", "We", "Th", "Fr", "Sa")
+                Language.NEPALI -> listOf("आ", "सो", "मं", "बु", "बि", "शु", "श")
+            }
+            weekdays.forEach { day ->
+                Text(
+                    text = day,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = AppTheme.TextMuted,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.width(36.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
@@ -449,6 +642,7 @@ private fun DayGrid(
                 DayCell(
                     day = day,
                     isSelected = day == selectedDay,
+                    isToday = day == todayDay,
                     onClick = { onDaySelected(day) },
                     language = language
                 )
@@ -461,6 +655,7 @@ private fun DayGrid(
 private fun DayCell(
     day: Int,
     isSelected: Boolean,
+    isToday: Boolean = false,
     onClick: () -> Unit,
     language: Language
 ) {
@@ -469,27 +664,51 @@ private fun DayCell(
         Language.NEPALI -> BikramSambatConverter.toNepaliNumerals(day)
     }
 
+    val backgroundColor = when {
+        isSelected -> AppTheme.AccentPrimary
+        else -> AppTheme.ChipBackground.copy(alpha = 0.5f)
+    }
+
+    val borderColor = when {
+        isSelected -> AppTheme.AccentPrimary
+        isToday -> AppTheme.AccentPrimary
+        else -> AppTheme.DividerColor
+    }
+
+    val borderWidth = when {
+        isSelected -> 0.dp
+        isToday -> 2.dp
+        else -> 1.dp
+    }
+
+    val textColor = when {
+        isSelected -> AppTheme.ButtonText
+        isToday -> AppTheme.AccentPrimary
+        else -> AppTheme.TextPrimary
+    }
+
     Box(
         modifier = Modifier
             .size(36.dp)
             .clip(CircleShape)
-            .background(
-                if (isSelected) AppTheme.AccentPrimary
-                else AppTheme.ChipBackground.copy(alpha = 0.5f)
-            )
+            .background(backgroundColor)
             .border(
-                width = if (isSelected) 0.dp else 1.dp,
-                color = if (isSelected) AppTheme.AccentPrimary else AppTheme.DividerColor,
+                width = borderWidth,
+                color = borderColor,
                 shape = CircleShape
             )
-            .clickable(onClick = onClick),
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = rememberRipple(bounded = true, radius = 18.dp),
+                onClick = onClick
+            ),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = displayDay,
             style = MaterialTheme.typography.bodySmall,
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-            color = if (isSelected) AppTheme.ButtonText else AppTheme.TextPrimary,
+            fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Normal,
+            color = textColor,
             textAlign = TextAlign.Center,
             fontSize = 12.sp
         )

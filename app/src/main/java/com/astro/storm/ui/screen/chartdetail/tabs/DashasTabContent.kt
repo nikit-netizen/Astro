@@ -70,22 +70,27 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.astro.storm.data.localization.BikramSambatConverter
+import com.astro.storm.data.localization.DateFormat
+import com.astro.storm.data.localization.DateSystem
+import com.astro.storm.data.localization.Language
+import com.astro.storm.data.localization.LocalDateSystem
+import com.astro.storm.data.localization.LocalLanguage
+import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.formatDate
+import com.astro.storm.data.localization.formatDateRange
+import com.astro.storm.data.localization.formatDurationYearsMonths
+import com.astro.storm.data.localization.formatLocalized
+import com.astro.storm.data.localization.formatRemainingDuration
+import com.astro.storm.data.localization.getLocalizedName
+import com.astro.storm.data.localization.stringResource
 import com.astro.storm.data.model.Planet
 import com.astro.storm.ephemeris.DashaCalculator
 import com.astro.storm.ui.screen.chartdetail.ChartDetailColors
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.Locale
-
-private val DATE_FORMATTER_FULL: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.ENGLISH)
-private val DATE_FORMATTER_MONTH_YEAR: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("MMM yyyy", Locale.ENGLISH)
-private val DATE_FORMATTER_YEAR: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("yyyy", Locale.ENGLISH)
 
 @Immutable
 private data class VimshottariPeriod(
@@ -226,6 +231,9 @@ private fun CurrentPeriodCard(timeline: DashaCalculator.DashaTimeline) {
     val currentPranadasha = timeline.currentPranadasha
     val currentDehadasha = timeline.currentDehadasha
 
+    val language = LocalLanguage.current
+    val dateSystem = LocalDateSystem.current
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -267,7 +275,7 @@ private fun CurrentPeriodCard(timeline: DashaCalculator.DashaTimeline) {
                 Spacer(modifier = Modifier.width(14.dp))
                 Column {
                     Text(
-                        text = "Current Dasha Period",
+                        text = stringResource(StringKey.DASHA_CURRENT_DASHA_PERIOD),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = ChartDetailColors.TextPrimary,
@@ -275,7 +283,7 @@ private fun CurrentPeriodCard(timeline: DashaCalculator.DashaTimeline) {
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = timeline.getShortDescription(),
+                        text = getLocalizedShortDescription(timeline, language),
                         fontSize = 12.sp,
                         color = ChartDetailColors.TextMuted,
                         fontWeight = FontWeight.Medium
@@ -378,6 +386,7 @@ private fun CurrentPeriodCard(timeline: DashaCalculator.DashaTimeline) {
 
 @Composable
 private fun BirthNakshatraInfo(timeline: DashaCalculator.DashaTimeline) {
+    val language = LocalLanguage.current
     val nakshatraLordColor = ChartDetailColors.getPlanetColor(timeline.birthNakshatraLord)
 
     Surface(
@@ -415,7 +424,7 @@ private fun BirthNakshatraInfo(timeline: DashaCalculator.DashaTimeline) {
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Birth Nakshatra",
+                    text = stringResource(StringKey.DASHA_BIRTH_NAKSHATRA),
                     fontSize = 11.sp,
                     color = ChartDetailColors.TextMuted,
                     fontWeight = FontWeight.Medium,
@@ -423,7 +432,7 @@ private fun BirthNakshatraInfo(timeline: DashaCalculator.DashaTimeline) {
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = "${timeline.birthNakshatra.displayName} (Pada ${timeline.birthNakshatraPada})",
+                    text = "${timeline.birthNakshatra.getLocalizedName(language)} (${stringResource(StringKey.DASHA_PADA)} ${formatNumber(timeline.birthNakshatraPada, language)})",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = ChartDetailColors.TextPrimary
@@ -432,14 +441,14 @@ private fun BirthNakshatraInfo(timeline: DashaCalculator.DashaTimeline) {
 
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "Lord",
+                    text = stringResource(StringKey.DASHA_LORD),
                     fontSize = 11.sp,
                     color = ChartDetailColors.TextMuted,
                     fontWeight = FontWeight.Medium
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = timeline.birthNakshatraLord.displayName,
+                    text = timeline.birthNakshatraLord.getLocalizedName(language),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = nakshatraLordColor
@@ -650,7 +659,7 @@ private fun SandhiAlertRow(
                         daysUntil == 0L -> "Today"
                         daysUntil == 1L -> "Tomorrow"
                         isImminent -> "In $daysUntil days"
-                        else -> sandhi.transitionDate.format(DATE_FORMATTER_MONTH_YEAR)
+                        else -> formatDate(sandhi.transitionDate, LocalDateSystem.current, LocalLanguage.current, DateFormat.MONTH_YEAR)
                     },
                     fontSize = 12.sp,
                     fontWeight = if (isWithinSandhi || isImminent) FontWeight.Bold else FontWeight.Normal,
@@ -663,7 +672,7 @@ private fun SandhiAlertRow(
                 if (!isWithinSandhi && daysUntil > 0) {
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "${sandhi.sandhiStartDate.format(DATE_FORMATTER_MONTH_YEAR)} – ${sandhi.sandhiEndDate.format(DATE_FORMATTER_MONTH_YEAR)}",
+                        text = "${formatDate(sandhi.sandhiStartDate, LocalDateSystem.current, LocalLanguage.current, DateFormat.MONTH_YEAR)} – ${formatDate(sandhi.sandhiEndDate, LocalDateSystem.current, LocalLanguage.current, DateFormat.MONTH_YEAR)}",
                         fontSize = 10.sp,
                         color = ChartDetailColors.TextMuted.copy(alpha = 0.8f)
                     )
@@ -710,15 +719,22 @@ private fun DashaPeriodRow(
     remainingText: String,
     level: DashaLevel
 ) {
+    val language = LocalLanguage.current
+    val dateSystem = LocalDateSystem.current
     val planetColor = ChartDetailColors.getPlanetColor(planet)
     val sizes = getDashaSizes(level)
     val clampedProgress = progress.coerceIn(0f, 1f)
+
+    // Format dates according to current date system
+    val startDateFormatted = startDate.formatLocalized(DateFormat.FULL)
+    val endDateFormatted = endDate.formatLocalized(DateFormat.FULL)
+    val percentComplete = formatNumber((clampedProgress * 100).toInt(), language)
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .semantics {
-                contentDescription = "$label: ${planet.displayName}, ${(clampedProgress * 100).toInt()} percent complete"
+                contentDescription = "$label: ${planet.getLocalizedName(language)}, $percentComplete percent complete"
             },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -756,7 +772,7 @@ private fun DashaPeriodRow(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = planet.displayName,
+                        text = planet.getLocalizedName(language),
                         fontSize = sizes.mainFontSize,
                         fontWeight = when (level) {
                             DashaLevel.MAHADASHA -> FontWeight.Bold
@@ -768,7 +784,7 @@ private fun DashaPeriodRow(
                 }
                 Spacer(modifier = Modifier.height(3.dp))
                 Text(
-                    text = "${startDate.format(DATE_FORMATTER_FULL)} – ${endDate.format(DATE_FORMATTER_FULL)}",
+                    text = "$startDateFormatted – $endDateFormatted",
                     fontSize = (sizes.subFontSize.value - 1).sp,
                     color = ChartDetailColors.TextMuted,
                     maxLines = 1,
@@ -798,7 +814,7 @@ private fun DashaPeriodRow(
             modifier = Modifier.width(70.dp)
         ) {
             Text(
-                text = "${(clampedProgress * 100).toInt()}%",
+                text = "$percentComplete%",
                 fontSize = sizes.subFontSize,
                 fontWeight = FontWeight.Bold,
                 color = planetColor
@@ -1064,7 +1080,7 @@ private fun DashaTimelineCard(timeline: DashaCalculator.DashaTimeline) {
                         )
 
                         Text(
-                            text = "${dasha.startDate.format(DATE_FORMATTER_YEAR)} – ${dasha.endDate.format(DATE_FORMATTER_YEAR)}",
+                            text = "${formatDate(dasha.startDate, LocalDateSystem.current, LocalLanguage.current, DateFormat.YEAR_ONLY)} – ${formatDate(dasha.endDate, LocalDateSystem.current, LocalLanguage.current, DateFormat.YEAR_ONLY)}",
                             fontSize = 12.sp,
                             color = if (isCurrent) ChartDetailColors.TextPrimary else ChartDetailColors.TextMuted,
                             modifier = Modifier.weight(1f)
@@ -1194,7 +1210,7 @@ private fun MahadashaCard(
                         }
                         Spacer(modifier = Modifier.height(3.dp))
                         Text(
-                            text = "${formatDurationYears(mahadasha.durationYears)} • ${mahadasha.startDate.format(DATE_FORMATTER_FULL)} – ${mahadasha.endDate.format(DATE_FORMATTER_FULL)}",
+                            text = "${formatDurationYears(mahadasha.durationYears)} • ${formatDate(mahadasha.startDate, LocalDateSystem.current, LocalLanguage.current, DateFormat.FULL)} – ${formatDate(mahadasha.endDate, LocalDateSystem.current, LocalLanguage.current, DateFormat.FULL)}",
                             fontSize = 11.sp,
                             color = ChartDetailColors.TextMuted,
                             maxLines = 1,
@@ -1203,7 +1219,7 @@ private fun MahadashaCard(
                         if (isCurrentMahadasha) {
                             Spacer(modifier = Modifier.height(3.dp))
                             Text(
-                                text = "${String.format(Locale.ENGLISH, "%.1f", mahadasha.getProgressPercent())}% complete • ${formatRemainingYears(mahadasha.getRemainingYears())}",
+                                text = "${String.format(java.util.Locale.ENGLISH, "%.1f", mahadasha.getProgressPercent())}% complete • ${formatRemainingYears(mahadasha.getRemainingYears())}",
                                 fontSize = 10.sp,
                                 color = ChartDetailColors.AccentTeal,
                                 fontWeight = FontWeight.Medium
@@ -1339,7 +1355,7 @@ private fun AntardashaRow(
                     if (isCurrent) {
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "${String.format(Locale.ENGLISH, "%.0f", antardasha.getProgressPercent())}%",
+                            text = "${String.format(java.util.Locale.ENGLISH, "%.0f", antardasha.getProgressPercent())}%",
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             color = planetColor.copy(alpha = 0.9f)
@@ -1363,7 +1379,7 @@ private fun AntardashaRow(
 
         Column(horizontalAlignment = Alignment.End) {
             Text(
-                text = "${antardasha.startDate.format(DATE_FORMATTER_MONTH_YEAR)} – ${antardasha.endDate.format(DATE_FORMATTER_MONTH_YEAR)}",
+                text = "${formatDate(antardasha.startDate, LocalDateSystem.current, LocalLanguage.current, DateFormat.MONTH_YEAR)} – ${formatDate(antardasha.endDate, LocalDateSystem.current, LocalLanguage.current, DateFormat.MONTH_YEAR)}",
                 fontSize = 11.sp,
                 color = ChartDetailColors.TextMuted
             )
@@ -1692,4 +1708,214 @@ private fun getAntardashaInterpretation(planet: Planet): String = when (planet) 
     Planet.KETU -> "Current sub-period brings spiritual insights, detachment, introspection, research, and resolution of past karmic patterns. Material concerns recede."
 
     else -> "Current sub-period brings mixed planetary influences requiring careful navigation."
+}
+
+// ============================================
+// LOCALIZATION HELPER FUNCTIONS
+// ============================================
+
+/**
+ * Format a number according to the current language
+ */
+private fun formatNumber(number: Int, language: Language): String {
+    return when (language) {
+        Language.ENGLISH -> number.toString()
+        Language.NEPALI -> BikramSambatConverter.toNepaliNumerals(number)
+    }
+}
+
+/**
+ * Get localized short description for the dasha timeline
+ */
+private fun getLocalizedShortDescription(
+    timeline: DashaCalculator.DashaTimeline,
+    language: Language
+): String {
+    val mahadasha = timeline.currentMahadasha
+    val antardasha = timeline.currentAntardasha
+
+    return if (mahadasha != null && antardasha != null) {
+        "${mahadasha.planet.getLocalizedName(language)}-${antardasha.planet.getLocalizedName(language)}"
+    } else if (mahadasha != null) {
+        mahadasha.planet.getLocalizedName(language)
+    } else {
+        ""
+    }
+}
+
+/**
+ * Get localized dasha level name
+ */
+private fun getDashaLevelName(level: DashaCalculator.DashaLevel, language: Language): String {
+    return when (level) {
+        DashaCalculator.DashaLevel.MAHADASHA -> when (language) {
+            Language.ENGLISH -> "Mahadasha"
+            Language.NEPALI -> "महादशा"
+        }
+        DashaCalculator.DashaLevel.ANTARDASHA -> when (language) {
+            Language.ENGLISH -> "Antardasha"
+            Language.NEPALI -> "अन्तर्दशा"
+        }
+        DashaCalculator.DashaLevel.PRATYANTARDASHA -> when (language) {
+            Language.ENGLISH -> "Pratyantardasha"
+            Language.NEPALI -> "प्रत्यन्तर्दशा"
+        }
+        DashaCalculator.DashaLevel.SOOKSHMADASHA -> when (language) {
+            Language.ENGLISH -> "Sookshmadasha"
+            Language.NEPALI -> "सूक्ष्मदशा"
+        }
+        DashaCalculator.DashaLevel.PRANADASHA -> when (language) {
+            Language.ENGLISH -> "Pranadasha"
+            Language.NEPALI -> "प्राणदशा"
+        }
+        DashaCalculator.DashaLevel.DEHADASHA -> when (language) {
+            Language.ENGLISH -> "Dehadasha"
+            Language.NEPALI -> "देहदशा"
+        }
+    }
+}
+
+/**
+ * Format localized remaining years string
+ */
+private fun formatRemainingYearsLocalized(years: Double, language: Language): String {
+    if (years <= 0) return ""
+    val wholeYears = years.toInt()
+    val remainingMonths = ((years - wholeYears) * 12).toInt()
+
+    return when (language) {
+        Language.ENGLISH -> when {
+            wholeYears > 0 && remainingMonths > 0 -> "${wholeYears}y ${remainingMonths}m remaining"
+            wholeYears > 0 -> "${wholeYears}y remaining"
+            remainingMonths > 0 -> "${remainingMonths}m remaining"
+            else -> ""
+        }
+        Language.NEPALI -> when {
+            wholeYears > 0 && remainingMonths > 0 -> "${BikramSambatConverter.toNepaliNumerals(wholeYears)} वर्ष ${BikramSambatConverter.toNepaliNumerals(remainingMonths)} महिना बाँकी"
+            wholeYears > 0 -> "${BikramSambatConverter.toNepaliNumerals(wholeYears)} वर्ष बाँकी"
+            remainingMonths > 0 -> "${BikramSambatConverter.toNepaliNumerals(remainingMonths)} महिना बाँकी"
+            else -> ""
+        }
+    }
+}
+
+/**
+ * Format localized remaining days string
+ */
+private fun formatRemainingDaysLocalized(days: Long, language: Language): String {
+    if (days <= 0) return ""
+    val months = days / 30
+    val remainingDays = days % 30
+
+    return when (language) {
+        Language.ENGLISH -> when {
+            months > 0 && remainingDays > 0 -> "${months}m ${remainingDays}d remaining"
+            months > 0 -> "${months}m remaining"
+            else -> "${remainingDays}d remaining"
+        }
+        Language.NEPALI -> when {
+            months > 0 && remainingDays > 0 -> "${BikramSambatConverter.toNepaliNumerals(months.toInt())} महिना ${BikramSambatConverter.toNepaliNumerals(remainingDays.toInt())} दिन बाँकी"
+            months > 0 -> "${BikramSambatConverter.toNepaliNumerals(months.toInt())} महिना बाँकी"
+            else -> "${BikramSambatConverter.toNepaliNumerals(remainingDays.toInt())} दिन बाँकी"
+        }
+    }
+}
+
+/**
+ * Format localized time remaining (for pratyantardasha level)
+ */
+private fun formatRemainingTimeLocalized(today: LocalDate, endDate: LocalDate, language: Language): String {
+    if (!endDate.isAfter(today)) return ""
+    val totalDays = ChronoUnit.DAYS.between(today, endDate)
+    val years = totalDays / 365
+    val remainingDaysAfterYears = totalDays % 365
+    val months = remainingDaysAfterYears / 30
+    val days = remainingDaysAfterYears % 30
+
+    return when (language) {
+        Language.ENGLISH -> when {
+            years > 0 -> "${years}y ${months}m remaining"
+            months > 0 -> "${months}m ${days}d remaining"
+            else -> "${days}d remaining"
+        }
+        Language.NEPALI -> when {
+            years > 0 -> "${BikramSambatConverter.toNepaliNumerals(years.toInt())} वर्ष ${BikramSambatConverter.toNepaliNumerals(months.toInt())} महिना बाँकी"
+            months > 0 -> "${BikramSambatConverter.toNepaliNumerals(months.toInt())} महिना ${BikramSambatConverter.toNepaliNumerals(days.toInt())} दिन बाँकी"
+            else -> "${BikramSambatConverter.toNepaliNumerals(days.toInt())} दिन बाँकी"
+        }
+    }
+}
+
+/**
+ * Format duration in years and months (localized)
+ */
+private fun formatDurationYearsLocalized(years: Double, language: Language): String {
+    val wholeYears = years.toInt()
+    val months = ((years - wholeYears) * 12).toInt()
+
+    return when (language) {
+        Language.ENGLISH -> when {
+            months > 0 -> "${wholeYears}y ${months}m"
+            else -> "$wholeYears yrs"
+        }
+        Language.NEPALI -> when {
+            months > 0 -> "${BikramSambatConverter.toNepaliNumerals(wholeYears)} वर्ष ${BikramSambatConverter.toNepaliNumerals(months)} महिना"
+            else -> "${BikramSambatConverter.toNepaliNumerals(wholeYears)} वर्ष"
+        }
+    }
+}
+
+/**
+ * Format pranadasha duration
+ */
+private fun formatPranadashaDurationLocalized(durationMinutes: Long, language: Language): String {
+    if (durationMinutes <= 0) return ""
+    val hours = durationMinutes / 60
+    val mins = durationMinutes % 60
+
+    return when (language) {
+        Language.ENGLISH -> when {
+            hours >= 24 -> {
+                val days = hours / 24
+                val remainingHours = hours % 24
+                if (remainingHours > 0) "${days}d ${remainingHours}h" else "${days}d"
+            }
+            hours > 0 && mins > 0 -> "${hours}h ${mins}m"
+            hours > 0 -> "${hours}h"
+            else -> "${mins}m"
+        }
+        Language.NEPALI -> when {
+            hours >= 24 -> {
+                val days = hours / 24
+                val remainingHours = hours % 24
+                if (remainingHours > 0) "${BikramSambatConverter.toNepaliNumerals(days.toInt())} दिन ${BikramSambatConverter.toNepaliNumerals(remainingHours.toInt())} घण्टा"
+                else "${BikramSambatConverter.toNepaliNumerals(days.toInt())} दिन"
+            }
+            hours > 0 && mins > 0 -> "${BikramSambatConverter.toNepaliNumerals(hours.toInt())} घण्टा ${BikramSambatConverter.toNepaliNumerals(mins.toInt())} मिनेट"
+            hours > 0 -> "${BikramSambatConverter.toNepaliNumerals(hours.toInt())} घण्टा"
+            else -> "${BikramSambatConverter.toNepaliNumerals(mins.toInt())} मिनेट"
+        }
+    }
+}
+
+/**
+ * Format dehadasha duration
+ */
+private fun formatDehadashaDurationLocalized(durationMinutes: Long, language: Language): String {
+    if (durationMinutes <= 0) return ""
+    val hours = durationMinutes / 60
+    val mins = durationMinutes % 60
+
+    return when (language) {
+        Language.ENGLISH -> when {
+            hours > 0 && mins > 0 -> "${hours}h ${mins}m"
+            hours > 0 -> "${hours}h"
+            else -> "${mins}m"
+        }
+        Language.NEPALI -> when {
+            hours > 0 && mins > 0 -> "${BikramSambatConverter.toNepaliNumerals(hours.toInt())} घण्टा ${BikramSambatConverter.toNepaliNumerals(mins.toInt())} मिनेट"
+            hours > 0 -> "${BikramSambatConverter.toNepaliNumerals(hours.toInt())} घण्टा"
+            else -> "${BikramSambatConverter.toNepaliNumerals(mins.toInt())} मिनेट"
+        }
+    }
 }
