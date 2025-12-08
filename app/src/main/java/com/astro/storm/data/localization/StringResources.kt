@@ -1369,35 +1369,25 @@ enum class StringKey(val en: String, val ne: String) {
     // ============================================
     // MUHURTA SCREEN SPECIFIC
     // ============================================
-    MUHURTA_TITLE("Muhurta", "मुहूर्त"),
-    MUHURTA_TODAY_PANCHANGA("Today's Panchanga", "आजको पञ्चाङ्ग"),
-    MUHURTA_DAILY_TIMINGS("Daily Muhurta Timings", "दैनिक मुहूर्त समय"),
-    MUHURTA_FIND_AUSPICIOUS("Find Auspicious Muhurta", "शुभ मुहूर्त खोज्नुहोस्"),
     MUHURTA_CHOGHADIYA("Choghadiya", "चौघडिया"),
     MUHURTA_RAHU_KAAL("Rahu Kaal", "राहुकाल"),
     MUHURTA_YAMA_GHANTAKA("Yama Ghantaka", "यम घण्टक"),
     MUHURTA_GULIKA_KAAL("Gulika Kaal", "गुलिका काल"),
     MUHURTA_ABHIJIT("Abhijit Muhurta", "अभिजित मुहूर्त"),
     MUHURTA_BRAHMA("Brahma Muhurta", "ब्रह्म मुहूर्त"),
-    MUHURTA_SELECT_EVENT("Select Event Type", "कार्यक्रम प्रकार चयन गर्नुहोस्"),
     MUHURTA_SELECT_DATE("Select Date", "मिति चयन गर्नुहोस्"),
     MUHURTA_SEARCH_RESULTS("Search Results", "खोज परिणामहरू"),
-    MUHURTA_NO_RESULTS("No auspicious muhurta found for selected criteria", "चयन गरिएको मापदण्डको लागि कुनै शुभ मुहूर्त फेला परेन"),
 
     // ============================================
     // VARSHAPHALA SCREEN SPECIFIC
     // ============================================
     VARSHAPHALA_TITLE("Varshaphala", "वर्षफल"),
     VARSHAPHALA_ANNUAL_CHART("Annual Chart", "वार्षिक चार्ट"),
-    VARSHAPHALA_YEAR_LORD("Year Lord", "वर्षेश"),
-    VARSHAPHALA_MUNTHA("Muntha", "मुन्था"),
     VARSHAPHALA_SAHAMS("Sahams", "सहमहरू"),
     VARSHAPHALA_TAJIKA("Tajika Aspects", "ताजिक दृष्टि"),
     VARSHAPHALA_YOGAS("Tajika Yogas", "ताजिक योग"),
     VARSHAPHALA_PREDICTIONS("Year Predictions", "वर्ष भविष्यवाणी"),
     VARSHAPHALA_SELECT_YEAR("Select Year", "वर्ष चयन गर्नुहोस्"),
-    VARSHAPHALA_SOLAR_RETURN("Solar Return", "सौर प्रत्यागमन"),
-    VARSHAPHALA_AGE("Annual Horoscope • Age %d", "वार्षिक कुण्डली • उमेर %d"),
     VARSHAPHALA_YEAR_OF_LIFE("Year %d of life", "जीवनको वर्ष %d"),
 
     // ============================================
