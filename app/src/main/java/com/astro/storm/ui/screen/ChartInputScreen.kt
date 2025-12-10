@@ -40,6 +40,7 @@ import com.astro.storm.data.model.BirthData
 import com.astro.storm.data.model.Gender
 import com.astro.storm.ui.components.BSDatePickerDialog
 import com.astro.storm.ui.components.LocationSearchField
+import com.astro.storm.ui.components.TimezoneSelector
 import com.astro.storm.ui.viewmodel.ChartUiState
 import com.astro.storm.ui.viewmodel.ChartViewModel
 import java.time.LocalDate
@@ -47,7 +48,6 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.TimeZone
 
 private object ChartInputTheme {
     val ScreenBackground = Color(0xFF1C1410)
@@ -92,7 +92,6 @@ fun ChartInputScreen(
     var showTimePicker by remember { mutableStateOf(false) }
     // Allow users to select which date picker to use (independent of global setting)
     var useBSPicker by remember { mutableStateOf(dateSystem == DateSystem.BS) }
-    var showTimezoneDropdown by remember { mutableStateOf(false) }
     var showErrorDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var errorKey by remember { mutableStateOf<StringKey?>(null) }
@@ -111,18 +110,6 @@ fun ChartInputScreen(
     val longitudeFocusRequester = remember { FocusRequester() }
     val altitudeFocusRequester = remember { FocusRequester() }
 
-    val timezones = remember {
-        val common = listOf(
-            "Asia/Kathmandu", "Asia/Kolkata", "Asia/Dubai", "Asia/Singapore",
-            "Asia/Tokyo", "Asia/Shanghai", "Asia/Hong_Kong", "Europe/London",
-            "Europe/Paris", "Europe/Berlin", "America/New_York", "America/Los_Angeles",
-            "America/Chicago", "America/Denver", "Australia/Sydney", "Pacific/Auckland"
-        )
-        val all = TimeZone.getAvailableIDs()
-            .filter { it.contains("/") && !it.startsWith("Etc/") && !it.startsWith("SystemV/") }
-            .sorted()
-        (common + all).distinct()
-    }
 
     LaunchedEffect(Unit) {
         viewModel.resetState()
@@ -198,8 +185,6 @@ fun ChartInputScreen(
                 selectedDate = selectedDate,
                 selectedTime = selectedTime,
                 selectedTimezone = selectedTimezone,
-                timezones = timezones,
-                showTimezoneDropdown = showTimezoneDropdown,
                 useBSPicker = useBSPicker,
                 language = language,
                 onShowDatePicker = {
@@ -210,11 +195,7 @@ fun ChartInputScreen(
                     }
                 },
                 onShowTimePicker = { showTimePicker = true },
-                onTimezoneDropdownChange = { showTimezoneDropdown = it },
-                onTimezoneSelected = {
-                    selectedTimezone = it
-                    showTimezoneDropdown = false
-                },
+                onTimezoneSelected = { selectedTimezone = it },
                 onToggleDateSystem = { useBSPicker = !useBSPicker }
             )
 
@@ -445,19 +426,15 @@ private fun IdentitySection(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DateTimeSection(
     selectedDate: LocalDate,
     selectedTime: LocalTime,
     selectedTimezone: String,
-    timezones: List<String>,
-    showTimezoneDropdown: Boolean,
     useBSPicker: Boolean,
     language: Language,
     onShowDatePicker: () -> Unit,
     onShowTimePicker: () -> Unit,
-    onTimezoneDropdownChange: (Boolean) -> Unit,
     onTimezoneSelected: (String) -> Unit,
     onToggleDateSystem: () -> Unit
 ) {
@@ -512,46 +489,11 @@ private fun DateTimeSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        ExposedDropdownMenuBox(
-            expanded = showTimezoneDropdown,
-            onExpandedChange = onTimezoneDropdownChange
-        ) {
-            OutlinedTextField(
-                value = selectedTimezone,
-                onValueChange = {},
-                readOnly = true,
-                label = {
-                    Text(stringResource(StringKey.INPUT_TIMEZONE), color = ChartInputTheme.TextSecondary, fontSize = 14.sp)
-                },
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = showTimezoneDropdown)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(),
-                shape = RoundedCornerShape(12.dp),
-                colors = chartTextFieldColors(),
-                textStyle = LocalTextStyle.current.copy(fontSize = 16.sp)
-            )
-
-            ExposedDropdownMenu(
-                expanded = showTimezoneDropdown,
-                onDismissRequest = { onTimezoneDropdownChange(false) },
-                modifier = Modifier
-                    .background(ChartInputTheme.CardBackground)
-                    .heightIn(max = 300.dp)
-            ) {
-                timezones.forEach { timezone ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(text = timezone, color = ChartInputTheme.TextPrimary, fontSize = 14.sp)
-                        },
-                        onClick = { onTimezoneSelected(timezone) },
-                        colors = MenuDefaults.itemColors(textColor = ChartInputTheme.TextPrimary)
-                    )
-                }
-            }
-        }
+        // Use the new searchable timezone selector
+        TimezoneSelector(
+            selectedTimezone = selectedTimezone,
+            onTimezoneSelected = onTimezoneSelected
+        )
     }
 }
 

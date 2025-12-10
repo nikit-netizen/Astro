@@ -1085,24 +1085,11 @@ enum class StringKey(val en: String, val ne: String) {
     DASHA_SUBTLE_PERIOD_DAYS("Subtle period (days)", "सूक्ष्म अवधि (दिन)"),
     DASHA_BREATH_PERIOD_HOURS("Breath period (hours)", "श्वास अवधि (घण्टा)"),
     DASHA_BODY_PERIOD_MINUTES("Body period (minutes)", "शरीर अवधि (मिनेट)"),
-    DASHA_BHUKTI("Bhukti", "भुक्ति"),
     DASHA_SANDHI_NOTE("Dasha Sandhi (junction periods) occur when transitioning between planetary periods and are considered sensitive times requiring careful attention.", "दशा सन्धि (जोड अवधिहरू) ग्रह अवधिहरूबीच सन्क्रमण हुँदा हुन्छ र यी संवेदनशील समयहरू मानिन्छन्।"),
     DASHA_PERCENT_COMPLETE("%s%% complete", "%s%% पूरा"),
     DASHA_YEARS_ABBR("yrs", "वर्ष"),
     DASHA_COLLAPSE("Collapse", "संकुचन गर्नुहोस्"),
     DASHA_EXPAND("Expand", "विस्तार गर्नुहोस्"),
-
-    // ============================================
-    // DASHA CALCULATOR - YOGINI DASHAS
-    // ============================================
-    YOGINI_MANGALA("Mangala", "मंगला"),
-    YOGINI_PINGALA("Pingala", "पिंगला"),
-    YOGINI_DHANYA("Dhanya", "धान्य"),
-    YOGINI_BHRAMARI("Bhramari", "भ्रामरी"),
-    YOGINI_BHADRIKA("Bhadrika", "भद्रिका"),
-    YOGINI_ULKA("Ulka", "उल्का"),
-    YOGINI_SIDDHA("Siddha", "सिद्धा"),
-    YOGINI_SANKATA("Sankata", "संकटा"),
 
     // ============================================
     // ASHTAKAVARGA CALCULATOR - STRENGTH LEVELS
@@ -1125,47 +1112,6 @@ enum class StringKey(val en: String, val ne: String) {
     ASPECT_NATURE_CHALLENGING("Challenging", "चुनौतीपूर्ण"),
     ASPECT_NATURE_VARIABLE("Variable", "परिवर्तनशील"),
     ASPECT_NATURE_SIGNIFICANT("Significant", "महत्त्वपूर्ण"),
-
-    // ============================================
-    // DIVISIONAL CHARTS - DESCRIPTIONS
-    // ============================================
-    VARGA_D1_DESC("Physical Body, General Life", "शारीरिक शरीर, सामान्य जीवन"),
-    VARGA_D2_DESC("Wealth, Prosperity", "धन, समृद्धि"),
-    VARGA_D3_DESC("Siblings, Courage", "भाइबहिनी, साहस"),
-    VARGA_D4_DESC("Fortune, Property", "भाग्य, सम्पत्ति"),
-    VARGA_D7_DESC("Children, Progeny", "सन्तान"),
-    VARGA_D9_DESC("Spouse, Dharma", "जीवनसाथी, धर्म"),
-    VARGA_D10_DESC("Career, Status", "क्यारियर, स्थिति"),
-    VARGA_D12_DESC("Parents, Heritage", "आमाबुबा, विरासत"),
-    VARGA_D16_DESC("Vehicles, Happiness", "सवारी, खुशी"),
-    VARGA_D20_DESC("Spiritual Progress", "आध्यात्मिक प्रगति"),
-    VARGA_D24_DESC("Education, Learning", "शिक्षा, सिकाइ"),
-    VARGA_D27_DESC("Strength, Stamina", "बल, सहनशक्ति"),
-    VARGA_D30_DESC("Misfortunes, Troubles", "दुर्भाग्य, समस्याहरू"),
-    VARGA_D40_DESC("Maternal Legacy", "मातृ विरासत"),
-    VARGA_D45_DESC("Paternal Legacy", "पैतृक विरासत"),
-    VARGA_D60_DESC("Past Life Karma", "पूर्वजन्मको कर्म"),
-
-    // ============================================
-    // HOROSCOPE CALCULATOR - LIFE AREAS
-    // ============================================
-    HORO_CAREER("Career", "क्यारियर"),
-    HORO_LOVE("Love & Relationships", "प्रेम र सम्बन्ध"),
-    HORO_HEALTH("Health & Vitality", "स्वास्थ्य र जीवनशक्ति"),
-    HORO_FINANCE("Finance & Wealth", "वित्त र धन"),
-    HORO_FAMILY("Family & Home", "परिवार र घर"),
-    HORO_SPIRITUALITY("Spiritual Growth", "आध्यात्मिक वृद्धि"),
-
-    // ============================================
-    // HOROSCOPE CALCULATOR - THEMES
-    // ============================================
-    THEME_BALANCE("Balance", "सन्तुलन"),
-    THEME_DYNAMIC_ACTION("Dynamic Action", "गतिशील कार्य"),
-    THEME_PRACTICAL_PROGRESS("Practical Progress", "व्यावहारिक प्रगति"),
-    THEME_SOCIAL_CONNECTIONS("Social Connections", "सामाजिक सम्बन्धहरू"),
-    THEME_EMOTIONAL_INSIGHT("Emotional Insight", "भावनात्मक अन्तर्दृष्टि"),
-    THEME_SELF_EXPRESSION("Self-Expression", "आत्म-अभिव्यक्ति"),
-    THEME_TRANSFORMATION("Transformation", "रूपान्तरण"),
 
     // ============================================
     // COLORS (FOR HOROSCOPE)
@@ -3037,11 +2983,6 @@ enum class StringKey(val en: String, val ne: String) {
     NAKSHATRA_NATURE_MOVABLE("Movable (Chara)", "चर"),
     NAKSHATRA_NATURE_LIGHT("Light (Laghu)", "लघु"),
 
-    // Gana types
-    GANA_DEVA("Deva (Divine)", "देव"),
-    GANA_MANUSHYA("Manushya (Human)", "मनुष्य"),
-    GANA_RAKSHASA("Rakshasa (Demon)", "राक्षस"),
-
     // Guna types
     GUNA_RAJAS("Rajas", "रजस्"),
     GUNA_TAMAS("Tamas", "तमस्"),
@@ -3087,18 +3028,15 @@ enum class StringKey(val en: String, val ne: String) {
     // ============================================
     // HOROSCOPE CALCULATOR (Life Areas & Themes)
     // ============================================
-    LIFE_AREA_CAREER("Career", "क्यारियर"),
-    LIFE_AREA_LOVE("Love & Relationships", "प्रेम र सम्बन्धहरू"),
-    LIFE_AREA_HEALTH("Health & Vitality", "स्वास्थ्य र जीवनशक्ति"),
-    LIFE_AREA_FINANCE("Finance & Wealth", "वित्त र धन"),
-    LIFE_AREA_FAMILY("Family & Home", "परिवार र घर"),
     LIFE_AREA_SPIRITUAL("Spiritual Growth", "आध्यात्मिक वृद्धि"),
 
     // Weekly Themes
+    THEME_BALANCE("Balance", "सन्तुलन"),
     THEME_DYNAMIC_ACTION("Dynamic Action", "गतिशील कार्य"),
     THEME_PRACTICAL_PROGRESS("Practical Progress", "व्यावहारिक प्रगति"),
-    THEME_SOCIAL_CONNECTIONS("Social Connections", "सामाजिक सम्पर्कहरू"),
+    THEME_SOCIAL_CONNECTIONS("Social Connections", "सामाजिक सम्बन्धहरू"),
     THEME_EMOTIONAL_INSIGHT("Emotional Insight", "भावनात्मक अन्तर्दृष्टि"),
+    THEME_SELF_EXPRESSION("Self-Expression", "आत्म-अभिव्यक्ति"),
     THEME_TRANSFORMATION("Transformation", "रूपान्तरण"),
     THEME_SPIRITUAL_LIBERATION("Spiritual Liberation", "आध्यात्मिक मुक्ति"),
 
@@ -3119,88 +3057,19 @@ enum class StringKey(val en: String, val ne: String) {
     TIME_EVENING("Evening hours", "साँझको समय"),
 
     // ============================================
-    // MATCHMAKING CALCULATOR
+    // MATCHMAKING CALCULATOR (Additional Vashya types)
     // ============================================
-    // Varna
-    VARNA_BRAHMIN("Brahmin", "ब्राह्मण"),
-    VARNA_KSHATRIYA("Kshatriya", "क्षत्रिय"),
-    VARNA_VAISHYA("Vaishya", "वैश्य"),
-    VARNA_SHUDRA("Shudra", "शूद्र"),
-
-    // Vashya
     VASHYA_QUADRUPED("Quadruped", "चतुष्पाद"),
     VASHYA_HUMAN("Human", "मनुष्य"),
     VASHYA_AQUATIC("Aquatic", "जलचर"),
     VASHYA_WILD("Wild", "वन्य"),
     VASHYA_INSECT("Insect", "कीट"),
 
-    // Gana descriptions
-    GANA_DEVA_DESC("Divine - Sattvik, gentle, spiritual", "दैवी - सात्त्विक, सौम्य, आध्यात्मिक"),
-    GANA_MANUSHYA_DESC("Human - Rajasik, balanced, worldly", "मानवीय - राजसिक, सन्तुलित, सांसारिक"),
-    GANA_RAKSHASA_DESC("Demon - Tamasik, aggressive, dominant", "राक्षसी - तामसिक, आक्रामक, प्रभुत्वशाली"),
-
-    // Yoni Animals
-    YONI_HORSE("Horse", "घोडा"),
-    YONI_ELEPHANT("Elephant", "हात्ती"),
-    YONI_SHEEP("Sheep", "भेडा"),
-    YONI_SERPENT("Serpent", "सर्प"),
-    YONI_DOG("Dog", "कुकुर"),
-    YONI_CAT("Cat", "बिरालो"),
-    YONI_RAT("Rat", "मुसो"),
-    YONI_COW("Cow", "गाई"),
-    YONI_BUFFALO("Buffalo", "भैंसी"),
-    YONI_TIGER("Tiger", "बाघ"),
-    YONI_DEER("Deer", "मृग"),
-    YONI_MONKEY("Monkey", "बाँदर"),
-    YONI_MONGOOSE("Mongoose", "न्यौरीमुसो"),
-    YONI_LION("Lion", "सिंह"),
-
-    // Rajju
-    RAJJU_PADA("Pada Rajju (Feet)", "पाद रज्जु"),
-    RAJJU_KATI("Kati Rajju (Waist)", "कटि रज्जु"),
-    RAJJU_NABHI("Nabhi Rajju (Navel)", "नाभि रज्जु"),
-    RAJJU_KANTHA("Kantha Rajju (Neck)", "कण्ठ रज्जु"),
-    RAJJU_SIRO("Siro Rajju (Head)", "शिर रज्जु"),
-
-    // Manglik Dosha
-    MANGLIK_NONE("No Manglik Dosha", "मंगलिक दोष छैन"),
-    MANGLIK_PARTIAL("Partial Manglik", "आंशिक मंगलिक"),
-    MANGLIK_FULL("Full Manglik", "पूर्ण मंगलिक"),
-    MANGLIK_DOUBLE("Double Manglik (Severe)", "दोहोरो मंगलिक (गम्भीर)"),
-
-    // Nadi
-    NADI_ADI("Adi (Vata)", "आदि (वात)"),
-    NADI_ADI_DESC("Beginning - Wind element, nervous temperament, creative energy", "आरम्भ - वायु तत्त्व, स्नायविक स्वभाव, सिर्जनात्मक ऊर्जा"),
-    NADI_MADHYA("Madhya (Pitta)", "मध्य (पित्त)"),
-    NADI_MADHYA_DESC("Middle - Fire element, bilious temperament, leadership qualities", "मध्य - अग्नि तत्त्व, पित्त स्वभाव, नेतृत्व गुणहरू"),
-    NADI_ANTYA("Antya (Kapha)", "अन्त्य (कफ)"),
-    NADI_ANTYA_DESC("End - Water element, phlegmatic temperament, stable nature", "अन्त्य - जल तत्त्व, कफ स्वभाव, स्थिर प्रकृति"),
-
-    // Compatibility Ratings
-    COMPAT_EXCELLENT("Excellent Match", "उत्कृष्ट मिलान"),
-    COMPAT_EXCELLENT_DESC("Highly recommended for marriage. Strong compatibility across all factors with harmonious planetary alignments.", "विवाहको लागि अत्यधिक सिफारिस गरिएको। सबै कारकहरूमा बलियो अनुकूलता र सामञ्जस्यपूर्ण ग्रह स्थितिहरू।"),
-    COMPAT_GOOD("Good Match", "राम्रो मिलान"),
-    COMPAT_GOOD_DESC("Recommended. Good overall compatibility with minor differences that can be easily managed.", "सिफारिस गरिएको। सामान्य राम्रो अनुकूलता, सानातिना भिन्नताहरू सजिलै व्यवस्थापन गर्न सकिन्छ।"),
-    COMPAT_AVERAGE("Average Match", "औसत मिलान"),
-    COMPAT_AVERAGE_DESC("Acceptable with some remedies. Moderate compatibility requiring mutual understanding and effort.", "केही उपायहरूसँग स्वीकार्य। पारस्परिक समझ र प्रयासको आवश्यकता पर्ने मध्यम अनुकूलता।"),
+    // Compatibility ratings (additional)
     COMPAT_BELOW_AVG("Below Average", "औसतभन्दा कम"),
     COMPAT_BELOW_AVG_DESC("Caution advised. Several compatibility issues that need addressing through remedies and counseling.", "सावधानी सल्लाह दिइएको। उपाय र परामर्शबाट सम्बोधन गर्नुपर्ने धेरै अनुकूलता समस्याहरू।"),
-    COMPAT_POOR("Poor Match", "कमजोर मिलान"),
-    COMPAT_POOR_DESC("Not recommended. Significant compatibility challenges that may cause ongoing difficulties.", "सिफारिस गरिएको छैन। महत्त्वपूर्ण अनुकूलता चुनौतीहरू जसले निरन्तर कठिनाइहरू निम्त्याउन सक्छ।"),
 
-    // ============================================
-    // YOGINI DASHA NAMES
-    // ============================================
-    YOGINI_MANGALA("Mangala", "मंगला"),
-    YOGINI_PINGALA("Pingala", "पिङ्गला"),
-    YOGINI_DHANYA("Dhanya", "धान्या"),
-    YOGINI_BHRAMARI("Bhramari", "भ्रामरी"),
-    YOGINI_BHADRIKA("Bhadrika", "भद्रिका"),
-    YOGINI_ULKA("Ulka", "उल्का"),
-    YOGINI_SIDDHA("Siddha", "सिद्धा"),
-    YOGINI_SANKATA("Sankata", "सङ्कटा"),
-
-    // Yogini planet associations
+    // Yogini planet associations (additional)
     YOGINI_CHANDRA("Chandra (Moon)", "चन्द्र"),
     YOGINI_SURYA("Surya (Sun)", "सूर्य"),
     YOGINI_GURU("Guru (Jupiter)", "गुरु"),
@@ -3217,12 +3086,9 @@ enum class StringKey(val en: String, val ne: String) {
     REPORT_PLANETS_NEEDING_ATTENTION("PLANETS REQUIRING ATTENTION:", "ध्यान आवश्यक ग्रहहरू:"),
 
     // ============================================
-    // ERROR MESSAGES (For GeocodingService)
+    // ERROR MESSAGES (Additional for GeocodingService)
     // ============================================
-    ERROR_RATE_LIMIT("Rate limit exceeded. Please try again later.", "दर सीमा नाघ्यो। कृपया पछि फेरि प्रयास गर्नुहोस्।"),
     ERROR_QUERY_MIN_CHARS("Query must be at least 2 characters", "खोजी कम्तीमा २ वर्णको हुनुपर्छ"),
-    ERROR_LATITUDE_RANGE("Latitude must be between -90 and 90", "अक्षांश -९० र ९० बीचमा हुनुपर्छ"),
-    ERROR_LONGITUDE_RANGE("Longitude must be between -180 and 180", "देशान्तर -१८० र १८० बीचमा हुनुपर्छ"),
     ERROR_CONNECTION_TIMEOUT("Connection timeout. Please check your internet.", "जडान समय समाप्त। कृपया आफ्नो इन्टरनेट जाँच गर्नुहोस्।"),
     ERROR_NO_INTERNET("No internet connection.", "इन्टरनेट जडान छैन।"),
     ERROR_UNKNOWN("Unknown error", "अज्ञात त्रुटि"),
@@ -3310,7 +3176,40 @@ enum class StringKey(val en: String, val ne: String) {
 
     // Prashna terms
     PRASHNA_MOOK("Mook (Dumb) Prashna", "मूक प्रश्न"),
-    PRASHNA_ARUDHA("Arudha Lagna", "आरूढ लग्न");
+    PRASHNA_ARUDHA("Arudha Lagna", "आरूढ लग्न"),
+
+    // ============================================
+    // REMEDIES REPORT LABELS
+    // ============================================
+    REPORT_NAME_LABEL("Name:", "नाम:"),
+    REPORT_ASCENDANT_LABEL("Ascendant:", "लग्न:"),
+    REPORT_MANTRA_LABEL("Mantra:", "मन्त्र:"),
+
+    // ============================================
+    // PLANET LIFE AREAS (For remedies)
+    // ============================================
+    PLANET_LIFE_AREA_SUN("authority, career, government favor, father's health, self-confidence", "अधिकार, करियर, सरकारी कृपा, बुबाको स्वास्थ्य, आत्मविश्वास"),
+    PLANET_LIFE_AREA_MOON("mental peace, mother's health, emotional stability, public relations", "मानसिक शान्ति, आमाको स्वास्थ्य, भावनात्मक स्थिरता, जनसम्पर्क"),
+    PLANET_LIFE_AREA_MARS("courage, siblings, property matters, physical strength, competition", "साहस, भाइबहिनी, सम्पत्ति मामिला, शारीरिक शक्ति, प्रतिस्पर्धा"),
+    PLANET_LIFE_AREA_MERCURY("intellect, communication, business, education, nervous system", "बुद्धि, सञ्चार, व्यापार, शिक्षा, स्नायु प्रणाली"),
+    PLANET_LIFE_AREA_JUPITER("wisdom, children, wealth, spirituality, teachers, dharma", "ज्ञान, सन्तान, धन, आध्यात्मिकता, गुरु, धर्म"),
+    PLANET_LIFE_AREA_VENUS("marriage, love, luxury, art, vehicles, pleasure", "विवाह, प्रेम, विलासिता, कला, सवारी, आनन्द"),
+    PLANET_LIFE_AREA_SATURN("longevity, service, discipline, karma, delays, chronic issues", "दीर्घायु, सेवा, अनुशासन, कर्म, ढिलाइ, दीर्घकालीन समस्या"),
+    PLANET_LIFE_AREA_RAHU("foreign connections, unconventional success, material desires", "विदेशी सम्बन्ध, अपरम्परागत सफलता, भौतिक इच्छा"),
+    PLANET_LIFE_AREA_KETU("spirituality, liberation, past karma, psychic abilities", "आध्यात्मिकता, मोक्ष, पूर्व कर्म, मानसिक क्षमता"),
+
+    // ============================================
+    // PLANETARY WEEKDAYS
+    // ============================================
+    PLANET_DAY_SUN("Sunday", "आइतबार"),
+    PLANET_DAY_MOON("Monday", "सोमबार"),
+    PLANET_DAY_MARS("Tuesday", "मंगलबार"),
+    PLANET_DAY_MERCURY("Wednesday", "बुधबार"),
+    PLANET_DAY_JUPITER("Thursday", "बिहिबार"),
+    PLANET_DAY_VENUS("Friday", "शुक्रबार"),
+    PLANET_DAY_SATURN("Saturday", "शनिबार"),
+    PLANET_DAY_RAHU("Saturday", "शनिबार"),
+    PLANET_DAY_KETU("Tuesday", "मंगलबार");
 
     companion object {
         /**
