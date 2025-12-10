@@ -55,11 +55,9 @@ fun SettingsTab(
     onExportChart: (ExportFormat) -> Unit,
     onManageProfiles: () -> Unit
 ) {
-    val context = LocalContext.current
     val language = LocalLanguage.current
     val localizationManager = LocalLocalizationManager.current
     var showDeleteDialog by remember { mutableStateOf(false) }
-    var showExportDialog by remember { mutableStateOf(false) }
     var chartToDelete by remember { mutableStateOf<SavedChart?>(null) }
 
     LazyColumn(
@@ -75,10 +73,7 @@ fun SettingsTab(
 
         item {
             currentChart?.let { chart ->
-                CurrentProfileCard(
-                    chart = chart,
-                    onExport = { showExportDialog = true }
-                )
+                CurrentProfileCard(chart = chart)
             } ?: run {
                 EmptyProfileCard(onManageProfiles = onManageProfiles)
             }
@@ -102,7 +97,7 @@ fun SettingsTab(
             }
         }
 
-        // Export Section
+        // Export Section - Only PDF export is available
         if (currentChart != null) {
             item {
                 Spacer(modifier = Modifier.height(8.dp))
@@ -117,33 +112,6 @@ fun SettingsTab(
                     onClick = { onExportChart(ExportFormat.PDF) }
                 )
             }
-
-            item {
-                SettingsItem(
-                    icon = Icons.Outlined.Image,
-                    titleKey = StringKey.SETTINGS_EXPORT_IMAGE,
-                    subtitleKey = StringKey.SETTINGS_EXPORT_IMAGE_DESC,
-                    onClick = { onExportChart(ExportFormat.IMAGE) }
-                )
-            }
-
-            item {
-                SettingsItem(
-                    icon = Icons.Outlined.ContentCopy,
-                    titleKey = StringKey.SETTINGS_EXPORT_CLIPBOARD,
-                    subtitleKey = StringKey.SETTINGS_EXPORT_CLIPBOARD_DESC,
-                    onClick = { onExportChart(ExportFormat.CLIPBOARD) }
-                )
-            }
-
-            item {
-                SettingsItem(
-                    icon = Icons.Outlined.Code,
-                    titleKey = StringKey.SETTINGS_EXPORT_JSON,
-                    subtitleKey = StringKey.SETTINGS_EXPORT_JSON_DESC,
-                    onClick = { onExportChart(ExportFormat.JSON) }
-                )
-            }
         }
 
         // Preferences Section
@@ -156,9 +124,8 @@ fun SettingsTab(
             LanguageSetting(localizationManager = localizationManager)
         }
 
-        item {
-            DateSystemSetting(localizationManager = localizationManager)
-        }
+        // Note: Date system selector removed - it now automatically follows language
+        // English → AD, Nepali → BS
 
         item {
             HouseSystemSetting()
@@ -196,17 +163,6 @@ fun SettingsTab(
         item {
             AboutCard()
         }
-    }
-
-    // Export Dialog
-    if (showExportDialog && currentChart != null) {
-        ExportOptionsDialog(
-            onDismiss = { showExportDialog = false },
-            onExport = { format ->
-                onExportChart(format)
-                showExportDialog = false
-            }
-        )
     }
 
     // Delete Confirmation Dialog
@@ -253,8 +209,7 @@ private fun SettingsSectionHeader(titleKey: StringKey) {
 
 @Composable
 private fun CurrentProfileCard(
-    chart: VedicChart,
-    onExport: () -> Unit
+    chart: VedicChart
 ) {
     val language = LocalLanguage.current
     val dateSystem = LocalDateSystem.current
@@ -691,105 +646,6 @@ private fun LanguageSetting(localizationManager: LocalizationManager?) {
     }
 }
 
-/**
- * Date System Selection Setting (AD/BS)
- */
-@Composable
-private fun DateSystemSetting(localizationManager: LocalizationManager?) {
-    val language by localizationManager?.language?.collectAsState() ?: remember { mutableStateOf(Language.DEFAULT) }
-    val currentDateSystem by localizationManager?.dateSystem?.collectAsState() ?: remember { mutableStateOf(DateSystem.DEFAULT) }
-    var expanded by remember { mutableStateOf(false) }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = AppTheme.CardBackground),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Column {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { expanded = !expanded }
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(AppTheme.ChipBackground),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.CalendarMonth,
-                        contentDescription = null,
-                        tint = AppTheme.AccentPrimary,
-                        modifier = Modifier.size(22.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(StringKey.SETTINGS_DATE_SYSTEM),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium,
-                        color = AppTheme.TextPrimary
-                    )
-                    Text(
-                        text = currentDateSystem.getDisplayName(language),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = AppTheme.AccentPrimary
-                    )
-                }
-
-                Icon(
-                    imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = null,
-                    tint = AppTheme.TextMuted
-                )
-            }
-
-            if (expanded) {
-                HorizontalDivider(color = AppTheme.DividerColor)
-
-                DateSystem.entries.forEach { dateSystem ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                localizationManager?.setDateSystem(dateSystem)
-                                expanded = false
-                            }
-                            .padding(horizontal = 16.dp, vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = dateSystem == currentDateSystem,
-                            onClick = {
-                                localizationManager?.setDateSystem(dateSystem)
-                                expanded = false
-                            },
-                            colors = RadioButtonDefaults.colors(
-                                selectedColor = AppTheme.AccentPrimary,
-                                unselectedColor = AppTheme.TextMuted
-                            )
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = dateSystem.getDisplayName(language),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = if (dateSystem == currentDateSystem) AppTheme.TextPrimary else AppTheme.TextSecondary
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
 
 @Composable
 private fun AyanamsaSetting() {
@@ -962,74 +818,24 @@ private fun FeatureBadge(textKey: StringKey) {
     }
 }
 
-@Composable
-private fun ExportOptionsDialog(
-    onDismiss: () -> Unit,
-    onExport: (ExportFormat) -> Unit
-) {
-    val language = LocalLanguage.current
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = AppTheme.CardBackground,
-        titleContentColor = AppTheme.TextPrimary,
-        title = {
-            Text(
-                text = stringResource(StringKey.DIALOG_EXPORT_CHART),
-                fontWeight = FontWeight.SemiBold
-            )
-        },
-        text = {
-            Column {
-                ExportFormat.entries.forEach { format ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onExport(format) }
-                            .padding(vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = format.icon,
-                            contentDescription = null,
-                            tint = AppTheme.AccentPrimary,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Column {
-                            Text(
-                                text = format.getLocalizedTitle(language),
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Medium,
-                                color = AppTheme.TextPrimary
-                            )
-                            Text(
-                                text = format.getLocalizedDescription(language),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = AppTheme.TextMuted
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(StringKey.BTN_CANCEL), color = AppTheme.AccentPrimary)
-            }
-        }
-    )
-}
 
+/**
+ * Export formats supported by AstroStorm
+ *
+ * Note: The Settings UI only exposes PDF export for user-facing functionality.
+ * Other formats (IMAGE, JSON, CSV, CLIPBOARD) are used internally by the app
+ * for programmatic export operations in Navigation.kt and ChartViewModel.
+ */
 enum class ExportFormat(
     val titleKey: StringKey,
     val descriptionKey: StringKey,
     val icon: ImageVector
 ) {
     PDF(StringKey.SETTINGS_EXPORT_PDF, StringKey.SETTINGS_EXPORT_PDF_DESC, Icons.Outlined.PictureAsPdf),
-    IMAGE(StringKey.SETTINGS_EXPORT_IMAGE, StringKey.SETTINGS_EXPORT_IMAGE_DESC, Icons.Outlined.Image),
-    JSON(StringKey.SETTINGS_EXPORT_JSON, StringKey.SETTINGS_EXPORT_JSON_DESC, Icons.Outlined.Code),
-    CSV(StringKey.SETTINGS_EXPORT_CSV, StringKey.SETTINGS_EXPORT_CSV_DESC, Icons.Outlined.TableChart),
-    CLIPBOARD(StringKey.SETTINGS_EXPORT_CLIPBOARD, StringKey.SETTINGS_EXPORT_CLIPBOARD_DESC, Icons.Outlined.ContentCopy);
+    IMAGE(StringKey.SETTINGS_EXPORT_PDF, StringKey.SETTINGS_EXPORT_PDF_DESC, Icons.Outlined.Image),
+    JSON(StringKey.SETTINGS_EXPORT_PDF, StringKey.SETTINGS_EXPORT_PDF_DESC, Icons.Outlined.Code),
+    CSV(StringKey.SETTINGS_EXPORT_PDF, StringKey.SETTINGS_EXPORT_PDF_DESC, Icons.Outlined.TableChart),
+    CLIPBOARD(StringKey.SETTINGS_EXPORT_PDF, StringKey.SETTINGS_EXPORT_PDF_DESC, Icons.Outlined.ContentCopy);
 
     fun getLocalizedTitle(language: Language): String = StringResources.get(titleKey, language)
     fun getLocalizedDescription(language: Language): String = StringResources.get(descriptionKey, language)
