@@ -9,6 +9,16 @@ import com.astro.storm.data.preferences.ThemeMode
 import com.astro.storm.ephemeris.YogaCalculator
 import com.astro.storm.ephemeris.RemediesCalculator
 import com.astro.storm.ephemeris.MatchmakingCalculator
+import com.astro.storm.ephemeris.Tithi
+import com.astro.storm.ephemeris.TithiGroup
+import com.astro.storm.ephemeris.Yoga
+import com.astro.storm.ephemeris.YogaNature
+import com.astro.storm.ephemeris.Karana
+import com.astro.storm.ephemeris.KaranaType
+import com.astro.storm.ephemeris.Vara
+import com.astro.storm.ephemeris.Paksha
+import com.astro.storm.ephemeris.StrengthRating
+import com.astro.storm.ephemeris.RetrogradeCombustionCalculator
 
 /**
  * Extension functions for localized display names of various enums
@@ -89,6 +99,119 @@ fun Nakshatra.getLocalizedName(language: Language): String {
         Nakshatra.PURVA_BHADRAPADA -> StringResources.get(StringKey.NAKSHATRA_PURVA_BHADRAPADA, language)
         Nakshatra.UTTARA_BHADRAPADA -> StringResources.get(StringKey.NAKSHATRA_UTTARA_BHADRAPADA, language)
         Nakshatra.REVATI -> StringResources.get(StringKey.NAKSHATRA_REVATI, language)
+    }
+}
+
+// ============================================
+// PANCHANGA EXTENSIONS
+// ============================================
+
+/**
+ * Get localized display name for Tithi
+ */
+fun Tithi.getLocalizedName(language: Language): String {
+    return when (language) {
+        Language.ENGLISH -> this.displayName
+        Language.NEPALI -> this.sanskrit
+    }
+}
+
+/**
+ * Get localized display name for TithiGroup
+ */
+fun TithiGroup.getLocalizedName(language: Language): String {
+    return when (language) {
+        Language.ENGLISH -> this.displayName
+        Language.NEPALI -> when (this) {
+            TithiGroup.NANDA -> "नन्दा"
+            TithiGroup.BHADRA -> "भद्रा"
+            TithiGroup.JAYA -> "जया"
+            TithiGroup.RIKTA -> "रिक्ता"
+            TithiGroup.PURNA -> "पूर्णा"
+        }
+    }
+}
+
+/**
+ * Get localized nature description for TithiGroup
+ */
+fun TithiGroup.getLocalizedNature(language: Language): String {
+    return when (language) {
+        Language.ENGLISH -> this.nature
+        Language.NEPALI -> when (this) {
+            TithiGroup.NANDA -> "आनन्दमय"
+            TithiGroup.BHADRA -> "शुभ"
+            TithiGroup.JAYA -> "विजयी"
+            TithiGroup.RIKTA -> "रिक्त"
+            TithiGroup.PURNA -> "पूर्ण"
+        }
+    }
+}
+
+/**
+ * Get localized display name for Yoga (Panchanga)
+ */
+fun Yoga.getLocalizedName(language: Language): String {
+    return when (language) {
+        Language.ENGLISH -> this.displayName
+        Language.NEPALI -> this.sanskrit
+    }
+}
+
+/**
+ * Get localized display name for YogaNature
+ */
+fun YogaNature.getLocalizedName(language: Language): String {
+    return when (language) {
+        Language.ENGLISH -> this.displayName
+        Language.NEPALI -> when (this) {
+            YogaNature.AUSPICIOUS -> "शुभ"
+            YogaNature.INAUSPICIOUS -> "अशुभ"
+            YogaNature.MIXED -> "मिश्रित"
+        }
+    }
+}
+
+/**
+ * Get localized display name for Karana
+ */
+fun Karana.getLocalizedName(language: Language): String {
+    return when (language) {
+        Language.ENGLISH -> this.displayName
+        Language.NEPALI -> this.sanskrit
+    }
+}
+
+/**
+ * Get localized display name for KaranaType
+ */
+fun KaranaType.getLocalizedName(language: Language): String {
+    return when (language) {
+        Language.ENGLISH -> this.displayName
+        Language.NEPALI -> when (this) {
+            KaranaType.FIXED -> "स्थिर"
+            KaranaType.MOVABLE -> "चर"
+        }
+    }
+}
+
+/**
+ * Get localized display name for Vara
+ */
+fun Vara.getLocalizedName(language: Language): String {
+    return when (language) {
+        Language.ENGLISH -> this.displayName
+        Language.NEPALI -> this.sanskrit
+    }
+}
+
+/**
+ * Get localized display name for Paksha
+ */
+fun Paksha.getLocalizedName(language: Language): String {
+    return when (language) {
+        Language.ENGLISH -> this.displayName
+        Language.NEPALI -> this.sanskrit
     }
 }
 
@@ -277,6 +400,36 @@ fun RemediesCalculator.PlanetaryStrength.getLocalizedName(language: Language): S
         RemediesCalculator.PlanetaryStrength.WEAK -> StringResources.get(StringKey.PLANETARY_STRENGTH_WEAK, language)
         RemediesCalculator.PlanetaryStrength.VERY_WEAK -> StringResources.get(StringKey.PLANETARY_STRENGTH_VERY_WEAK, language)
         RemediesCalculator.PlanetaryStrength.AFFLICTED -> StringResources.get(StringKey.PLANETARY_STRENGTH_AFFLICTED, language)
+    }
+}
+
+/**
+ * Get localized display name for Shadbala StrengthRating
+ */
+fun StrengthRating.getLocalizedName(language: Language): String {
+    return when (this) {
+        StrengthRating.EXTREMELY_WEAK -> StringResources.get(StringKey.SHADBALA_EXTREMELY_WEAK, language)
+        StrengthRating.WEAK -> StringResources.get(StringKey.SHADBALA_WEAK, language)
+        StrengthRating.BELOW_AVERAGE -> StringResources.get(StringKey.SHADBALA_BELOW_AVERAGE, language)
+        StrengthRating.AVERAGE -> StringResources.get(StringKey.SHADBALA_AVERAGE, language)
+        StrengthRating.ABOVE_AVERAGE -> StringResources.get(StringKey.SHADBALA_ABOVE_AVERAGE, language)
+        StrengthRating.STRONG -> StringResources.get(StringKey.SHADBALA_STRONG, language)
+        StrengthRating.VERY_STRONG -> StringResources.get(StringKey.SHADBALA_VERY_STRONG, language)
+        StrengthRating.EXTREMELY_STRONG -> StringResources.get(StringKey.SHADBALA_EXTREMELY_STRONG, language)
+    }
+}
+
+/**
+ * Get localized display name for CombustionStatus
+ */
+fun RetrogradeCombustionCalculator.CombustionStatus.getLocalizedName(language: Language): String {
+    return when (this) {
+        RetrogradeCombustionCalculator.CombustionStatus.NOT_COMBUST -> StringResources.get(StringKey.COMBUSTION_NOT_COMBUST, language)
+        RetrogradeCombustionCalculator.CombustionStatus.APPROACHING -> StringResources.get(StringKey.COMBUSTION_APPROACHING, language)
+        RetrogradeCombustionCalculator.CombustionStatus.COMBUST -> StringResources.get(StringKey.COMBUSTION_COMBUST, language)
+        RetrogradeCombustionCalculator.CombustionStatus.DEEP_COMBUST -> StringResources.get(StringKey.COMBUSTION_DEEP_COMBUST, language)
+        RetrogradeCombustionCalculator.CombustionStatus.CAZIMI -> StringResources.get(StringKey.COMBUSTION_CAZIMI, language)
+        RetrogradeCombustionCalculator.CombustionStatus.SEPARATING -> StringResources.get(StringKey.COMBUSTION_SEPARATING, language)
     }
 }
 

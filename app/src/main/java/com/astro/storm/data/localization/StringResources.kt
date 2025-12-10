@@ -1280,6 +1280,16 @@ enum class StringKey(val en: String, val ne: String) {
     PLANETARY_STRENGTH_VERY_WEAK("Very Weak", "धेरै कमजोर"),
     PLANETARY_STRENGTH_AFFLICTED("Afflicted", "पीडित"),
 
+    // Shadbala StrengthRating
+    SHADBALA_EXTREMELY_WEAK("Extremely Weak", "अत्यन्त कमजोर"),
+    SHADBALA_WEAK("Weak", "कमजोर"),
+    SHADBALA_BELOW_AVERAGE("Below Average", "औसतभन्दा तल"),
+    SHADBALA_AVERAGE("Average", "औसत"),
+    SHADBALA_ABOVE_AVERAGE("Above Average", "औसतभन्दा माथि"),
+    SHADBALA_STRONG("Strong", "बलियो"),
+    SHADBALA_VERY_STRONG("Very Strong", "धेरै बलियो"),
+    SHADBALA_EXTREMELY_STRONG("Extremely Strong", "अत्यन्त बलियो"),
+
     // ============================================
     // HOUSE SIGNIFICATIONS (Localized)
     // ============================================
@@ -1703,6 +1713,18 @@ enum class StringKey(val en: String, val ne: String) {
     PANCHANGA_VARA_DESC("Each day is ruled by a planet, influencing the day's energy and suitable activities.", "प्रत्येक दिन एक ग्रहले शासन गर्दछ, दिनको ऊर्जा र उपयुक्त गतिविधिहरूलाई प्रभाव पार्दछ।"),
     PANCHANGA_BIRTH_INSIGHT("The Panchanga at birth reveals the cosmic influences active at the moment of incarnation, providing insights into one's inherent nature, tendencies, and life patterns.", "जन्मको समयको पञ्चाङ्गले अवतारको क्षणमा सक्रिय ब्रह्माण्डीय प्रभावहरू प्रकट गर्दछ, व्यक्तिको स्वभाविक प्रकृति, प्रवृत्ति र जीवन ढाँचामा अन्तर्दृष्टि प्रदान गर्दछ।"),
 
+    // Panchanga Info Card Element Titles (with Sanskrit)
+    PANCHANGA_INFO_TITHI_TITLE("Tithi (तिथि)", "तिथि (तिथि)"),
+    PANCHANGA_INFO_NAKSHATRA_TITLE("Nakshatra (नक्षत्र)", "नक्षत्र (नक्षत्र)"),
+    PANCHANGA_INFO_YOGA_TITLE("Yoga (योग)", "योग (योग)"),
+    PANCHANGA_INFO_KARANA_TITLE("Karana (करण)", "करण (करण)"),
+    PANCHANGA_INFO_VARA_TITLE("Vara (वार)", "वार (वार)"),
+    PANCHANGA_INFO_TITHI_LABEL("Lunar Day", "चन्द्र दिन"),
+    PANCHANGA_INFO_NAKSHATRA_LABEL("Lunar Mansion", "चन्द्र नक्षत्र"),
+    PANCHANGA_INFO_YOGA_LABEL("Luni-Solar Combination", "चन्द्र-सूर्य संयोजन"),
+    PANCHANGA_INFO_KARANA_LABEL("Half Tithi", "अर्ध तिथि"),
+    PANCHANGA_INFO_VARA_LABEL("Weekday", "वार"),
+
     // Quality Indicators
     QUALITY_EXCELLENT("Excellent", "उत्कृष्ट"),
     QUALITY_GOOD("Good", "राम्रो"),
@@ -1778,6 +1800,12 @@ enum class StringKey(val en: String, val ne: String) {
     DIALOG_STATUS_CONDITIONS("Status & Conditions", "स्थिति र अवस्था"),
     DIALOG_DIGNITY("Dignity", "मर्यादा"),
     DIALOG_COMBUSTION("Combustion", "अस्त"),
+    COMBUSTION_NOT_COMBUST("Not Combust", "अस्त छैन"),
+    COMBUSTION_APPROACHING("Approaching Combustion", "अस्त नजिक"),
+    COMBUSTION_COMBUST("Combust", "अस्त"),
+    COMBUSTION_DEEP_COMBUST("Deep Combustion", "गहिरो अस्त"),
+    COMBUSTION_CAZIMI("Cazimi", "काजिमी"),
+    COMBUSTION_SEPARATING("Separating", "विभाजन"),
     DIALOG_PLANETARY_WAR("Planetary War", "ग्रहयुद्ध"),
     DIALOG_AT_WAR_WITH("At war with %s", "%s सँग युद्धमा"),
     DIALOG_INSIGHTS_PREDICTIONS("Insights & Predictions", "अन्तर्दृष्टि र भविष्यवाणी"),
@@ -2453,7 +2481,95 @@ enum class StringKey(val en: String, val ne: String) {
     MUNTHA_SUPPORT_EXCELLENT("excellent", "उत्कृष्ट"),
     MUNTHA_SUPPORT_FAVORABLE("favorable", "अनुकूल"),
     MUNTHA_SUPPORT_CHALLENGING("challenging but growth-oriented", "चुनौतीपूर्ण तर विकासोन्मुख"),
-    MUNTHA_SUPPORT_VARIABLE("variable", "परिवर्तनशील");
+    MUNTHA_SUPPORT_VARIABLE("variable", "परिवर्तनशील"),
+
+    // ============================================
+    // DASHA MAHADASHA INTERPRETATIONS
+    // ============================================
+    DASHA_INTERP_MAHADASHA_SUN(
+        "A period of heightened self-expression, authority, and recognition. Focus turns to career advancement, leadership roles, government dealings, and matters related to father. Soul purpose becomes clearer. Health of heart and vitality gains prominence. Good for developing confidence and establishing one's identity in the world.",
+        "आत्म-अभिव्यक्ति, अधिकार र मान्यताको उच्च अवधि। क्यारियर प्रगति, नेतृत्व भूमिका, सरकारी व्यवहार र बुबासँग सम्बन्धित मामिलाहरूमा ध्यान केन्द्रित हुन्छ। आत्माको उद्देश्य स्पष्ट हुन्छ। हृदय र जीवनशक्तिको स्वास्थ्यले प्रमुखता पाउँछ। आत्मविश्वास विकास गर्न र संसारमा आफ्नो पहिचान स्थापित गर्न राम्रो।"
+    ),
+    DASHA_INTERP_MAHADASHA_MOON(
+        "An emotionally rich and intuitive period emphasizing mental peace, nurturing, and receptivity. Focus on mother, home life, public image, travel across water, and emotional well-being. Creativity and imagination flourish. Memory and connection to the past strengthen. Relationships with women and the public become significant.",
+        "भावनात्मक रूपले समृद्ध र अन्तर्ज्ञानात्मक अवधि जसले मानसिक शान्ति, पालनपोषण र ग्रहणशीलतामा जोड दिन्छ। आमा, घरेलु जीवन, सार्वजनिक छवि, पानी पार यात्रा र भावनात्मक कल्याणमा ध्यान केन्द्रित। सिर्जनशीलता र कल्पना फस्टाउँछ। स्मृति र भूतकालसँगको सम्बन्ध बलियो हुन्छ। महिलाहरू र जनतासँगको सम्बन्ध महत्त्वपूर्ण हुन्छ।"
+    ),
+    DASHA_INTERP_MAHADASHA_MARS(
+        "A period of heightened energy, courage, initiative, and competitive drive. Focus on property matters, real estate, siblings, technical and engineering pursuits, sports, and surgery. Decisive action is favored. Physical vitality increases. Good for tackling challenges requiring strength and determination.",
+        "ऊर्जा, साहस, पहल र प्रतिस्पर्धात्मक उत्प्रेरणाको उच्च अवधि। सम्पत्ति मामिला, घरजग्गा, भाइबहिनी, प्राविधिक र इन्जिनियरिङ, खेलकुद र शल्यक्रियामा ध्यान केन्द्रित। निर्णायक कार्यलाई प्राथमिकता दिइन्छ। शारीरिक जीवनशक्ति बढ्छ। बल र दृढ संकल्प चाहिने चुनौतीहरू सामना गर्न राम्रो।"
+    ),
+    DASHA_INTERP_MAHADASHA_MERCURY(
+        "A period of enhanced learning, communication, analytical thinking, and commerce. Focus on education, writing, publishing, accounting, trade, and intellectual pursuits. Social connections expand through skillful communication. Good for developing skills, starting businesses, and mastering information.",
+        "सिकाइ, सञ्चार, विश्लेषणात्मक सोच र वाणिज्यको उन्नत अवधि। शिक्षा, लेखन, प्रकाशन, लेखा, व्यापार र बौद्धिक खोजमा ध्यान केन्द्रित। दक्ष सञ्चार मार्फत सामाजिक सम्बन्ध विस्तार हुन्छ। सीप विकास, व्यवसाय सुरु गर्न र जानकारीमा दक्षता हासिल गर्न राम्रो।"
+    ),
+    DASHA_INTERP_MAHADASHA_JUPITER(
+        "A period of wisdom, expansion, prosperity, and divine grace (Guru's blessings). Focus on spirituality, higher learning, teaching, children, law, and philosophical pursuits. Fortune favors righteous endeavors. Faith and optimism increase. Excellent for marriage, progeny, and spiritual advancement.",
+        "बुद्धि, विस्तार, समृद्धि र दैवी कृपाको अवधि (गुरुको आशीर्वाद)। आध्यात्मिकता, उच्च शिक्षा, शिक्षण, सन्तान, कानुन र दार्शनिक खोजमा ध्यान केन्द्रित। भाग्यले धार्मिक प्रयासहरूलाई साथ दिन्छ। विश्वास र आशावाद बढ्छ। विवाह, सन्तान र आध्यात्मिक प्रगतिको लागि उत्कृष्ट।"
+    ),
+    DASHA_INTERP_MAHADASHA_VENUS(
+        "A period of luxury, beauty, relationships, artistic expression, and material comforts. Focus on marriage, partnerships, arts, music, dance, vehicles, jewelry, and sensory pleasures. Creativity and romance blossom. Refinement in all areas of life. Good for enhancing beauty, wealth, and experiencing life's pleasures.",
+        "विलासिता, सौन्दर्य, सम्बन्ध, कलात्मक अभिव्यक्ति र भौतिक सुविधाहरूको अवधि। विवाह, साझेदारी, कला, सङ्गीत, नृत्य, सवारीसाधन, गहना र इन्द्रिय आनन्दमा ध्यान केन्द्रित। सिर्जनशीलता र रोमान्स फस्टाउँछ। जीवनका सबै क्षेत्रमा परिष्करण। सौन्दर्य, सम्पत्ति बढाउन र जीवनका आनन्दहरू अनुभव गर्न राम्रो।"
+    ),
+    DASHA_INTERP_MAHADASHA_SATURN(
+        "A period of discipline, karmic lessons, perseverance, and structural growth. Focus on service, responsibility, hard work, long-term projects, and lessons through patience. Delays and obstacles ultimately lead to lasting success and maturity. Time to build solid foundations and pay karmic debts.",
+        "अनुशासन, कार्मिक पाठ, दृढता र संरचनात्मक विकासको अवधि। सेवा, जिम्मेवारी, कठिन परिश्रम, दीर्घकालीन परियोजना र धैर्य मार्फत पाठहरूमा ध्यान केन्द्रित। ढिलाइ र बाधाहरूले अन्ततः स्थायी सफलता र परिपक्वता ल्याउँछ। ठोस आधार निर्माण गर्ने र कार्मिक ऋण चुक्ता गर्ने समय।"
+    ),
+    DASHA_INTERP_MAHADASHA_RAHU(
+        "A period of intense worldly ambition, unconventional paths, and material desires. Focus on foreign connections, technology, innovation, and breaking traditional boundaries. Sudden opportunities and unexpected changes arise. Material gains through unusual or non-traditional means. Beware of illusions.",
+        "तीव्र सांसारिक महत्त्वाकांक्षा, अपरम्परागत मार्ग र भौतिक इच्छाको अवधि। विदेशी सम्बन्ध, प्रविधि, नवीनता र परम्परागत सीमाहरू तोड्नमा ध्यान केन्द्रित। अचानक अवसरहरू र अप्रत्याशित परिवर्तनहरू आउँछन्। असामान्य वा गैर-परम्परागत माध्यमबाट भौतिक लाभ। भ्रमबाट सावधान रहनुहोस्।"
+    ),
+    DASHA_INTERP_MAHADASHA_KETU(
+        "A period of spirituality, detachment, and profound inner transformation. Focus on liberation (moksha), occult research, healing practices, and resolving past-life karma. Deep introspection yields spiritual insights. Material attachments may dissolve. Excellent for meditation, research, and spiritual practices.",
+        "आध्यात्मिकता, वैराग्य र गहिरो आन्तरिक रूपान्तरणको अवधि। मुक्ति (मोक्ष), तान्त्रिक अनुसन्धान, उपचार अभ्यास र पूर्वजन्मको कर्म समाधानमा ध्यान केन्द्रित। गहिरो आत्मनिरीक्षणले आध्यात्मिक अन्तर्दृष्टि दिन्छ। भौतिक आसक्तिहरू विलीन हुन सक्छन्। ध्यान, अनुसन्धान र आध्यात्मिक अभ्यासको लागि उत्कृष्ट।"
+    ),
+    DASHA_INTERP_MAHADASHA_DEFAULT(
+        "A period of transformation and karmic unfolding according to planetary influences.",
+        "ग्रहीय प्रभाव अनुसार रूपान्तरण र कार्मिक विकासको अवधि।"
+    ),
+
+    // ============================================
+    // DASHA ANTARDASHA INTERPRETATIONS
+    // ============================================
+    DASHA_INTERP_ANTARDASHA_SUN(
+        "Current sub-period (Bhukti) activates themes of authority, self-confidence, recognition, and dealings with father figures or government. Leadership opportunities may arise.",
+        "हालको उप-अवधि (भुक्ति) ले अधिकार, आत्मविश्वास, मान्यता र बुबाका व्यक्ति वा सरकारसँगको व्यवहारका विषयहरू सक्रिय गर्छ। नेतृत्व अवसरहरू आउन सक्छन्।"
+    ),
+    DASHA_INTERP_ANTARDASHA_MOON(
+        "Current sub-period emphasizes emotional matters, mental peace, mother, public image, domestic affairs, and connection with women. Intuition heightens.",
+        "हालको उप-अवधिले भावनात्मक मामिला, मानसिक शान्ति, आमा, सार्वजनिक छवि, घरेलु मामिला र महिलाहरूसँगको सम्बन्धमा जोड दिन्छ। अन्तर्ज्ञान तीव्र हुन्छ।"
+    ),
+    DASHA_INTERP_ANTARDASHA_MARS(
+        "Current sub-period brings increased energy, drive for action, courage, and matters involving property, siblings, competition, or technical endeavors.",
+        "हालको उप-अवधिले बढेको ऊर्जा, कार्यको लागि उत्प्रेरणा, साहस र सम्पत्ति, भाइबहिनी, प्रतिस्पर्धा वा प्राविधिक प्रयासका मामिलाहरू ल्याउँछ।"
+    ),
+    DASHA_INTERP_ANTARDASHA_MERCURY(
+        "Current sub-period emphasizes communication, learning, business transactions, intellectual activities, and connections with younger people or merchants.",
+        "हालको उप-अवधिले सञ्चार, सिकाइ, व्यापारिक लेनदेन, बौद्धिक गतिविधिहरू र साना मानिसहरू वा व्यापारीहरूसँगको सम्बन्धमा जोड दिन्छ।"
+    ),
+    DASHA_INTERP_ANTARDASHA_JUPITER(
+        "Current sub-period brings wisdom, expansion, good fortune, and focus on spirituality, teachers, children, higher education, or legal matters.",
+        "हालको उप-अवधिले बुद्धि, विस्तार, सुभाग्य र आध्यात्मिकता, शिक्षकहरू, सन्तान, उच्च शिक्षा वा कानुनी मामिलाहरूमा ध्यान केन्द्रित गर्छ।"
+    ),
+    DASHA_INTERP_ANTARDASHA_VENUS(
+        "Current sub-period emphasizes relationships, romance, creativity, luxury, artistic pursuits, material comforts, and partnership matters.",
+        "हालको उप-अवधिले सम्बन्ध, रोमान्स, सिर्जनशीलता, विलासिता, कलात्मक खोज, भौतिक सुविधा र साझेदारी मामिलाहरूमा जोड दिन्छ।"
+    ),
+    DASHA_INTERP_ANTARDASHA_SATURN(
+        "Current sub-period brings discipline, responsibility, hard work, delays, and lessons requiring patience. Focus on service and long-term efforts.",
+        "हालको उप-अवधिले अनुशासन, जिम्मेवारी, कठिन परिश्रम, ढिलाइ र धैर्य चाहिने पाठहरू ल्याउँछ। सेवा र दीर्घकालीन प्रयासमा ध्यान केन्द्रित।"
+    ),
+    DASHA_INTERP_ANTARDASHA_RAHU(
+        "Current sub-period emphasizes worldly ambitions, unconventional approaches, foreign matters, technology, and sudden changes or opportunities.",
+        "हालको उप-अवधिले सांसारिक महत्त्वाकांक्षा, अपरम्परागत दृष्टिकोण, विदेशी मामिला, प्रविधि र अचानक परिवर्तन वा अवसरहरूमा जोड दिन्छ।"
+    ),
+    DASHA_INTERP_ANTARDASHA_KETU(
+        "Current sub-period brings spiritual insights, detachment, introspection, research, and resolution of past karmic patterns. Material concerns recede.",
+        "हालको उप-अवधिले आध्यात्मिक अन्तर्दृष्टि, वैराग्य, आत्मनिरीक्षण, अनुसन्धान र पूर्व कार्मिक ढाँचाको समाधान ल्याउँछ। भौतिक चिन्ताहरू पछाडि हट्छन्।"
+    ),
+    DASHA_INTERP_ANTARDASHA_DEFAULT(
+        "Current sub-period brings mixed planetary influences requiring careful navigation.",
+        "हालको उप-अवधिले सावधानीपूर्वक मार्गदर्शन चाहिने मिश्रित ग्रहीय प्रभावहरू ल्याउँछ।"
+    );
 
     companion object {
         /**
