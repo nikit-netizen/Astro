@@ -1197,7 +1197,7 @@ private fun MahadashaCard(
                         }
                         Spacer(modifier = Modifier.height(3.dp))
                         Text(
-                            text = "${formatDurationYears(mahadasha.durationYears)} • ${formatDate(mahadasha.startDate, LocalDateSystem.current, LocalLanguage.current, DateFormat.FULL)} – ${formatDate(mahadasha.endDate, LocalDateSystem.current, LocalLanguage.current, DateFormat.FULL)}",
+                            text = "${formatDurationYearsLocalized(mahadasha.durationYears, language)} • ${formatDate(mahadasha.startDate, LocalDateSystem.current, LocalLanguage.current, DateFormat.FULL)} – ${formatDate(mahadasha.endDate, LocalDateSystem.current, LocalLanguage.current, DateFormat.FULL)}",
                             fontSize = 11.sp,
                             color = ChartDetailColors.TextMuted,
                             maxLines = 1,
