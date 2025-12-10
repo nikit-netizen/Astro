@@ -282,6 +282,57 @@ enum class StringKey(val en: String, val ne: String) {
     DASHA_NO_CHART_SELECTED("No Chart Selected", "कुनै कुण्डली छानिएको छैन"),
     DASHA_NO_CHART_MESSAGE("Please select or create a birth profile\nto view the Dasha timeline.", "दशा समयरेखा हेर्न कृपया जन्म प्रोफाइल\nछान्नुहोस् वा बनाउनुहोस्।"),
 
+    // Dasha Level Names
+    DASHA_SOOKSHMADASHA("Sookshmadasha", "सूक्ष्मदशा"),
+    DASHA_PRANADASHA("Pranadasha", "प्राणदशा"),
+    DASHA_DEHADASHA("Dehadasha", "देहदशा"),
+    DASHA_BHUKTI("Bhukti", "भुक्ति"),
+    DASHA_PRATYANTAR("Pratyantar", "प्रत्यन्तर"),
+    DASHA_SOOKSHMA("Sookshma", "सूक्ष्म"),
+    DASHA_PRANA("Prana", "प्राण"),
+    DASHA_DEHA("Deha", "देह"),
+
+    // Dasha Format Labels
+    DASHA_DURATION("Duration", "अवधि"),
+    DASHA_PERIOD("Period", "अवधि"),
+    DASHA_STATUS("Status", "स्थिति"),
+    DASHA_CURRENTLY_ACTIVE("Currently Active", "हाल सक्रिय"),
+    DASHA_PROGRESS("Progress", "प्रगति"),
+    DASHA_NO_ACTIVE_PERIOD("No active Dasha period", "कुनै सक्रिय दशा अवधि छैन"),
+
+    // Time Units
+    YEARS("years", "वर्ष"),
+    DAYS("days", "दिन"),
+    TO("to", "देखि"),
+    DAYS_SHORT("d", "दि"),
+    HOURS_SHORT("h", "घ"),
+    MINUTES_SHORT("m", "मि"),
+
+    // Yogini Dasha Names
+    YOGINI_MANGALA("Mangala", "मङ्गला"),
+    YOGINI_PINGALA("Pingala", "पिङ्गला"),
+    YOGINI_DHANYA("Dhanya", "धन्या"),
+    YOGINI_BHRAMARI("Bhramari", "भ्रामरी"),
+    YOGINI_BHADRIKA("Bhadrika", "भद्रिका"),
+    YOGINI_ULKA("Ulka", "उल्का"),
+    YOGINI_SIDDHA("Siddha", "सिद्धा"),
+    YOGINI_SANKATA("Sankata", "सङ्कटा"),
+
+    // Yogini Deity Names
+    YOGINI_DEITY_CHANDRA("Chandra (Moon)", "चन्द्र"),
+    YOGINI_DEITY_SURYA("Surya (Sun)", "सूर्य"),
+    YOGINI_DEITY_GURU("Guru (Jupiter)", "गुरु (बृहस्पति)"),
+    YOGINI_DEITY_MANGAL("Mangal (Mars)", "मङ्गल"),
+    YOGINI_DEITY_BUDHA("Budha (Mercury)", "बुध"),
+    YOGINI_DEITY_SHANI("Shani (Saturn)", "शनि"),
+    YOGINI_DEITY_SHUKRA("Shukra (Venus)", "शुक्र"),
+    YOGINI_DEITY_RAHU("Rahu", "राहु"),
+
+    // Nature Types
+    NATURE_BENEFIC("Benefic", "शुभ"),
+    NATURE_MALEFIC("Malefic", "अशुभ"),
+    NATURE_MIXED("Mixed", "मिश्रित"),
+
     // ============================================
     // TRANSITS
     // ============================================
@@ -1305,6 +1356,7 @@ enum class StringKey(val en: String, val ne: String) {
     HOUSE_10_SIGNIFICATION("career and public recognition", "क्यारियर र सार्वजनिक मान्यता"),
     HOUSE_11_SIGNIFICATION("gains and social networks", "लाभ र सामाजिक सञ्जालहरू"),
     HOUSE_12_SIGNIFICATION("foreign connections and spiritual pursuits", "विदेशी सम्बन्ध र आध्यात्मिक खोजीहरू"),
+    VARIOUS_ACTIVITIES("various activities", "विभिन्न गतिविधिहरू"),
 
     // ============================================
     // REPORT HEADERS & SECTIONS
@@ -1424,6 +1476,66 @@ enum class StringKey(val en: String, val ne: String) {
     YOGA_VEENA("Veena Yoga", "वीणा योग"),
     YOGA_DASA_MULA("Dasa-Mula Yoga", "दश-मूल योग"),
     YOGA_VARGOTTAMA_STRENGTH("Vargottama Strength", "वर्गोत्तम बल"),
+
+    // Yoga Effects Translations
+    YOGA_EFFECT_RUCHAKA("Commander, army chief, valorous, muscular body, red complexion, successful in conflicts, skilled in warfare, leader of thieves or soldiers, wealth through martial arts or defense", "सेनापति, सेना प्रमुख, वीर, बलियो शरीर, रातो रंग, द्वन्द्वमा सफल, युद्ध कलामा दक्ष, चोर वा सैनिकहरूको नेता, युद्ध कला वा रक्षाबाट धन"),
+    YOGA_EFFECT_BHADRA("Intelligent, eloquent speaker, skilled in arts and sciences, long-lived, wealthy through intellect, respected in assemblies, lion-like face, broad chest", "बुद्धिमान, वाक्पटु वक्ता, कला र विज्ञानमा दक्ष, दीर्घायु, बुद्धिबाट धनी, सभामा सम्मानित, सिंह जस्तो मुख, फराकिलो छाती"),
+    YOGA_EFFECT_HAMSA("Righteous king, fair complexion, elevated nose, beautiful face, devoted to gods and brahmins, fond of water sports, walks like a swan, respected by rulers, spiritual inclinations", "धार्मिक राजा, गोरो रंग, उठेको नाक, सुन्दर मुख, देवता र ब्राह्मणहरूप्रति भक्त, जल क्रीडाको शौकीन, हंस जस्तो हिँड्ने, शासकहरूद्वारा सम्मानित, आध्यात्मिक झुकाव"),
+    YOGA_EFFECT_MALAVYA("Wealthy, enjoys all comforts, beautiful spouse, strong limbs, attractive face, blessed with vehicles and servants, learned in scriptures, lives up to 77 years", "धनी, सबै सुविधा भोग्ने, सुन्दर पति/पत्नी, बलियो अंगहरू, आकर्षक मुख, वाहन र सेवकहरूले आशीर्वादित, शास्त्रमा पढेको, ७७ वर्षसम्म बाँच्ने"),
+    YOGA_EFFECT_SASA("Head of village/town/city, wicked disposition but good servants, intriguing nature, knows others' weaknesses, commands over masses, wealth through iron or labor", "गाउँ/शहर/नगरको प्रमुख, दुष्ट स्वभाव तर राम्रा सेवकहरू, षड्यन्त्रकारी स्वभाव, अरूको कमजोरी जान्ने, जनतामाथि आदेश, फलाम वा श्रमबाट धन"),
+    YOGA_EFFECT_GAJA_KESARI("Destroyer of enemies like lion, eloquent speaker, virtuous, long-lived, famous", "सिंह जस्तो शत्रु विनाशक, वाक्पटु वक्ता, सद्गुणी, दीर्घायु, प्रसिद्ध"),
+    YOGA_EFFECT_SUNAFA("Self-made wealth, intelligent, good status, praised by kings", "स्व-निर्मित धन, बुद्धिमान, राम्रो स्थिति, राजाहरूद्वारा प्रशंसित"),
+    YOGA_EFFECT_ANAFA("Good reputation, health, happiness, self-respect", "राम्रो प्रतिष्ठा, स्वास्थ्य, खुशी, आत्म-सम्मान"),
+    YOGA_EFFECT_DURUDHARA("Highly fortunate, wealthy, vehicles, servants, charitable, enjoys life", "अत्यधिक भाग्यशाली, धनी, वाहनहरू, सेवकहरू, दानशील, जीवनको आनन्द लिने"),
+    YOGA_EFFECT_ADHI("Commander, minister, or king; polite, trustworthy, healthy, wealthy, defeats enemies", "सेनापति, मन्त्री, वा राजा; विनम्र, विश्वसनीय, स्वस्थ, धनी, शत्रुहरूलाई हराउने"),
+    YOGA_EFFECT_BUDHA_ADITYA("Intelligence, skilled in many arts, famous, sweet speech, scholarly", "बुद्धि, धेरै कलाहरूमा दक्ष, प्रसिद्ध, मीठो बोली, विद्वान"),
+    YOGA_EFFECT_SARASWATI("Highly learned, poet, prose writer, famous speaker, skilled in all arts", "अत्यधिक पढेलेखेको, कवि, गद्य लेखक, प्रसिद्ध वक्ता, सबै कलाहरूमा दक्ष"),
+    YOGA_EFFECT_PARVATA("King or minister, famous, generous, wealthy, charitable, mountain-like stability", "राजा वा मन्त्री, प्रसिद्ध, उदार, धनी, दानशील, पहाड जस्तो स्थिरता"),
+    YOGA_EFFECT_LAKSHMI("Blessed by Goddess Lakshmi, abundant wealth, luxury, beauty, artistic success", "देवी लक्ष्मीको आशीर्वाद, प्रचुर धन, विलासिता, सौन्दर्य, कलात्मक सफलता"),
+    YOGA_EFFECT_MAHA_RAJA("Exceptional fortune, royal status, widespread fame, great wealth and power", "असाधारण भाग्य, राजकीय स्थिति, व्यापक प्रसिद्धि, ठूलो धन र शक्ति"),
+    YOGA_EFFECT_KENDRA_TRIKONA("Rise to power and authority, leadership position, recognition from government", "शक्ति र अधिकारमा उदय, नेतृत्व पद, सरकारबाट मान्यता"),
+    YOGA_EFFECT_PARIVARTANA("Strong Raja Yoga through mutual exchange, stable rise to power, lasting authority", "आपसी आदानप्रदानबाट बलियो राज योग, शक्तिमा स्थिर उदय, दिगो अधिकार"),
+    YOGA_EFFECT_VIPARITA("Rise through fall of enemies, sudden fortune from unexpected sources, gains through others' losses", "शत्रुहरूको पतनबाट उदय, अप्रत्याशित स्रोतहरूबाट अचानक भाग्य, अरूको हानिबाट लाभ"),
+    YOGA_EFFECT_NEECHA_BHANGA("Rise from humble beginnings, success after initial struggles, respected leader", "साधारण सुरुवातबाट उदय, प्रारम्भिक संघर्षपछि सफलता, सम्मानित नेता"),
+    YOGA_EFFECT_KEMADRUMA("Poverty, suffering, struggles, lack of support, lonely, menial work", "गरिबी, दुख, संघर्ष, समर्थनको अभाव, एक्लो, तल्लो काम"),
+    YOGA_EFFECT_KEMADRUMA_CANCELLED("Kemadruma effects significantly reduced due to cancellation factors", "रद्द कारकहरूको कारण केमद्रुम प्रभाव उल्लेखनीय रूपमा कम भयो"),
+    YOGA_EFFECT_DARIDRA("Obstacles to gains, financial struggles, unfulfilled desires", "लाभमा बाधाहरू, आर्थिक संघर्ष, अपूर्ण इच्छाहरू"),
+    YOGA_EFFECT_SHAKATA("Fluctuating fortune, periods of poverty alternating with wealth", "उतार-चढाव भाग्य, गरिबीको अवधि धनसँग पालैपालो"),
+    YOGA_EFFECT_GURU_CHANDAL("Unorthodox beliefs, breaks from tradition, possible disgrace through teachers/religion", "अपरम्परागत विश्वासहरू, परम्परा तोड्ने, गुरु/धर्मबाट सम्भावित अपमान"),
+    YOGA_EFFECT_VESI("Wealth through hard work, truthful, balanced life, comfortable old age", "मेहनतबाट धन, सत्यवादी, सन्तुलित जीवन, आरामदायक बुढेसकाल"),
+    YOGA_EFFECT_VOSI("Famous, generous, skilled in service, gains through associations", "प्रसिद्ध, उदार, सेवामा दक्ष, संगतबाट लाभ"),
+    YOGA_EFFECT_UBHAYACHARI("Eloquent speaker, wealthy, influential, respected by rulers", "वाक्पटु वक्ता, धनी, प्रभावशाली, शासकहरूद्वारा सम्मानित"),
+    YOGA_EFFECT_LABHA("Gains from multiple sources, profitable ventures, wealth accumulation", "विभिन्न स्रोतबाट लाभ, लाभदायक उद्यमहरू, धन संचय"),
+    YOGA_EFFECT_KUBERA("Immense wealth like lord of wealth, treasure finder, banking success", "धनको देवता जस्तो अपार धन, खजाना फेला पार्ने, बैंकिङमा सफलता"),
+    YOGA_EFFECT_CHANDRA_MANGALA("Wealth through business, enterprise, real estate, aggressive financial pursuits", "व्यापारबाट धन, उद्यम, घर जग्गा, आक्रामक आर्थिक प्रयासहरू"),
+    YOGA_EFFECT_DASA_MULA("Obstacles in undertakings, needs remedial measures, struggle with finances", "कार्यहरूमा बाधाहरू, उपचारात्मक उपायहरू आवश्यक, आर्थिक संघर्ष"),
+    YOGA_EFFECT_KAHALA("Brave but stubborn, military success, leadership through conflict", "बहादुर तर हठी, सैन्य सफलता, द्वन्द्वबाट नेतृत्व"),
+
+    // Yoga Descriptions
+    YOGA_DESC_KENDRA_LORD("Kendra lord", "केन्द्र अधिपति"),
+    YOGA_DESC_TRIKONA_LORD("Trikona lord", "त्रिकोण अधिपति"),
+    YOGA_DESC_IN_CONJUNCTION("in conjunction", "संयोग मा"),
+    YOGA_DESC_IN_ASPECT("in aspect", "दृष्टि मा"),
+    YOGA_DESC_OWN_SIGN("own sign", "आफ्नो राशि"),
+    YOGA_DESC_EXALTED("exalted sign", "उच्च राशि"),
+    YOGA_DESC_IN_KENDRA("in Kendra", "केन्द्रमा"),
+    YOGA_DESC_DUSTHANA("Dusthana", "दुस्थान"),
+    YOGA_DESC_DEBILITATED("debilitated", "नीच"),
+    YOGA_DESC_COMBUST("combust", "अस्त"),
+
+    // Nabhasa Yoga Effects
+    YOGA_EFFECT_YAVA("Medium wealth initially, prosperity in middle age, decline in old age", "सुरुमा मध्यम धन, मध्य उमेरमा समृद्धि, बुढेसकालमा पतन"),
+    YOGA_EFFECT_SHRINGATAKA("Fond of quarrels initially, happiness in middle age, wandering in old age", "सुरुमा झगडा मनपर्ने, मध्य उमेरमा खुशी, बुढेसकालमा भौंतारिने"),
+    YOGA_EFFECT_GADA("Wealthy through ceremonies, always engaged in auspicious activities", "संस्कारहरूबाट धनी, सधैं शुभ कार्यहरूमा संलग्न"),
+    YOGA_EFFECT_SHAKATA_NABHASA("Fluctuating fortune, poverty followed by wealth in cycles", "उतार-चढाव भाग्य, गरिबीपछि धन चक्रमा"),
+    YOGA_EFFECT_RAJJU("Fond of travel, living in foreign lands, restless nature", "यात्राको शौकीन, विदेशी भूमिमा बस्ने, अशान्त स्वभाव"),
+    YOGA_EFFECT_MUSALA("Proud, wealthy, learned, famous, many children", "गर्विलो, धनी, पढेलेखेको, प्रसिद्ध, धेरै सन्तान"),
+    YOGA_EFFECT_NALA("Handsome, skilled in arts, wealthy through multiple sources", "सुन्दर, कलामा दक्ष, विभिन्न स्रोतबाट धनी"),
+    YOGA_EFFECT_KEDARA("Agricultural wealth, helpful to others, truthful", "कृषि धन, अरूलाई मद्दतगर्ने, सत्यवादी"),
+    YOGA_EFFECT_SHOOLA("Sharp intellect, quarrelsome, cruel, poor", "तीक्ष्ण बुद्धि, झगडालु, निर्दयी, गरिब"),
+    YOGA_EFFECT_YUGA("Heretic, poor, rejected by family", "विधर्मी, गरिब, परिवारद्वारा त्यागिएको"),
+    YOGA_EFFECT_GOLA("Poor, dirty, ignorant, idle", "गरिब, फोहोरी, अज्ञानी, अल्छी"),
+    YOGA_EFFECT_VEENA("Fond of music, dance, leader, wealthy, happy", "संगीत र नृत्यको शौकीन, नेता, धनी, खुशी"),
 
     // ============================================
     // CHOGHADIYA NAMES
@@ -2692,7 +2804,513 @@ enum class StringKey(val en: String, val ne: String) {
     ASHTAK_GUIDE_TRANSIT_1("Check SAV of the sign a planet transits", "ग्रहले गोचर गर्ने राशिको SAV जाँच गर्नुहोस्"),
     ASHTAK_GUIDE_TRANSIT_2("Check BAV score of that planet in transited sign", "गोचर गरिएको राशिमा त्यो ग्रहको BAV स्कोर जाँच गर्नुहोस्"),
     ASHTAK_GUIDE_TRANSIT_3("High combined scores = favorable transit", "उच्च संयुक्त स्कोर = अनुकूल गोचर"),
-    ASHTAK_GUIDE_TRANSIT_4("Use for timing important decisions", "महत्त्वपूर्ण निर्णयहरूको समयको लागि प्रयोग गर्नुहोस्");
+    ASHTAK_GUIDE_TRANSIT_4("Use for timing important decisions", "महत्त्वपूर्ण निर्णयहरूको समयको लागि प्रयोग गर्नुहोस्"),
+
+    // ============================================
+    // ASPECT TYPES (For AspectCalculator)
+    // ============================================
+    ASPECT_TYPE_CONJUNCTION("Conjunction", "युति"),
+    ASPECT_TYPE_7TH("7th Aspect", "सप्तम दृष्टि"),
+    ASPECT_TYPE_MARS_4TH("Mars 4th Aspect", "मंगलको चतुर्थ दृष्टि"),
+    ASPECT_TYPE_MARS_8TH("Mars 8th Aspect", "मंगलको अष्टम दृष्टि"),
+    ASPECT_TYPE_JUPITER_5TH("Jupiter 5th Aspect", "गुरुको पञ्चम दृष्टि"),
+    ASPECT_TYPE_JUPITER_9TH("Jupiter 9th Aspect", "गुरुको नवम दृष्टि"),
+    ASPECT_TYPE_SATURN_3RD("Saturn 3rd Aspect", "शनिको तृतीय दृष्टि"),
+    ASPECT_TYPE_SATURN_10TH("Saturn 10th Aspect", "शनिको दशम दृष्टि"),
+
+    // Aspect Strength Descriptions (Drishti Bala)
+    ASPECT_STRENGTH_EXACT("Exact (Purna)", "पूर्ण (एकदम सटीक)"),
+    ASPECT_STRENGTH_ADHIKA("Strong (Adhika)", "अधिक (बलियो)"),
+    ASPECT_STRENGTH_MADHYA("Medium (Madhya)", "मध्यम"),
+    ASPECT_STRENGTH_ALPA("Weak (Alpa)", "अल्प (कमजोर)"),
+    ASPECT_STRENGTH_SUNYA("Negligible (Sunya)", "शून्य (नगण्य)"),
+
+    // Aspect descriptions
+    ASPECT_CASTS_ON("%s casts %s on %s", "%s ले %s मा %s दृष्टि राख्छ"),
+    ASPECT_APPLYING("Applying", "समीप आउँदै"),
+    ASPECT_SEPARATING("Separating", "टाढा हुँदै"),
+    ASPECT_DRISHTI_BALA("Drishti Bala", "दृष्टि बल"),
+
+    // ============================================
+    // TRANSIT QUALITY (For AshtakavargaCalculator)
+    // ============================================
+    TRANSIT_QUALITY_EXCELLENT("Excellent", "उत्कृष्ट"),
+    TRANSIT_QUALITY_GOOD("Good", "राम्रो"),
+    TRANSIT_QUALITY_AVERAGE("Average", "औसत"),
+    TRANSIT_QUALITY_BELOW_AVG("Below Average", "औसतभन्दा कम"),
+    TRANSIT_QUALITY_CHALLENGING("Challenging", "चुनौतीपूर्ण"),
+    TRANSIT_QUALITY_DIFFICULT("Difficult", "कठिन"),
+    TRANSIT_QUALITY_UNKNOWN("Unknown", "अज्ञात"),
+
+    // Transit interpretations
+    TRANSIT_INTERP_EXCELLENT("Excellent - Highly favorable transit", "उत्कृष्ट - अत्यन्त अनुकूल गोचर"),
+    TRANSIT_INTERP_GOOD("Good - Favorable results expected", "राम्रो - अनुकूल परिणामहरू अपेक्षित"),
+    TRANSIT_INTERP_AVERAGE("Average - Mixed results", "औसत - मिश्रित परिणामहरू"),
+    TRANSIT_INTERP_BELOW_AVG("Below Average - Some challenges", "औसतभन्दा कम - केही चुनौतीहरू"),
+    TRANSIT_INTERP_DIFFICULT("Difficult - Careful navigation needed", "कठिन - सावधानीपूर्ण व्यवहार आवश्यक"),
+    TRANSIT_ANALYSIS_NOT_AVAILABLE("Transit analysis not available for this planet.", "यस ग्रहको लागि गोचर विश्लेषण उपलब्ध छैन।"),
+
+    // ============================================
+    // ELEMENTS (Additional)
+    // ============================================
+    ELEMENT_ETHER("Ether", "आकाश"),
+
+    // ============================================
+    // PLANET SIGNIFICATIONS (For PlanetDetailDialog)
+    // ============================================
+    // Sun Significations
+    PLANET_SUN_NATURE("Malefic", "पापी"),
+    PLANET_SUN_ELEMENT("Fire", "अग्नि"),
+    PLANET_SUN_REPRESENTS_1("Soul, Self, Ego", "आत्मा, स्वयं, अहंकार"),
+    PLANET_SUN_REPRESENTS_2("Father, Authority Figures", "पिता, अधिकारीहरू"),
+    PLANET_SUN_REPRESENTS_3("Government, Power", "सरकार, शक्ति"),
+    PLANET_SUN_REPRESENTS_4("Health, Vitality", "स्वास्थ्य, जीवनशक्ति"),
+    PLANET_SUN_REPRESENTS_5("Fame, Recognition", "प्रसिद्धि, मान्यता"),
+    PLANET_SUN_BODY_PARTS("Heart, Spine, Right Eye, Bones", "हृदय, मेरुदण्ड, दाहिने आँखा, हड्डी"),
+    PLANET_SUN_PROFESSIONS("Government jobs, Politics, Medicine, Administration, Leadership roles", "सरकारी जागिर, राजनीति, चिकित्सा, प्रशासन, नेतृत्व भूमिकाहरू"),
+
+    // Moon Significations
+    PLANET_MOON_NATURE("Benefic", "शुभ"),
+    PLANET_MOON_ELEMENT("Water", "जल"),
+    PLANET_MOON_REPRESENTS_1("Mind, Emotions", "मन, भावनाहरू"),
+    PLANET_MOON_REPRESENTS_2("Mother, Nurturing", "आमा, पालनपोषण"),
+    PLANET_MOON_REPRESENTS_3("Public, Masses", "जनता, समुदाय"),
+    PLANET_MOON_REPRESENTS_4("Comforts, Happiness", "आराम, खुशी"),
+    PLANET_MOON_REPRESENTS_5("Memory, Imagination", "स्मृति, कल्पना"),
+    PLANET_MOON_BODY_PARTS("Mind, Left Eye, Breast, Blood, Fluids", "मन, बायाँ आँखा, स्तन, रगत, तरल पदार्थ"),
+    PLANET_MOON_PROFESSIONS("Nursing, Hotel industry, Shipping, Agriculture, Psychology", "नर्सिङ, होटल उद्योग, जहाजरानी, कृषि, मनोविज्ञान"),
+
+    // Mars Significations
+    PLANET_MARS_NATURE("Malefic", "पापी"),
+    PLANET_MARS_ELEMENT("Fire", "अग्नि"),
+    PLANET_MARS_REPRESENTS_1("Energy, Action, Courage", "ऊर्जा, कार्य, साहस"),
+    PLANET_MARS_REPRESENTS_2("Siblings, Younger Brothers", "भाइबहिनी, सानो भाइ"),
+    PLANET_MARS_REPRESENTS_3("Property, Land", "सम्पत्ति, जमिन"),
+    PLANET_MARS_REPRESENTS_4("Competition, Sports", "प्रतिस्पर्धा, खेलकुद"),
+    PLANET_MARS_REPRESENTS_5("Technical Skills", "प्राविधिक सीपहरू"),
+    PLANET_MARS_BODY_PARTS("Blood, Muscles, Marrow, Head injuries", "रगत, मांसपेशी, मज्जा, टाउकोमा चोटपटक"),
+    PLANET_MARS_PROFESSIONS("Military, Police, Surgery, Engineering, Sports, Real Estate", "सेना, प्रहरी, शल्यक्रिया, इन्जिनियरिङ, खेलकुद, घरजग्गा"),
+
+    // Mercury Significations
+    PLANET_MERCURY_NATURE("Benefic", "शुभ"),
+    PLANET_MERCURY_ELEMENT("Earth", "पृथ्वी"),
+    PLANET_MERCURY_REPRESENTS_1("Intelligence, Communication", "बुद्धि, सञ्चार"),
+    PLANET_MERCURY_REPRESENTS_2("Learning, Education", "सिकाइ, शिक्षा"),
+    PLANET_MERCURY_REPRESENTS_3("Business, Trade", "व्यापार, व्यवसाय"),
+    PLANET_MERCURY_REPRESENTS_4("Writing, Speech", "लेखन, वाणी"),
+    PLANET_MERCURY_REPRESENTS_5("Siblings, Friends", "भाइबहिनी, साथीहरू"),
+    PLANET_MERCURY_BODY_PARTS("Nervous system, Skin, Speech, Hands", "स्नायु प्रणाली, छाला, वाणी, हातहरू"),
+    PLANET_MERCURY_PROFESSIONS("Writing, Teaching, Accounting, Trading, IT, Media", "लेखन, शिक्षण, लेखा, व्यापार, आईटी, मिडिया"),
+
+    // Jupiter Significations
+    PLANET_JUPITER_NATURE("Benefic", "शुभ"),
+    PLANET_JUPITER_ELEMENT("Ether", "आकाश"),
+    PLANET_JUPITER_REPRESENTS_1("Wisdom, Knowledge", "ज्ञान, विद्या"),
+    PLANET_JUPITER_REPRESENTS_2("Teachers, Gurus", "शिक्षकहरू, गुरुहरू"),
+    PLANET_JUPITER_REPRESENTS_3("Fortune, Luck", "भाग्य, किस्मत"),
+    PLANET_JUPITER_REPRESENTS_4("Children, Dharma", "सन्तान, धर्म"),
+    PLANET_JUPITER_REPRESENTS_5("Expansion, Growth", "विस्तार, वृद्धि"),
+    PLANET_JUPITER_BODY_PARTS("Liver, Fat tissue, Ears, Thighs", "कलेजो, बोसो, कान, जाँघ"),
+    PLANET_JUPITER_PROFESSIONS("Teaching, Law, Priesthood, Banking, Counseling", "शिक्षण, कानून, पुरोहित, बैंकिङ, परामर्श"),
+
+    // Venus Significations
+    PLANET_VENUS_NATURE("Benefic", "शुभ"),
+    PLANET_VENUS_ELEMENT("Water", "जल"),
+    PLANET_VENUS_REPRESENTS_1("Love, Beauty, Art", "प्रेम, सौन्दर्य, कला"),
+    PLANET_VENUS_REPRESENTS_2("Marriage, Relationships", "विवाह, सम्बन्धहरू"),
+    PLANET_VENUS_REPRESENTS_3("Luxuries, Comforts", "विलासिता, आराम"),
+    PLANET_VENUS_REPRESENTS_4("Vehicles, Pleasures", "सवारी, आनन्द"),
+    PLANET_VENUS_REPRESENTS_5("Creativity", "सिर्जनशीलता"),
+    PLANET_VENUS_BODY_PARTS("Reproductive system, Face, Skin, Throat", "प्रजनन प्रणाली, अनुहार, छाला, घाँटी"),
+    PLANET_VENUS_PROFESSIONS("Entertainment, Fashion, Art, Hospitality, Beauty industry", "मनोरञ्जन, फेसन, कला, आतिथ्य, सौन्दर्य उद्योग"),
+
+    // Saturn Significations
+    PLANET_SATURN_NATURE("Malefic", "पापी"),
+    PLANET_SATURN_ELEMENT("Air", "वायु"),
+    PLANET_SATURN_REPRESENTS_1("Discipline, Hard work", "अनुशासन, कडा परिश्रम"),
+    PLANET_SATURN_REPRESENTS_2("Karma, Delays", "कर्म, ढिलाइ"),
+    PLANET_SATURN_REPRESENTS_3("Longevity, Service", "दीर्घायु, सेवा"),
+    PLANET_SATURN_REPRESENTS_4("Laborers, Servants", "श्रमिकहरू, सेवकहरू"),
+    PLANET_SATURN_REPRESENTS_5("Chronic issues", "दीर्घकालीन समस्याहरू"),
+    PLANET_SATURN_BODY_PARTS("Bones, Teeth, Knees, Joints, Nerves", "हड्डी, दाँत, घुँडा, जोर्नीहरू, स्नायु"),
+    PLANET_SATURN_PROFESSIONS("Mining, Agriculture, Labor, Judiciary, Real Estate", "खनन, कृषि, श्रम, न्यायपालिका, घरजग्गा"),
+
+    // Rahu Significations
+    PLANET_RAHU_NATURE("Malefic", "पापी"),
+    PLANET_RAHU_ELEMENT("Air", "वायु"),
+    PLANET_RAHU_REPRESENTS_1("Obsession, Illusion", "जुनून, भ्रम"),
+    PLANET_RAHU_REPRESENTS_2("Foreign lands, Travel", "विदेश, यात्रा"),
+    PLANET_RAHU_REPRESENTS_3("Technology, Innovation", "प्रविधि, नवीनता"),
+    PLANET_RAHU_REPRESENTS_4("Unconventional paths", "अपरंपरागत मार्गहरू"),
+    PLANET_RAHU_REPRESENTS_5("Material desires", "भौतिक इच्छाहरू"),
+    PLANET_RAHU_BODY_PARTS("Skin diseases, Nervous disorders", "छालाका रोगहरू, स्नायु विकारहरू"),
+    PLANET_RAHU_PROFESSIONS("Technology, Foreign affairs, Aviation, Politics, Research", "प्रविधि, विदेशी मामिला, उड्डयन, राजनीति, अनुसन्धान"),
+
+    // Ketu Significations
+    PLANET_KETU_NATURE("Malefic", "पापी"),
+    PLANET_KETU_ELEMENT("Fire", "अग्नि"),
+    PLANET_KETU_REPRESENTS_1("Spirituality, Liberation", "आध्यात्मिकता, मोक्ष"),
+    PLANET_KETU_REPRESENTS_2("Past life karma", "पूर्वजन्मको कर्म"),
+    PLANET_KETU_REPRESENTS_3("Detachment, Isolation", "वैराग्य, एकान्त"),
+    PLANET_KETU_REPRESENTS_4("Occult, Mysticism", "गुप्त विद्या, रहस्यवाद"),
+    PLANET_KETU_REPRESENTS_5("Healing abilities", "उपचार क्षमता"),
+    PLANET_KETU_BODY_PARTS("Skin, Spine, Nervous system", "छाला, मेरुदण्ड, स्नायु प्रणाली"),
+    PLANET_KETU_PROFESSIONS("Spirituality, Research, Healing, Astrology, Philosophy", "आध्यात्मिकता, अनुसन्धान, उपचार, ज्योतिष, दर्शन"),
+
+    // ============================================
+    // CHART LEGEND LABELS (For ChartRenderer)
+    // ============================================
+    CHART_LEGEND_RETRO_SHORT("Retro", "वक्री"),
+    CHART_LEGEND_COMBUST_SHORT("Comb", "अस्त"),
+    CHART_LEGEND_VARGO_SHORT("Vargo", "वर्गो"),
+    CHART_LEGEND_EXALT_SHORT("Exalt", "उच्च"),
+    CHART_LEGEND_DEB_SHORT("Deb", "नीच"),
+    CHART_LEGEND_OWN_SHORT("Own", "स्व"),
+    CHART_ASC_ABBR("Asc", "ल"),
+
+    // ============================================
+    // ASHTAKAVARGA ANALYSIS HEADERS
+    // ============================================
+    ASHTAK_ANALYSIS_HEADER("ASHTAKAVARGA ANALYSIS", "अष्टकवर्ग विश्लेषण"),
+    ASHTAK_SAV_HEADER("SARVASHTAKAVARGA (Combined Strength)", "सर्वाष्टकवर्ग (संयुक्त बल)"),
+    ASHTAK_BAV_HEADER("BHINNASHTAKAVARGA (Individual Planet Strengths)", "भिन्नाष्टकवर्ग (व्यक्तिगत ग्रह बल)"),
+    ASHTAK_TOTAL_SAV_BINDUS("Total SAV Bindus:", "कुल SAV बिन्दुहरू:"),
+    ASHTAK_AVG_PER_SIGN("Average per Sign:", "प्रति राशि औसत:"),
+    ASHTAK_NOT_APPLICABLE("Ashtakavarga not applicable for %s", "%s को लागि अष्टकवर्ग लागू हुँदैन"),
+
+    // Ashtakavarga Planet Effects
+    ASHTAK_SUN_EFFECTS("authority, father, health, government, career", "अधिकार, पिता, स्वास्थ्य, सरकार, क्यारियर"),
+    ASHTAK_MOON_EFFECTS("mind, emotions, mother, public image", "मन, भावना, आमा, सार्वजनिक छवि"),
+    ASHTAK_MARS_EFFECTS("energy, siblings, property, courage", "ऊर्जा, भाइबहिनी, सम्पत्ति, साहस"),
+    ASHTAK_MERCURY_EFFECTS("communication, intellect, business, education", "सञ्चार, बुद्धि, व्यापार, शिक्षा"),
+    ASHTAK_JUPITER_EFFECTS("wisdom, children, fortune, spirituality", "ज्ञान, सन्तान, भाग्य, आध्यात्मिकता"),
+    ASHTAK_VENUS_EFFECTS("relationships, luxury, arts, vehicles", "सम्बन्ध, विलासिता, कला, सवारी"),
+    ASHTAK_SATURN_EFFECTS("career, longevity, discipline, challenges", "क्यारियर, दीर्घायु, अनुशासन, चुनौतीहरू"),
+    ASHTAK_GENERAL_EFFECTS("general matters", "सामान्य मामिलाहरू"),
+
+    // House matters for transit interpretation
+    ASHTAK_HOUSE_1_MATTERS("self, personality, health", "आफू, व्यक्तित्व, स्वास्थ्य"),
+    ASHTAK_HOUSE_2_MATTERS("wealth, family, speech", "धन, परिवार, वाणी"),
+    ASHTAK_HOUSE_3_MATTERS("courage, siblings, communication", "साहस, भाइबहिनी, सञ्चार"),
+    ASHTAK_HOUSE_4_MATTERS("home, mother, comfort", "घर, आमा, आराम"),
+    ASHTAK_HOUSE_5_MATTERS("children, intelligence, romance", "सन्तान, बुद्धि, प्रेम"),
+    ASHTAK_HOUSE_6_MATTERS("enemies, health issues, service", "शत्रु, स्वास्थ्य समस्या, सेवा"),
+    ASHTAK_HOUSE_7_MATTERS("partnership, marriage, business", "साझेदारी, विवाह, व्यापार"),
+    ASHTAK_HOUSE_8_MATTERS("transformation, inheritance, occult", "रूपान्तरण, सम्पत्ति, गुप्त विद्या"),
+    ASHTAK_HOUSE_9_MATTERS("luck, father, higher learning", "भाग्य, पिता, उच्च शिक्षा"),
+    ASHTAK_HOUSE_10_MATTERS("career, status, authority", "क्यारियर, हैसियत, अधिकार"),
+    ASHTAK_HOUSE_11_MATTERS("gains, friends, aspirations", "लाभ, साथीहरू, आकांक्षाहरू"),
+    ASHTAK_HOUSE_12_MATTERS("losses, spirituality, foreign", "हानि, आध्यात्मिकता, विदेश"),
+
+    // Transit interpretation templates
+    TRANSIT_EXCELLENT_TEMPLATE("Transit through %s with %d BAV bindus and %d SAV bindus indicates excellent results. Matters related to %s will flourish. Areas of %s receive strong positive influence.", "%s मा %d BAV बिन्दु र %d SAV बिन्दुसँगको गोचरले उत्कृष्ट परिणाम देखाउँछ। %s सम्बन्धी मामिलाहरू फस्टाउनेछन्। %s को क्षेत्रमा बलियो सकारात्मक प्रभाव पर्नेछ।"),
+    TRANSIT_GOOD_TEMPLATE("Transit through %s brings favorable results with %d BAV and %d SAV bindus. Good progress expected in %s. %s areas are positively influenced.", "%s मा %d BAV र %d SAV बिन्दुसँगको गोचरले अनुकूल परिणामहरू ल्याउँछ। %s मा राम्रो प्रगति अपेक्षित छ। %s क्षेत्रमा सकारात्मक प्रभाव पर्नेछ।"),
+    TRANSIT_AVERAGE_TEMPLATE("Transit through %s (%d BAV, %d SAV) brings mixed results. Some progress in %s with occasional challenges. Balance needed in %s.", "%s मा (%d BAV, %d SAV) गोचरले मिश्रित परिणामहरू ल्याउँछ। %s मा केही प्रगति तर कहिलेकाहीँ चुनौतीहरू। %s मा सन्तुलन आवश्यक।"),
+    TRANSIT_BELOW_AVG_TEMPLATE("Transit through %s (%d BAV, %d SAV) suggests caution needed. %s matters may face delays. Extra effort required in %s areas.", "%s मा (%d BAV, %d SAV) गोचरले सावधानी आवश्यक देखाउँछ। %s मामिलाहरूमा ढिलाइ हुन सक्छ। %s क्षेत्रमा थप प्रयास आवश्यक।"),
+    TRANSIT_CHALLENGING_TEMPLATE("Challenging transit through %s with only %d BAV and %d SAV bindus. Difficulties possible in %s. Patience needed for %s matters.", "%s मा केवल %d BAV र %d SAV बिन्दुसँगको चुनौतीपूर्ण गोचर। %s मा कठिनाइहरू सम्भव। %s मामिलाहरूमा धैर्य आवश्यक।"),
+    TRANSIT_DIFFICULT_TEMPLATE("Difficult transit period through %s (%d BAV, %d SAV). Significant challenges in %s areas. Careful handling of %s required.", "%s मा (%d BAV, %d SAV) कठिन गोचर अवधि। %s क्षेत्रमा महत्त्वपूर्ण चुनौतीहरू। %s को सावधानीपूर्वक व्यवस्थापन आवश्यक।"),
+
+    // ============================================
+    // NAKSHATRA DETAILS (For ChartDialogs)
+    // ============================================
+    NAKSHATRA_SYMBOL("Symbol", "प्रतीक"),
+    NAKSHATRA_DEITY("Deity", "देवता"),
+    NAKSHATRA_GUNA("Guna", "गुण"),
+    NAKSHATRA_GANA("Gana", "गण"),
+    NAKSHATRA_YONI("Yoni", "योनि"),
+    NAKSHATRA_ANIMAL("Animal", "पशु"),
+    NAKSHATRA_BIRD("Bird", "पक्षी"),
+    NAKSHATRA_TREE("Tree", "वृक्ष"),
+    NAKSHATRA_NATURE("Nature", "प्रकृति"),
+    NAKSHATRA_GENDER("Gender", "लिङ्ग"),
+    NAKSHATRA_MALE("Male", "पुरुष"),
+    NAKSHATRA_FEMALE("Female", "महिला"),
+    NAKSHATRA_CAREERS("Careers", "क्यारियर"),
+
+    // Nakshatra Nature types
+    NAKSHATRA_NATURE_SWIFT("Swift (Kshipra)", "क्षिप्र (छिटो)"),
+    NAKSHATRA_NATURE_FIERCE("Fierce (Ugra)", "उग्र (तीव्र)"),
+    NAKSHATRA_NATURE_MIXED("Mixed (Mishra)", "मिश्र"),
+    NAKSHATRA_NATURE_FIXED("Fixed (Dhruva)", "ध्रुव (स्थिर)"),
+    NAKSHATRA_NATURE_SOFT("Soft (Mridu)", "मृदु (कोमल)"),
+    NAKSHATRA_NATURE_SHARP("Sharp (Tikshna)", "तीक्ष्ण"),
+    NAKSHATRA_NATURE_MOVABLE("Movable (Chara)", "चर"),
+    NAKSHATRA_NATURE_LIGHT("Light (Laghu)", "लघु"),
+
+    // Gana types
+    GANA_DEVA("Deva (Divine)", "देव"),
+    GANA_MANUSHYA("Manushya (Human)", "मनुष्य"),
+    GANA_RAKSHASA("Rakshasa (Demon)", "राक्षस"),
+
+    // Guna types
+    GUNA_RAJAS("Rajas", "रजस्"),
+    GUNA_TAMAS("Tamas", "तमस्"),
+    GUNA_SATTVA("Sattva", "सत्त्व"),
+
+    // ============================================
+    // DIVISIONAL CHART TITLES (For DivisionalChartCalculator)
+    // ============================================
+    VARGA_D1_TITLE("Rashi (D1)", "राशि (D1)"),
+    VARGA_D1_DESC("Physical Body, General Life", "भौतिक शरीर, सामान्य जीवन"),
+    VARGA_D2_TITLE("Hora (D2)", "होरा (D2)"),
+    VARGA_D2_DESC("Wealth, Prosperity", "धन, समृद्धि"),
+    VARGA_D3_TITLE("Drekkana (D3)", "द्रेक्काण (D3)"),
+    VARGA_D3_DESC("Siblings, Courage", "भाइबहिनी, साहस"),
+    VARGA_D4_TITLE("Chaturthamsa (D4)", "चतुर्थांश (D4)"),
+    VARGA_D4_DESC("Fortune, Property", "भाग्य, सम्पत्ति"),
+    VARGA_D7_TITLE("Saptamsa (D7)", "सप्तमांश (D7)"),
+    VARGA_D7_DESC("Children, Progeny", "सन्तान"),
+    VARGA_D9_TITLE("Navamsa (D9)", "नवमांश (D9)"),
+    VARGA_D9_DESC("Marriage, Dharma", "विवाह, धर्म"),
+    VARGA_D10_TITLE("Dasamsa (D10)", "दशमांश (D10)"),
+    VARGA_D10_DESC("Career, Profession", "क्यारियर, पेशा"),
+    VARGA_D12_TITLE("Dwadasamsa (D12)", "द्वादशांश (D12)"),
+    VARGA_D12_DESC("Parents, Ancestry", "आमाबुवा, पुर्खा"),
+    VARGA_D16_TITLE("Shodasamsa (D16)", "षोडशांश (D16)"),
+    VARGA_D16_DESC("Vehicles, Pleasures", "सवारी, आनन्द"),
+    VARGA_D20_TITLE("Vimsamsa (D20)", "विंशांश (D20)"),
+    VARGA_D20_DESC("Spiritual Life", "आध्यात्मिक जीवन"),
+    VARGA_D24_TITLE("Siddhamsa (D24)", "सिद्धांश (D24)"),
+    VARGA_D24_DESC("Education, Learning", "शिक्षा, सिकाइ"),
+    VARGA_D27_TITLE("Bhamsa (D27)", "भांश (D27)"),
+    VARGA_D27_DESC("Strength, Weakness", "बल, कमजोरी"),
+    VARGA_D30_TITLE("Trimsamsa (D30)", "त्रिंशांश (D30)"),
+    VARGA_D30_DESC("Evils, Misfortunes", "अशुभ, दुर्भाग्य"),
+    VARGA_D40_TITLE("Khavedamsa (D40)", "खवेदांश (D40)"),
+    VARGA_D40_DESC("Auspicious/Inauspicious Effects", "शुभाशुभ प्रभावहरू"),
+    VARGA_D45_TITLE("Akshavedamsa (D45)", "अक्षवेदांश (D45)"),
+    VARGA_D45_DESC("General Indications", "सामान्य सङ्केतहरू"),
+    VARGA_D60_TITLE("Shashtiamsa (D60)", "षष्ट्यंश (D60)"),
+    VARGA_D60_DESC("Past Life Karma", "पूर्वजन्मको कर्म"),
+    VARGA_PLANETARY_POSITIONS("PLANETARY POSITIONS", "ग्रह स्थितिहरू"),
+
+    // ============================================
+    // HOROSCOPE CALCULATOR (Life Areas & Themes)
+    // ============================================
+    LIFE_AREA_CAREER("Career", "क्यारियर"),
+    LIFE_AREA_LOVE("Love & Relationships", "प्रेम र सम्बन्धहरू"),
+    LIFE_AREA_HEALTH("Health & Vitality", "स्वास्थ्य र जीवनशक्ति"),
+    LIFE_AREA_FINANCE("Finance & Wealth", "वित्त र धन"),
+    LIFE_AREA_FAMILY("Family & Home", "परिवार र घर"),
+    LIFE_AREA_SPIRITUAL("Spiritual Growth", "आध्यात्मिक वृद्धि"),
+
+    // Weekly Themes
+    THEME_DYNAMIC_ACTION("Dynamic Action", "गतिशील कार्य"),
+    THEME_PRACTICAL_PROGRESS("Practical Progress", "व्यावहारिक प्रगति"),
+    THEME_SOCIAL_CONNECTIONS("Social Connections", "सामाजिक सम्पर्कहरू"),
+    THEME_EMOTIONAL_INSIGHT("Emotional Insight", "भावनात्मक अन्तर्दृष्टि"),
+    THEME_TRANSFORMATION("Transformation", "रूपान्तरण"),
+    THEME_SPIRITUAL_LIBERATION("Spiritual Liberation", "आध्यात्मिक मुक्ति"),
+
+    // Element-based advice
+    ADVICE_FIRE_ELEMENT("Take bold action and express yourself confidently.", "साहसिक कदम चाल्नुहोस् र आत्मविश्वासका साथ आफूलाई अभिव्यक्त गर्नुहोस्।"),
+    ADVICE_EARTH_ELEMENT("Focus on practical matters and material progress.", "व्यावहारिक मामिलाहरू र भौतिक प्रगतिमा ध्यान दिनुहोस्।"),
+    ADVICE_AIR_ELEMENT("Engage in social activities and intellectual pursuits.", "सामाजिक क्रियाकलापहरू र बौद्धिक खोजमा संलग्न हुनुहोस्।"),
+    ADVICE_WATER_ELEMENT("Trust your intuition and honor your emotions.", "आफ्नो अन्तर्ज्ञानमा विश्वास गर्नुहोस् र भावनाहरूलाई सम्मान गर्नुहोस्।"),
+
+    // Week types
+    WEEK_OPPORTUNITIES("Week of Opportunities", "अवसरहरूको हप्ता"),
+    WEEK_STEADY_PROGRESS("Steady Progress", "स्थिर प्रगति"),
+    WEEK_MINDFUL_NAVIGATION("Mindful Navigation", "सचेत नेभिगेसन"),
+
+    // Time periods
+    TIME_MORNING("Morning hours", "बिहानको समय"),
+    TIME_AFTERNOON("Afternoon hours", "दिउँसोको समय"),
+    TIME_EVENING("Evening hours", "साँझको समय"),
+
+    // ============================================
+    // MATCHMAKING CALCULATOR
+    // ============================================
+    // Varna
+    VARNA_BRAHMIN("Brahmin", "ब्राह्मण"),
+    VARNA_KSHATRIYA("Kshatriya", "क्षत्रिय"),
+    VARNA_VAISHYA("Vaishya", "वैश्य"),
+    VARNA_SHUDRA("Shudra", "शूद्र"),
+
+    // Vashya
+    VASHYA_QUADRUPED("Quadruped", "चतुष्पाद"),
+    VASHYA_HUMAN("Human", "मनुष्य"),
+    VASHYA_AQUATIC("Aquatic", "जलचर"),
+    VASHYA_WILD("Wild", "वन्य"),
+    VASHYA_INSECT("Insect", "कीट"),
+
+    // Gana descriptions
+    GANA_DEVA_DESC("Divine - Sattvik, gentle, spiritual", "दैवी - सात्त्विक, सौम्य, आध्यात्मिक"),
+    GANA_MANUSHYA_DESC("Human - Rajasik, balanced, worldly", "मानवीय - राजसिक, सन्तुलित, सांसारिक"),
+    GANA_RAKSHASA_DESC("Demon - Tamasik, aggressive, dominant", "राक्षसी - तामसिक, आक्रामक, प्रभुत्वशाली"),
+
+    // Yoni Animals
+    YONI_HORSE("Horse", "घोडा"),
+    YONI_ELEPHANT("Elephant", "हात्ती"),
+    YONI_SHEEP("Sheep", "भेडा"),
+    YONI_SERPENT("Serpent", "सर्प"),
+    YONI_DOG("Dog", "कुकुर"),
+    YONI_CAT("Cat", "बिरालो"),
+    YONI_RAT("Rat", "मुसो"),
+    YONI_COW("Cow", "गाई"),
+    YONI_BUFFALO("Buffalo", "भैंसी"),
+    YONI_TIGER("Tiger", "बाघ"),
+    YONI_DEER("Deer", "मृग"),
+    YONI_MONKEY("Monkey", "बाँदर"),
+    YONI_MONGOOSE("Mongoose", "न्यौरीमुसो"),
+    YONI_LION("Lion", "सिंह"),
+
+    // Rajju
+    RAJJU_PADA("Pada Rajju (Feet)", "पाद रज्जु"),
+    RAJJU_KATI("Kati Rajju (Waist)", "कटि रज्जु"),
+    RAJJU_NABHI("Nabhi Rajju (Navel)", "नाभि रज्जु"),
+    RAJJU_KANTHA("Kantha Rajju (Neck)", "कण्ठ रज्जु"),
+    RAJJU_SIRO("Siro Rajju (Head)", "शिर रज्जु"),
+
+    // Manglik Dosha
+    MANGLIK_NONE("No Manglik Dosha", "मंगलिक दोष छैन"),
+    MANGLIK_PARTIAL("Partial Manglik", "आंशिक मंगलिक"),
+    MANGLIK_FULL("Full Manglik", "पूर्ण मंगलिक"),
+    MANGLIK_DOUBLE("Double Manglik (Severe)", "दोहोरो मंगलिक (गम्भीर)"),
+
+    // Nadi
+    NADI_ADI("Adi (Vata)", "आदि (वात)"),
+    NADI_ADI_DESC("Beginning - Wind element, nervous temperament, creative energy", "आरम्भ - वायु तत्त्व, स्नायविक स्वभाव, सिर्जनात्मक ऊर्जा"),
+    NADI_MADHYA("Madhya (Pitta)", "मध्य (पित्त)"),
+    NADI_MADHYA_DESC("Middle - Fire element, bilious temperament, leadership qualities", "मध्य - अग्नि तत्त्व, पित्त स्वभाव, नेतृत्व गुणहरू"),
+    NADI_ANTYA("Antya (Kapha)", "अन्त्य (कफ)"),
+    NADI_ANTYA_DESC("End - Water element, phlegmatic temperament, stable nature", "अन्त्य - जल तत्त्व, कफ स्वभाव, स्थिर प्रकृति"),
+
+    // Compatibility Ratings
+    COMPAT_EXCELLENT("Excellent Match", "उत्कृष्ट मिलान"),
+    COMPAT_EXCELLENT_DESC("Highly recommended for marriage. Strong compatibility across all factors with harmonious planetary alignments.", "विवाहको लागि अत्यधिक सिफारिस गरिएको। सबै कारकहरूमा बलियो अनुकूलता र सामञ्जस्यपूर्ण ग्रह स्थितिहरू।"),
+    COMPAT_GOOD("Good Match", "राम्रो मिलान"),
+    COMPAT_GOOD_DESC("Recommended. Good overall compatibility with minor differences that can be easily managed.", "सिफारिस गरिएको। सामान्य राम्रो अनुकूलता, सानातिना भिन्नताहरू सजिलै व्यवस्थापन गर्न सकिन्छ।"),
+    COMPAT_AVERAGE("Average Match", "औसत मिलान"),
+    COMPAT_AVERAGE_DESC("Acceptable with some remedies. Moderate compatibility requiring mutual understanding and effort.", "केही उपायहरूसँग स्वीकार्य। पारस्परिक समझ र प्रयासको आवश्यकता पर्ने मध्यम अनुकूलता।"),
+    COMPAT_BELOW_AVG("Below Average", "औसतभन्दा कम"),
+    COMPAT_BELOW_AVG_DESC("Caution advised. Several compatibility issues that need addressing through remedies and counseling.", "सावधानी सल्लाह दिइएको। उपाय र परामर्शबाट सम्बोधन गर्नुपर्ने धेरै अनुकूलता समस्याहरू।"),
+    COMPAT_POOR("Poor Match", "कमजोर मिलान"),
+    COMPAT_POOR_DESC("Not recommended. Significant compatibility challenges that may cause ongoing difficulties.", "सिफारिस गरिएको छैन। महत्त्वपूर्ण अनुकूलता चुनौतीहरू जसले निरन्तर कठिनाइहरू निम्त्याउन सक्छ।"),
+
+    // ============================================
+    // YOGINI DASHA NAMES
+    // ============================================
+    YOGINI_MANGALA("Mangala", "मंगला"),
+    YOGINI_PINGALA("Pingala", "पिङ्गला"),
+    YOGINI_DHANYA("Dhanya", "धान्या"),
+    YOGINI_BHRAMARI("Bhramari", "भ्रामरी"),
+    YOGINI_BHADRIKA("Bhadrika", "भद्रिका"),
+    YOGINI_ULKA("Ulka", "उल्का"),
+    YOGINI_SIDDHA("Siddha", "सिद्धा"),
+    YOGINI_SANKATA("Sankata", "सङ्कटा"),
+
+    // Yogini planet associations
+    YOGINI_CHANDRA("Chandra (Moon)", "चन्द्र"),
+    YOGINI_SURYA("Surya (Sun)", "सूर्य"),
+    YOGINI_GURU("Guru (Jupiter)", "गुरु"),
+    YOGINI_MANGAL("Mangal (Mars)", "मंगल"),
+    YOGINI_BUDHA("Budha (Mercury)", "बुध"),
+    YOGINI_SHANI("Shani (Saturn)", "शनि"),
+    YOGINI_SHUKRA("Shukra (Venus)", "शुक्र"),
+    YOGINI_RAHU("Rahu", "राहु"),
+
+    // ============================================
+    // REPORT HEADERS
+    // ============================================
+    REPORT_VEDIC_REMEDIES("VEDIC ASTROLOGY REMEDIES REPORT", "वैदिक ज्योतिष उपाय प्रतिवेदन"),
+    REPORT_PLANETS_NEEDING_ATTENTION("PLANETS REQUIRING ATTENTION:", "ध्यान आवश्यक ग्रहहरू:"),
+
+    // ============================================
+    // ERROR MESSAGES (For GeocodingService)
+    // ============================================
+    ERROR_RATE_LIMIT("Rate limit exceeded. Please try again later.", "दर सीमा नाघ्यो। कृपया पछि फेरि प्रयास गर्नुहोस्।"),
+    ERROR_QUERY_MIN_CHARS("Query must be at least 2 characters", "खोजी कम्तीमा २ वर्णको हुनुपर्छ"),
+    ERROR_LATITUDE_RANGE("Latitude must be between -90 and 90", "अक्षांश -९० र ९० बीचमा हुनुपर्छ"),
+    ERROR_LONGITUDE_RANGE("Longitude must be between -180 and 180", "देशान्तर -१८० र १८० बीचमा हुनुपर्छ"),
+    ERROR_CONNECTION_TIMEOUT("Connection timeout. Please check your internet.", "जडान समय समाप्त। कृपया आफ्नो इन्टरनेट जाँच गर्नुहोस्।"),
+    ERROR_NO_INTERNET("No internet connection.", "इन्टरनेट जडान छैन।"),
+    ERROR_UNKNOWN("Unknown error", "अज्ञात त्रुटि"),
+
+    // ============================================
+    // GENERAL UI LABELS
+    // ============================================
+    LABEL_UNKNOWN("Unknown", "अज्ञात"),
+    LABEL_REQUIRED("Required:", "आवश्यक:"),
+    LABEL_RUPAS("Rupas", "रूपा"),
+    LABEL_PERCENT_REQUIRED("% of required", "आवश्यकको %"),
+    LABEL_TODAY("Today", "आज"),
+    LABEL_PREVIOUS_MONTH("Previous month", "अघिल्लो महिना"),
+    LABEL_NEXT_MONTH("Next month", "अर्को महिना"),
+    LABEL_AD("AD", "ई.सं."),
+    LABEL_BS("BS", "बि.सं."),
+
+    // Weekday abbreviations
+    WEEKDAY_SU("Su", "आ"),
+    WEEKDAY_MO("Mo", "सो"),
+    WEEKDAY_TU("Tu", "मं"),
+    WEEKDAY_WE("We", "बु"),
+    WEEKDAY_TH("Th", "बि"),
+    WEEKDAY_FR("Fr", "शु"),
+    WEEKDAY_SA("Sa", "श"),
+
+    // ============================================
+    // COLORS (For Horoscope advice)
+    // ============================================
+    COLOR_RED_ORANGE_GOLD("Red, Orange, or Gold", "रातो, सुन्तला, वा सुनौलो"),
+    COLOR_GREEN_BROWN_WHITE("Green, Brown, or White", "हरियो, खैरो, वा सेतो"),
+    COLOR_BLUE_LIGHT_SILVER("Blue, Light Blue, or Silver", "निलो, हल्का निलो, वा चाँदी"),
+    COLOR_WHITE_CREAM_SEA("White, Cream, or Sea Green", "सेतो, क्रिम, वा समुद्री हरियो"),
+
+    // ============================================
+    // GEMSTONES
+    // ============================================
+    GEMSTONE_RUBY("Ruby", "माणिक"),
+    GEMSTONE_PEARL("Pearl", "मोती"),
+    GEMSTONE_RED_CORAL("Red Coral", "मूंगा"),
+    GEMSTONE_EMERALD("Emerald", "पन्ना"),
+    GEMSTONE_YELLOW_SAPPHIRE("Yellow Sapphire", "पुखराज"),
+    GEMSTONE_DIAMOND("Diamond/White Sapphire", "हीरा/सेतो नीलम"),
+    GEMSTONE_BLUE_SAPPHIRE("Blue Sapphire", "नीलम"),
+    GEMSTONE_HESSONITE("Hessonite", "गोमेद"),
+    GEMSTONE_CATS_EYE("Cat's Eye", "लहसुनिया"),
+
+    // ============================================
+    // MOON PHASES
+    // ============================================
+    MOON_FIRST_QUARTER("First Quarter Moon", "पहिलो चौथाई चन्द्रमा"),
+    MOON_FIRST_QUARTER_DESC("Good for taking action", "कार्य गर्नको लागि राम्रो"),
+    MOON_FULL("Full Moon", "पूर्णिमा"),
+    MOON_FULL_DESC("Emotional peak - completion energy", "भावनात्मक शिखर - पूर्णता ऊर्जा"),
+
+    // ============================================
+    // PRASHNA HOUSE SIGNIFICATIONS
+    // ============================================
+    PRASHNA_HOUSE_1_NAME("Lagna/Querent", "लग्न/प्रश्नकर्ता"),
+    PRASHNA_HOUSE_2_NAME("Dhana", "धन"),
+    PRASHNA_HOUSE_3_NAME("Sahaja", "सहज"),
+    PRASHNA_HOUSE_4_NAME("Sukha", "सुख"),
+    PRASHNA_HOUSE_5_NAME("Putra", "पुत्र"),
+    PRASHNA_HOUSE_6_NAME("Ripu", "रिपु"),
+    PRASHNA_HOUSE_7_NAME("Kalatra", "कलत्र"),
+    PRASHNA_HOUSE_8_NAME("Ayu", "आयु"),
+    PRASHNA_HOUSE_9_NAME("Dharma", "धर्म"),
+    PRASHNA_HOUSE_10_NAME("Karma", "कर्म"),
+    PRASHNA_HOUSE_11_NAME("Labha", "लाभ"),
+    PRASHNA_HOUSE_12_NAME("Vyaya", "व्यय"),
+
+    // Body parts for Prashna
+    BODY_PART_HEAD("Head", "टाउको"),
+    BODY_PART_FACE("Face/Mouth", "अनुहार/मुख"),
+    BODY_PART_ARMS("Arms/Shoulders", "पाखुरा/काँध"),
+    BODY_PART_CHEST("Chest", "छाती"),
+    BODY_PART_UPPER_ABDOMEN("Upper Abdomen", "माथिल्लो पेट"),
+    BODY_PART_LOWER_ABDOMEN("Lower Abdomen", "तल्लो पेट"),
+    BODY_PART_BELOW_NAVEL("Below Navel", "नाभिमुनि"),
+    BODY_PART_REPRODUCTIVE("Reproductive organs", "प्रजनन अंगहरू"),
+    BODY_PART_THIGHS("Thighs", "जाँघ"),
+    BODY_PART_KNEES("Knees", "घुँडा"),
+    BODY_PART_CALVES("Calves/Shins", "पिँडौला"),
+    BODY_PART_FEET("Feet", "खुट्टा"),
+
+    // Prashna terms
+    PRASHNA_MOOK("Mook (Dumb) Prashna", "मूक प्रश्न"),
+    PRASHNA_ARUDHA("Arudha Lagna", "आरूढ लग्न");
 
     companion object {
         /**

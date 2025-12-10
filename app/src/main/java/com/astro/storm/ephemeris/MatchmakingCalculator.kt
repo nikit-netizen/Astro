@@ -1,5 +1,8 @@
 package com.astro.storm.ephemeris
 
+import com.astro.storm.data.localization.Language
+import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringResources
 import com.astro.storm.data.model.Nakshatra
 import com.astro.storm.data.model.Planet
 import com.astro.storm.data.model.VedicChart
@@ -27,7 +30,14 @@ object MatchmakingCalculator {
         BRAHMIN(4, "Brahmin"),
         KSHATRIYA(3, "Kshatriya"),
         VAISHYA(2, "Vaishya"),
-        SHUDRA(1, "Shudra")
+        SHUDRA(1, "Shudra");
+
+        fun getLocalizedName(language: Language): String = when (this) {
+            BRAHMIN -> StringResources.get(StringKey.VARNA_BRAHMIN, language)
+            KSHATRIYA -> StringResources.get(StringKey.VARNA_KSHATRIYA, language)
+            VAISHYA -> StringResources.get(StringKey.VARNA_VAISHYA, language)
+            SHUDRA -> StringResources.get(StringKey.VARNA_SHUDRA, language)
+        }
     }
 
     enum class Vashya(val displayName: String) {
@@ -35,13 +45,33 @@ object MatchmakingCalculator {
         MANAVA("Human"),
         JALACHARA("Aquatic"),
         VANACHARA("Wild"),
-        KEETA("Insect")
+        KEETA("Insect");
+
+        fun getLocalizedName(language: Language): String = when (this) {
+            CHATUSHPADA -> StringResources.get(StringKey.VASHYA_CHATUSHPADA, language)
+            MANAVA -> StringResources.get(StringKey.VASHYA_MANAVA, language)
+            JALACHARA -> StringResources.get(StringKey.VASHYA_JALACHARA, language)
+            VANACHARA -> StringResources.get(StringKey.VASHYA_VANACHARA, language)
+            KEETA -> StringResources.get(StringKey.VASHYA_KEETA, language)
+        }
     }
 
     enum class Gana(val displayName: String, val description: String) {
         DEVA("Deva", "Divine - Sattvik, gentle, spiritual"),
         MANUSHYA("Manushya", "Human - Rajasik, balanced, worldly"),
-        RAKSHASA("Rakshasa", "Demon - Tamasik, aggressive, dominant")
+        RAKSHASA("Rakshasa", "Demon - Tamasik, aggressive, dominant");
+
+        fun getLocalizedName(language: Language): String = when (this) {
+            DEVA -> StringResources.get(StringKey.GANA_DEVA, language)
+            MANUSHYA -> StringResources.get(StringKey.GANA_MANUSHYA, language)
+            RAKSHASA -> StringResources.get(StringKey.GANA_RAKSHASA, language)
+        }
+
+        fun getLocalizedDescription(language: Language): String = when (this) {
+            DEVA -> StringResources.get(StringKey.GANA_DEVA_DESC, language)
+            MANUSHYA -> StringResources.get(StringKey.GANA_MANUSHYA_DESC, language)
+            RAKSHASA -> StringResources.get(StringKey.GANA_RAKSHASA_DESC, language)
+        }
     }
 
     enum class Yoni(val animal: String, val gender: YoniGender, val groupId: Int) {
@@ -80,7 +110,19 @@ object MatchmakingCalculator {
     enum class Nadi(val displayName: String, val description: String) {
         ADI("Adi (Vata)", "Beginning - Wind element, controls movement and nervous system"),
         MADHYA("Madhya (Pitta)", "Middle - Fire element, controls digestion and metabolism"),
-        ANTYA("Antya (Kapha)", "End - Water element, controls structure and lubrication")
+        ANTYA("Antya (Kapha)", "End - Water element, controls structure and lubrication");
+
+        fun getLocalizedName(language: Language): String = when (this) {
+            ADI -> StringResources.get(StringKey.NADI_ADI, language)
+            MADHYA -> StringResources.get(StringKey.NADI_MADHYA, language)
+            ANTYA -> StringResources.get(StringKey.NADI_ANTYA, language)
+        }
+
+        fun getLocalizedDescription(language: Language): String = when (this) {
+            ADI -> StringResources.get(StringKey.NADI_ADI_DESC, language)
+            MADHYA -> StringResources.get(StringKey.NADI_MADHYA_DESC, language)
+            ANTYA -> StringResources.get(StringKey.NADI_ANTYA_DESC, language)
+        }
     }
 
     enum class Rajju(val displayName: String, val bodyPart: String) {
@@ -88,14 +130,37 @@ object MatchmakingCalculator {
         KATI("Kati Rajju", "Waist"),
         NABHI("Nabhi Rajju", "Navel"),
         KANTHA("Kantha Rajju", "Neck"),
-        SIRO("Siro Rajju", "Head")
+        SIRO("Siro Rajju", "Head");
+
+        fun getLocalizedName(language: Language): String = when (this) {
+            PADA -> StringResources.get(StringKey.RAJJU_PADA, language)
+            KATI -> StringResources.get(StringKey.RAJJU_KATI, language)
+            NABHI -> StringResources.get(StringKey.RAJJU_NABHI, language)
+            KANTHA -> StringResources.get(StringKey.RAJJU_KANTHA, language)
+            SIRO -> StringResources.get(StringKey.RAJJU_SIRO, language)
+        }
+
+        fun getLocalizedBodyPart(language: Language): String = when (this) {
+            PADA -> StringResources.get(StringKey.RAJJU_PADA_BODY, language)
+            KATI -> StringResources.get(StringKey.RAJJU_KATI_BODY, language)
+            NABHI -> StringResources.get(StringKey.RAJJU_NABHI_BODY, language)
+            KANTHA -> StringResources.get(StringKey.RAJJU_KANTHA_BODY, language)
+            SIRO -> StringResources.get(StringKey.RAJJU_SIRO_BODY, language)
+        }
     }
 
     enum class ManglikDosha(val displayName: String, val severity: Int) {
         NONE("No Manglik Dosha", 0),
         PARTIAL("Partial Manglik", 1),
         FULL("Full Manglik", 2),
-        DOUBLE("Double Manglik (Severe)", 3)
+        DOUBLE("Double Manglik (Severe)", 3);
+
+        fun getLocalizedName(language: Language): String = when (this) {
+            NONE -> StringResources.get(StringKey.MANGLIK_NONE, language)
+            PARTIAL -> StringResources.get(StringKey.MANGLIK_PARTIAL, language)
+            FULL -> StringResources.get(StringKey.MANGLIK_FULL, language)
+            DOUBLE -> StringResources.get(StringKey.MANGLIK_DOUBLE, language)
+        }
     }
 
     enum class CompatibilityRating(val displayName: String, val description: String) {
@@ -103,7 +168,23 @@ object MatchmakingCalculator {
         GOOD("Good Match", "Recommended. Good overall compatibility with minor differences that can be easily managed."),
         AVERAGE("Average Match", "Acceptable with some remedies. Moderate compatibility requiring mutual understanding and effort."),
         BELOW_AVERAGE("Below Average", "Caution advised. Several compatibility issues that need addressing through remedies and counseling."),
-        POOR("Poor Match", "Not recommended. Significant compatibility challenges that may cause ongoing difficulties.")
+        POOR("Poor Match", "Not recommended. Significant compatibility challenges that may cause ongoing difficulties.");
+
+        fun getLocalizedName(language: Language): String = when (this) {
+            EXCELLENT -> StringResources.get(StringKey.COMPAT_EXCELLENT, language)
+            GOOD -> StringResources.get(StringKey.COMPAT_GOOD, language)
+            AVERAGE -> StringResources.get(StringKey.COMPAT_AVERAGE, language)
+            BELOW_AVERAGE -> StringResources.get(StringKey.COMPAT_BELOW_AVG, language)
+            POOR -> StringResources.get(StringKey.COMPAT_POOR, language)
+        }
+
+        fun getLocalizedDescription(language: Language): String = when (this) {
+            EXCELLENT -> StringResources.get(StringKey.COMPAT_EXCELLENT_DESC, language)
+            GOOD -> StringResources.get(StringKey.COMPAT_GOOD_DESC, language)
+            AVERAGE -> StringResources.get(StringKey.COMPAT_AVERAGE_DESC, language)
+            BELOW_AVERAGE -> StringResources.get(StringKey.COMPAT_BELOW_AVG_DESC, language)
+            POOR -> StringResources.get(StringKey.COMPAT_POOR_DESC, language)
+        }
     }
 
     data class GunaAnalysis(

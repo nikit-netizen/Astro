@@ -1,5 +1,8 @@
 package com.astro.storm.ephemeris
 
+import com.astro.storm.data.localization.Language
+import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringResources
 import com.astro.storm.data.model.Planet
 import com.astro.storm.data.model.PlanetPosition
 import com.astro.storm.data.model.VedicChart
@@ -181,6 +184,38 @@ object AshtakavargaCalculator {
                 binduScore >= 3 && savScore >= 25 -> "Average - Mixed results"
                 binduScore >= 2 && savScore >= 22 -> "Below Average - Some challenges"
                 else -> "Difficult - Careful navigation needed"
+            }
+
+            return TransitScore(
+                planet = planet,
+                sign = sign,
+                binduScore = binduScore,
+                savScore = savScore,
+                interpretation = interpretation
+            )
+        }
+
+        /**
+         * Get localized transit prediction score for a planet transiting a sign
+         */
+        fun getLocalizedTransitScore(planet: Planet, sign: ZodiacSign, language: Language): TransitScore {
+            val bav = bhinnashtakavarga[planet] ?: return TransitScore(
+                planet = planet,
+                sign = sign,
+                binduScore = 0,
+                savScore = sarvashtakavarga.getBindusForSign(sign),
+                interpretation = StringResources.get(StringKey.LABEL_UNKNOWN, language)
+            )
+
+            val binduScore = bav.getBindusForSign(sign)
+            val savScore = sarvashtakavarga.getBindusForSign(sign)
+
+            val interpretation = when {
+                binduScore >= 5 && savScore >= 30 -> StringResources.get(StringKey.TRANSIT_INTERP_EXCELLENT, language)
+                binduScore >= 4 && savScore >= 28 -> StringResources.get(StringKey.TRANSIT_INTERP_GOOD, language)
+                binduScore >= 3 && savScore >= 25 -> StringResources.get(StringKey.TRANSIT_INTERP_AVERAGE, language)
+                binduScore >= 2 && savScore >= 22 -> StringResources.get(StringKey.TRANSIT_INTERP_BELOW_AVG, language)
+                else -> StringResources.get(StringKey.TRANSIT_INTERP_DIFFICULT, language)
             }
 
             return TransitScore(

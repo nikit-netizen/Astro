@@ -10,6 +10,9 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import com.astro.storm.data.localization.Language
+import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringResources
 import com.astro.storm.data.model.Planet
 import com.astro.storm.data.model.PlanetPosition
 import com.astro.storm.data.model.VedicChart
@@ -999,15 +1002,16 @@ class ChartRenderer {
         return bitmap
     }
 
-    fun drawSouthIndianChart(drawScope: DrawScope, chart: VedicChart, size: Float) {
-        drawNorthIndianChart(drawScope, chart, size, "Lagna")
+    fun drawSouthIndianChart(drawScope: DrawScope, chart: VedicChart, size: Float, language: Language = Language.ENGLISH) {
+        drawNorthIndianChart(drawScope, chart, size, StringResources.get(StringKey.CHART_LAGNA, language))
     }
 
     fun DrawScope.drawChartLegend(
         chartBottom: Float,
         chartLeft: Float,
         chartWidth: Float,
-        textSize: Float
+        textSize: Float,
+        language: Language = Language.ENGLISH
     ) {
         val legendY = chartBottom + textSize * 1.8f
         val legendSpacing = chartWidth / 6f
@@ -1015,7 +1019,7 @@ class ChartRenderer {
         val itemTextSize = textSize * 0.72f
 
         drawTextCentered(
-            text = "${SYMBOL_RETROGRADE}Retro",
+            text = "$SYMBOL_RETROGRADE${StringResources.get(StringKey.CHART_LEGEND_RETRO_SHORT, language)}",
             position = Offset(legendStartX, legendY),
             textSize = itemTextSize,
             color = HOUSE_NUMBER_COLOR,
@@ -1023,7 +1027,7 @@ class ChartRenderer {
         )
 
         drawTextCentered(
-            text = "${SYMBOL_COMBUST}Comb",
+            text = "$SYMBOL_COMBUST${StringResources.get(StringKey.CHART_LEGEND_COMBUST_SHORT, language)}",
             position = Offset(legendStartX + legendSpacing, legendY),
             textSize = itemTextSize,
             color = HOUSE_NUMBER_COLOR,
@@ -1031,7 +1035,7 @@ class ChartRenderer {
         )
 
         drawTextCentered(
-            text = "${SYMBOL_VARGOTTAMA}Vargo",
+            text = "$SYMBOL_VARGOTTAMA${StringResources.get(StringKey.CHART_LEGEND_VARGO_SHORT, language)}",
             position = Offset(legendStartX + legendSpacing * 2, legendY),
             textSize = itemTextSize,
             color = HOUSE_NUMBER_COLOR,
@@ -1041,7 +1045,7 @@ class ChartRenderer {
         val exaltedX = legendStartX + legendSpacing * 3
         drawLegendExaltedArrow(Offset(exaltedX - textSize * 0.6f, legendY), textSize)
         drawTextCentered(
-            text = "Exalt",
+            text = StringResources.get(StringKey.CHART_LEGEND_EXALT_SHORT, language),
             position = Offset(exaltedX + textSize * 0.4f, legendY),
             textSize = itemTextSize,
             color = HOUSE_NUMBER_COLOR,
@@ -1051,7 +1055,7 @@ class ChartRenderer {
         val debilitatedX = legendStartX + legendSpacing * 4
         drawLegendDebilitatedArrow(Offset(debilitatedX - textSize * 0.6f, legendY), textSize)
         drawTextCentered(
-            text = "Deb",
+            text = StringResources.get(StringKey.CHART_LEGEND_DEB_SHORT, language),
             position = Offset(debilitatedX + textSize * 0.3f, legendY),
             textSize = itemTextSize,
             color = HOUSE_NUMBER_COLOR,
@@ -1061,7 +1065,7 @@ class ChartRenderer {
         val ownX = legendStartX + legendSpacing * 5
         drawLegendOwnSignIndicator(Offset(ownX - textSize * 0.6f, legendY), textSize)
         drawTextCentered(
-            text = "Own",
+            text = StringResources.get(StringKey.CHART_LEGEND_OWN_SHORT, language),
             position = Offset(ownX + textSize * 0.3f, legendY),
             textSize = itemTextSize,
             color = HOUSE_NUMBER_COLOR,
