@@ -36,8 +36,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.astro.storm.data.localization.Language
 import com.astro.storm.data.localization.LocalizationManager
+import com.astro.storm.data.localization.LocalLanguage
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.getLocalizedName
 import com.astro.storm.data.localization.stringResource
 import com.astro.storm.data.model.*
 import com.astro.storm.ephemeris.DivisionalChartData
@@ -467,6 +470,7 @@ private fun PlanetDialogHeader(
     planetPosition: PlanetPosition,
     onDismiss: () -> Unit
 ) {
+    val language = LocalLanguage.current
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = DialogSurface
@@ -498,13 +502,13 @@ private fun PlanetDialogHeader(
                 Spacer(modifier = Modifier.width(16.dp))
                 Column {
                     Text(
-                        text = planetPosition.planet.displayName,
+                        text = planetPosition.planet.getLocalizedName(language),
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextPrimary
                     )
                     Text(
-                        text = "${planetPosition.sign.displayName} • House ${planetPosition.house}",
+                        text = "${planetPosition.sign.getLocalizedName(language)} • ${stringResource(StringKey.HOUSE)} ${planetPosition.house}",
                         fontSize = 14.sp,
                         color = TextSecondary
                     )
@@ -519,13 +523,14 @@ private fun PlanetDialogHeader(
 
 @Composable
 private fun PlanetPositionCard(position: PlanetPosition) {
+    val language = LocalLanguage.current
     DialogCard(title = stringResource(StringKey.DIALOG_POSITION_DETAILS), icon = Icons.Outlined.LocationOn) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            DetailRow(stringResource(StringKey.DIALOG_ZODIAC_SIGN), position.sign.displayName, AccentTeal)
+            DetailRow(stringResource(StringKey.DIALOG_ZODIAC_SIGN), position.sign.getLocalizedName(language), AccentTeal)
             DetailRow(stringResource(StringKey.DIALOG_DEGREE), formatDegree(position.longitude), TextPrimary)
             DetailRow(stringResource(StringKey.DIALOG_HOUSE), "${stringResource(StringKey.HOUSE)} ${position.house}", AccentGold)
-            DetailRow(stringResource(StringKey.DIALOG_NAKSHATRA), "${position.nakshatra.displayName} (${stringResource(StringKey.PANCHANGA_PADA)} ${position.nakshatraPada})", AccentPurple)
-            DetailRow(stringResource(StringKey.DIALOG_NAKSHATRA_LORD), position.nakshatra.ruler.displayName, TextSecondary)
+            DetailRow(stringResource(StringKey.DIALOG_NAKSHATRA), "${position.nakshatra.getLocalizedName(language)} (${stringResource(StringKey.PANCHANGA_PADA)} ${position.nakshatraPada})", AccentPurple)
+            DetailRow(stringResource(StringKey.DIALOG_NAKSHATRA_LORD), position.nakshatra.ruler.getLocalizedName(language), TextSecondary)
             DetailRow(stringResource(StringKey.DIALOG_NAKSHATRA_DEITY), position.nakshatra.deity, TextSecondary)
             if (position.isRetrograde) {
                 DetailRow(stringResource(StringKey.DIALOG_MOTION), stringResource(StringKey.DIALOG_RETROGRADE), AccentOrange)
@@ -536,6 +541,7 @@ private fun PlanetPositionCard(position: PlanetPosition) {
 
 @Composable
 private fun ShadbalaCard(shadbala: PlanetaryShadbala) {
+    val language = LocalLanguage.current
     DialogCard(title = stringResource(StringKey.DIALOG_STRENGTH_ANALYSIS), icon = Icons.Outlined.TrendingUp) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             // Overall strength bar
@@ -552,7 +558,7 @@ private fun ShadbalaCard(shadbala: PlanetaryShadbala) {
                         color = TextPrimary
                     )
                     Text(
-                        text = shadbala.strengthRating.displayName,
+                        text = shadbala.strengthRating.getLocalizedName(language),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = when {
@@ -701,6 +707,7 @@ private fun HousePlacementCard(position: PlanetPosition) {
 
 @Composable
 private fun PlanetStatusCard(position: PlanetPosition, chart: VedicChart) {
+    val language = LocalLanguage.current
     val conditions = remember(chart) {
         RetrogradeCombustionCalculator.analyzePlanetaryConditions(chart)
     }
@@ -730,7 +737,7 @@ private fun PlanetStatusCard(position: PlanetPosition, chart: VedicChart) {
                 if (cond.combustionStatus != RetrogradeCombustionCalculator.CombustionStatus.NOT_COMBUST) {
                     StatusChip(
                         label = stringResource(StringKey.DIALOG_COMBUSTION),
-                        value = cond.combustionStatus.displayName,
+                        value = cond.combustionStatus.getLocalizedName(language),
                         color = AccentRose
                     )
                 }
@@ -739,7 +746,7 @@ private fun PlanetStatusCard(position: PlanetPosition, chart: VedicChart) {
                 if (cond.isInPlanetaryWar) {
                     StatusChip(
                         label = stringResource(StringKey.DIALOG_PLANETARY_WAR),
-                        value = stringResource(StringKey.DIALOG_AT_WAR_WITH, cond.warData?.loser?.displayName ?: ""),
+                        value = stringResource(StringKey.DIALOG_AT_WAR_WITH, cond.warData?.loser?.getLocalizedName(language) ?: ""),
                         color = AccentPurple
                     )
                 }
@@ -876,6 +883,7 @@ fun NakshatraDetailDialog(
     pada: Int,
     onDismiss: () -> Unit
 ) {
+    val language = LocalLanguage.current
     val details = getNakshatraDetails(nakshatra)
 
     Dialog(
@@ -904,13 +912,13 @@ fun NakshatraDetailDialog(
                     ) {
                         Column {
                             Text(
-                                text = nakshatra.displayName,
+                                text = nakshatra.getLocalizedName(language),
                                 fontSize = 22.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = TextPrimary
                             )
                             Text(
-                                text = "${stringResource(StringKey.PANCHANGA_PADA)} $pada • ${nakshatra.ruler.displayName}",
+                                text = "${stringResource(StringKey.PANCHANGA_PADA)} $pada • ${nakshatra.ruler.getLocalizedName(language)}",
                                 fontSize = 14.sp,
                                 color = TextSecondary
                             )
@@ -932,7 +940,7 @@ fun NakshatraDetailDialog(
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 DetailRow(stringResource(StringKey.DIALOG_NUMBER), "${nakshatra.number} / 27", TextPrimary)
                                 DetailRow(stringResource(StringKey.DIALOG_DEGREE_RANGE), "${String.format("%.2f", nakshatra.startDegree)}° - ${String.format("%.2f", nakshatra.endDegree)}°", AccentTeal)
-                                DetailRow(stringResource(StringKey.PANCHANGA_RULING_PLANET), nakshatra.ruler.displayName, AccentGold)
+                                DetailRow(stringResource(StringKey.PANCHANGA_RULING_PLANET), nakshatra.ruler.getLocalizedName(language), AccentGold)
                                 DetailRow(stringResource(StringKey.DIALOG_NAKSHATRA_DEITY), nakshatra.deity, AccentPurple)
                             }
                         }
@@ -966,7 +974,7 @@ fun NakshatraDetailDialog(
                                     4 -> nakshatra.pada4Sign
                                     else -> nakshatra.pada1Sign
                                 }
-                                DetailRow(stringResource(StringKey.DIALOG_NAVAMSA_SIGN), padaSign.displayName, AccentTeal)
+                                DetailRow(stringResource(StringKey.DIALOG_NAVAMSA_SIGN), padaSign.getLocalizedName(language), AccentTeal)
                                 Text(
                                     text = getPadaDescription(nakshatra, pada),
                                     fontSize = 14.sp,
@@ -1015,6 +1023,7 @@ fun HouseDetailDialog(
     chart: VedicChart,
     onDismiss: () -> Unit
 ) {
+    val language = LocalLanguage.current
     val houseDetails = getHouseDetails(houseNumber)
     val sign = ZodiacSign.fromLongitude(houseCusp)
 
@@ -1070,9 +1079,9 @@ fun HouseDetailDialog(
                     item {
                         DialogCard(title = stringResource(StringKey.DIALOG_HOUSE_INFO), icon = Icons.Outlined.Home) {
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                DetailRow(stringResource(StringKey.DIALOG_ZODIAC_SIGN), sign.displayName, AccentTeal)
+                                DetailRow(stringResource(StringKey.DIALOG_ZODIAC_SIGN), sign.getLocalizedName(language), AccentTeal)
                                 DetailRow(stringResource(StringKey.DIALOG_CUSP_DEGREE), formatDegree(houseCusp), TextPrimary)
-                                DetailRow(stringResource(StringKey.DIALOG_SIGN_LORD), sign.ruler.displayName, AccentGold)
+                                DetailRow(stringResource(StringKey.DIALOG_SIGN_LORD), sign.ruler.getLocalizedName(language), AccentGold)
                                 DetailRow(stringResource(StringKey.DIALOG_HOUSE_TYPE), houseDetails.type, TextSecondary)
                             }
                         }
@@ -1117,7 +1126,7 @@ fun HouseDetailDialog(
                                                 )
                                                 Spacer(modifier = Modifier.width(8.dp))
                                                 Text(
-                                                    text = planet.planet.displayName,
+                                                    text = planet.planet.getLocalizedName(language),
                                                     fontSize = 14.sp,
                                                     fontWeight = FontWeight.Medium,
                                                     color = TextPrimary
@@ -1159,6 +1168,7 @@ fun ShadbalaDialog(
     chart: VedicChart,
     onDismiss: () -> Unit
 ) {
+    val language = LocalLanguage.current
     val shadbalaAnalysis = remember(chart) {
         ShadbalaCalculator.calculateShadbala(chart)
     }
@@ -1231,12 +1241,12 @@ fun ShadbalaDialog(
                                     )
                                     SummaryBadge(
                                         label = stringResource(StringKey.DIALOG_STRONGEST),
-                                        value = shadbalaAnalysis.strongestPlanet.displayName,
+                                        value = shadbalaAnalysis.strongestPlanet.getLocalizedName(language),
                                         color = AccentGold
                                     )
                                     SummaryBadge(
                                         label = stringResource(StringKey.DIALOG_WEAKEST),
-                                        value = shadbalaAnalysis.weakestPlanet.displayName,
+                                        value = shadbalaAnalysis.weakestPlanet.getLocalizedName(language),
                                         color = AccentPurple
                                     )
                                 }
@@ -1246,7 +1256,7 @@ fun ShadbalaDialog(
 
                     // Individual planet strengths
                     items(shadbalaAnalysis.getPlanetsByStrength()) { shadbala ->
-                        PlanetStrengthCard(shadbala)
+                        PlanetStrengthCard(shadbala, language)
                     }
                 }
             }
@@ -1272,7 +1282,7 @@ private fun SummaryBadge(label: String, value: String, color: Color) {
 }
 
 @Composable
-private fun PlanetStrengthCard(shadbala: PlanetaryShadbala) {
+private fun PlanetStrengthCard(shadbala: PlanetaryShadbala, language: Language) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -1304,13 +1314,13 @@ private fun PlanetStrengthCard(shadbala: PlanetaryShadbala) {
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = shadbala.planet.displayName,
+                            text = shadbala.planet.getLocalizedName(language),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = TextPrimary
                         )
                         Text(
-                            text = shadbala.strengthRating.displayName,
+                            text = shadbala.strengthRating.getLocalizedName(language),
                             fontSize = 12.sp,
                             color = when {
                                 shadbala.isStrong -> AccentGreen
@@ -1592,20 +1602,22 @@ private fun getPlanetPredictions(
     shadbala: PlanetaryShadbala,
     chart: VedicChart
 ): List<Prediction> {
+    val language = LocalLanguage.current
     val predictions = mutableListOf<Prediction>()
     val planet = position.planet
+    val planetName = planet.getLocalizedName(language)
 
     // Strength-based predictions
     if (shadbala.isStrong) {
         predictions.add(Prediction(
             PredictionType.POSITIVE,
-            stringResource(StringKey.PREDICTION_STRONG_PLANET, planet.displayName),
+            stringResource(StringKey.PREDICTION_STRONG_PLANET, planetName),
             stringResource(StringKey.PREDICTION_STRONG_DESC)
         ))
     } else {
         predictions.add(Prediction(
             PredictionType.NEGATIVE,
-            stringResource(StringKey.PREDICTION_WEAK_PLANET, planet.displayName),
+            stringResource(StringKey.PREDICTION_WEAK_PLANET, planetName),
             stringResource(StringKey.PREDICTION_WEAK_DESC)
         ))
     }
@@ -1620,17 +1632,17 @@ private fun getPlanetPredictions(
         exaltedStatus -> predictions.add(Prediction(
             PredictionType.POSITIVE,
             stringResource(StringKey.PREDICTION_EXALTED),
-            stringResource(StringKey.PREDICTION_EXALTED_DESC, planet.displayName)
+            stringResource(StringKey.PREDICTION_EXALTED_DESC, planetName)
         ))
         debilitatedStatus -> predictions.add(Prediction(
             PredictionType.NEGATIVE,
             stringResource(StringKey.PREDICTION_DEBILITATED),
-            stringResource(StringKey.PREDICTION_DEBILITATED_DESC, planet.displayName)
+            stringResource(StringKey.PREDICTION_DEBILITATED_DESC, planetName)
         ))
         ownSignStatus -> predictions.add(Prediction(
             PredictionType.POSITIVE,
             stringResource(StringKey.PREDICTION_OWN_SIGN),
-            stringResource(StringKey.PREDICTION_OWN_SIGN_DESC, planet.displayName)
+            stringResource(StringKey.PREDICTION_OWN_SIGN_DESC, planetName)
         ))
     }
 
@@ -1648,17 +1660,17 @@ private fun getPlanetPredictions(
         1, 5, 9 -> predictions.add(Prediction(
             PredictionType.POSITIVE,
             stringResource(StringKey.PREDICTION_TRIKONA),
-            stringResource(StringKey.PREDICTION_TRIKONA_DESC, planet.displayName, position.house)
+            stringResource(StringKey.PREDICTION_TRIKONA_DESC, planetName, position.house)
         ))
         6, 8, 12 -> predictions.add(Prediction(
             PredictionType.NEUTRAL,
             stringResource(StringKey.PREDICTION_DUSTHANA),
-            stringResource(StringKey.PREDICTION_DUSTHANA_DESC, planet.displayName, position.house)
+            stringResource(StringKey.PREDICTION_DUSTHANA_DESC, planetName, position.house)
         ))
         4, 7, 10 -> predictions.add(Prediction(
             PredictionType.POSITIVE,
             stringResource(StringKey.PREDICTION_KENDRA),
-            stringResource(StringKey.PREDICTION_KENDRA_DESC, planet.displayName, position.house)
+            stringResource(StringKey.PREDICTION_KENDRA_DESC, planetName, position.house)
         ))
     }
 

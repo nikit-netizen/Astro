@@ -1,5 +1,8 @@
 package com.astro.storm.ephemeris
 
+import com.astro.storm.data.localization.Language
+import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringResources
 import com.astro.storm.data.model.*
 import com.astro.storm.util.AstrologicalUtils.normalizeLongitude
 import kotlin.math.floor
@@ -747,7 +750,49 @@ enum class DivisionalChartType(
     D30_TRIMSAMSA(30, "Trimsamsa", "D30", "Evils, Misfortunes"),
     D40_KHAVEDAMSA(40, "Khavedamsa", "D40", "Auspicious/Inauspicious Effects"),
     D45_AKSHAVEDAMSA(45, "Akshavedamsa", "D45", "General Indications"),
-    D60_SHASHTIAMSA(60, "Shashtiamsa", "D60", "Past Life Karma")
+    D60_SHASHTIAMSA(60, "Shashtiamsa", "D60", "Past Life Karma");
+
+    fun getLocalizedDisplayName(language: Language): String = when (this) {
+        D1_RASHI -> StringResources.get(StringKey.VARGA_D1_TITLE, language)
+        D2_HORA -> StringResources.get(StringKey.VARGA_D2_TITLE, language)
+        D3_DREKKANA -> StringResources.get(StringKey.VARGA_D3_TITLE, language)
+        D4_CHATURTHAMSA -> StringResources.get(StringKey.VARGA_D4_TITLE, language)
+        D7_SAPTAMSA -> StringResources.get(StringKey.VARGA_D7_TITLE, language)
+        D9_NAVAMSA -> StringResources.get(StringKey.VARGA_D9_TITLE, language)
+        D10_DASAMSA -> StringResources.get(StringKey.VARGA_D10_TITLE, language)
+        D12_DWADASAMSA -> StringResources.get(StringKey.VARGA_D12_TITLE, language)
+        D16_SHODASAMSA -> StringResources.get(StringKey.VARGA_D16_TITLE, language)
+        D20_VIMSAMSA -> StringResources.get(StringKey.VARGA_D20_TITLE, language)
+        D24_CHATURVIMSAMSA -> StringResources.get(StringKey.VARGA_D24_TITLE, language)
+        D27_SAPTAVIMSAMSA -> StringResources.get(StringKey.VARGA_D27_TITLE, language)
+        D30_TRIMSAMSA -> StringResources.get(StringKey.VARGA_D30_TITLE, language)
+        D40_KHAVEDAMSA -> StringResources.get(StringKey.VARGA_D40_TITLE, language)
+        D45_AKSHAVEDAMSA -> StringResources.get(StringKey.VARGA_D45_TITLE, language)
+        D60_SHASHTIAMSA -> StringResources.get(StringKey.VARGA_D60_TITLE, language)
+    }
+
+    fun getLocalizedDescription(language: Language): String = when (this) {
+        D1_RASHI -> StringResources.get(StringKey.VARGA_D1_DESC, language)
+        D2_HORA -> StringResources.get(StringKey.VARGA_D2_DESC, language)
+        D3_DREKKANA -> StringResources.get(StringKey.VARGA_D3_DESC, language)
+        D4_CHATURTHAMSA -> StringResources.get(StringKey.VARGA_D4_DESC, language)
+        D7_SAPTAMSA -> StringResources.get(StringKey.VARGA_D7_DESC, language)
+        D9_NAVAMSA -> StringResources.get(StringKey.VARGA_D9_DESC, language)
+        D10_DASAMSA -> StringResources.get(StringKey.VARGA_D10_DESC, language)
+        D12_DWADASAMSA -> StringResources.get(StringKey.VARGA_D12_DESC, language)
+        D16_SHODASAMSA -> StringResources.get(StringKey.VARGA_D16_DESC, language)
+        D20_VIMSAMSA -> StringResources.get(StringKey.VARGA_D20_DESC, language)
+        D24_CHATURVIMSAMSA -> StringResources.get(StringKey.VARGA_D24_DESC, language)
+        D27_SAPTAVIMSAMSA -> StringResources.get(StringKey.VARGA_D27_DESC, language)
+        D30_TRIMSAMSA -> StringResources.get(StringKey.VARGA_D30_DESC, language)
+        D40_KHAVEDAMSA -> StringResources.get(StringKey.VARGA_D40_DESC, language)
+        D45_AKSHAVEDAMSA -> StringResources.get(StringKey.VARGA_D45_DESC, language)
+        D60_SHASHTIAMSA -> StringResources.get(StringKey.VARGA_D60_DESC, language)
+    }
+
+    fun getLocalizedChartTitle(language: Language): String {
+        return "${getLocalizedDisplayName(language)} ($shortName)"
+    }
 }
 
 data class DivisionalChartData(
@@ -787,6 +832,34 @@ data class DivisionalChartData(
                     "${position.planet.displayName.padEnd(10)}: " +
                     "${position.sign.displayName.padEnd(12)} " +
                     "${formatDegreeInSign(position.longitude)}$retrograde | House ${position.house}"
+                )
+            }
+            appendLine()
+        }
+    }
+
+    fun toLocalizedPlainText(language: Language): String {
+        val ascendantLabel = StringResources.get(StringKey.CHART_LAGNA, language)
+        val planetaryPositionsLabel = StringResources.get(StringKey.CHART_PLANETARY_POSITIONS, language)
+        val houseLabel = StringResources.get(StringKey.HOUSE, language)
+        val retroLabel = StringResources.get(StringKey.CHART_LEGEND_RETRO_SHORT, language)
+
+        return buildString {
+            appendLine("═══════════════════════════════════════════════════")
+            appendLine("           ${chartType.getLocalizedDisplayName(language).uppercase()} (${chartType.shortName})")
+            appendLine("           ${chartType.getLocalizedDescription(language)}")
+            appendLine("═══════════════════════════════════════════════════")
+            appendLine()
+            appendLine("$ascendantLabel: ${formatDegree(ascendantLongitude)} (${ascendantSign.getLocalizedName(language)})")
+            appendLine()
+            appendLine(planetaryPositionsLabel.uppercase())
+            appendLine("───────────────────────────────────────────────────")
+            planetPositions.forEach { position ->
+                val retrograde = if (position.isRetrograde) " [$retroLabel]" else ""
+                appendLine(
+                    "${position.planet.getLocalizedName(language).padEnd(10)}: " +
+                    "${position.sign.getLocalizedName(language).padEnd(12)} " +
+                    "${formatDegreeInSign(position.longitude)}$retrograde | $houseLabel ${position.house}"
                 )
             }
             appendLine()

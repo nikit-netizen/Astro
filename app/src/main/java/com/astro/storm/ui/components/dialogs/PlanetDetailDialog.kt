@@ -413,70 +413,125 @@ private fun formatDegree(degree: Double): String {
     return "$deg° $min' $sec\""
 }
 
+@Composable
 private fun getPlanetSignifications(planet: Planet): PlanetSignifications {
     return when (planet) {
         Planet.SUN -> PlanetSignifications(
-            nature = "Malefic",
-            element = "Fire",
-            represents = listOf("Soul, Self, Ego", "Father, Authority Figures", "Government, Power", "Health, Vitality", "Fame, Recognition"),
-            bodyParts = "Heart, Spine, Right Eye, Bones",
-            professions = "Government jobs, Politics, Medicine, Administration, Leadership roles"
+            nature = stringResource(StringKey.PLANET_SUN_NATURE),
+            element = stringResource(StringKey.PLANET_SUN_ELEMENT),
+            represents = listOf(
+                stringResource(StringKey.PLANET_SUN_REPRESENTS_1),
+                stringResource(StringKey.PLANET_SUN_REPRESENTS_2),
+                stringResource(StringKey.PLANET_SUN_REPRESENTS_3),
+                stringResource(StringKey.PLANET_SUN_REPRESENTS_4),
+                stringResource(StringKey.PLANET_SUN_REPRESENTS_5)
+            ),
+            bodyParts = stringResource(StringKey.PLANET_SUN_BODY_PARTS),
+            professions = stringResource(StringKey.PLANET_SUN_PROFESSIONS)
         )
         Planet.MOON -> PlanetSignifications(
-            nature = "Benefic",
-            element = "Water",
-            represents = listOf("Mind, Emotions", "Mother, Nurturing", "Public, Masses", "Comforts, Happiness", "Memory, Imagination"),
-            bodyParts = "Mind, Left Eye, Breast, Blood, Fluids",
-            professions = "Nursing, Hotel industry, Shipping, Agriculture, Psychology"
+            nature = stringResource(StringKey.PLANET_MOON_NATURE),
+            element = stringResource(StringKey.PLANET_MOON_ELEMENT),
+            represents = listOf(
+                stringResource(StringKey.PLANET_MOON_REPRESENTS_1),
+                stringResource(StringKey.PLANET_MOON_REPRESENTS_2),
+                stringResource(StringKey.PLANET_MOON_REPRESENTS_3),
+                stringResource(StringKey.PLANET_MOON_REPRESENTS_4),
+                stringResource(StringKey.PLANET_MOON_REPRESENTS_5)
+            ),
+            bodyParts = stringResource(StringKey.PLANET_MOON_BODY_PARTS),
+            professions = stringResource(StringKey.PLANET_MOON_PROFESSIONS)
         )
         Planet.MARS -> PlanetSignifications(
-            nature = "Malefic",
-            element = "Fire",
-            represents = listOf("Energy, Action, Courage", "Siblings, Younger Brothers", "Property, Land", "Competition, Sports", "Technical Skills"),
-            bodyParts = "Blood, Muscles, Marrow, Head injuries",
-            professions = "Military, Police, Surgery, Engineering, Sports, Real Estate"
+            nature = stringResource(StringKey.PLANET_MARS_NATURE),
+            element = stringResource(StringKey.PLANET_MARS_ELEMENT),
+            represents = listOf(
+                stringResource(StringKey.PLANET_MARS_REPRESENTS_1),
+                stringResource(StringKey.PLANET_MARS_REPRESENTS_2),
+                stringResource(StringKey.PLANET_MARS_REPRESENTS_3),
+                stringResource(StringKey.PLANET_MARS_REPRESENTS_4),
+                stringResource(StringKey.PLANET_MARS_REPRESENTS_5)
+            ),
+            bodyParts = stringResource(StringKey.PLANET_MARS_BODY_PARTS),
+            professions = stringResource(StringKey.PLANET_MARS_PROFESSIONS)
         )
         Planet.MERCURY -> PlanetSignifications(
-            nature = "Benefic",
-            element = "Earth",
-            represents = listOf("Intelligence, Communication", "Learning, Education", "Business, Trade", "Writing, Speech", "Siblings, Friends"),
-            bodyParts = "Nervous system, Skin, Speech, Hands",
-            professions = "Writing, Teaching, Accounting, Trading, IT, Media"
+            nature = stringResource(StringKey.PLANET_MERCURY_NATURE),
+            element = stringResource(StringKey.PLANET_MERCURY_ELEMENT),
+            represents = listOf(
+                stringResource(StringKey.PLANET_MERCURY_REPRESENTS_1),
+                stringResource(StringKey.PLANET_MERCURY_REPRESENTS_2),
+                stringResource(StringKey.PLANET_MERCURY_REPRESENTS_3),
+                stringResource(StringKey.PLANET_MERCURY_REPRESENTS_4),
+                stringResource(StringKey.PLANET_MERCURY_REPRESENTS_5)
+            ),
+            bodyParts = stringResource(StringKey.PLANET_MERCURY_BODY_PARTS),
+            professions = stringResource(StringKey.PLANET_MERCURY_PROFESSIONS)
         )
         Planet.JUPITER -> PlanetSignifications(
-            nature = "Benefic",
-            element = "Ether",
-            represents = listOf("Wisdom, Knowledge", "Teachers, Gurus", "Fortune, Luck", "Children, Dharma", "Expansion, Growth"),
-            bodyParts = "Liver, Fat tissue, Ears, Thighs",
-            professions = "Teaching, Law, Priesthood, Banking, Counseling"
+            nature = stringResource(StringKey.PLANET_JUPITER_NATURE),
+            element = stringResource(StringKey.PLANET_JUPITER_ELEMENT),
+            represents = listOf(
+                stringResource(StringKey.PLANET_JUPITER_REPRESENTS_1),
+                stringResource(StringKey.PLANET_JUPITER_REPRESENTS_2),
+                stringResource(StringKey.PLANET_JUPITER_REPRESENTS_3),
+                stringResource(StringKey.PLANET_JUPITER_REPRESENTS_4),
+                stringResource(StringKey.PLANET_JUPITER_REPRESENTS_5)
+            ),
+            bodyParts = stringResource(StringKey.PLANET_JUPITER_BODY_PARTS),
+            professions = stringResource(StringKey.PLANET_JUPITER_PROFESSIONS)
         )
         Planet.VENUS -> PlanetSignifications(
-            nature = "Benefic",
-            element = "Water",
-            represents = listOf("Love, Beauty, Art", "Marriage, Relationships", "Luxuries, Comforts", "Vehicles, Pleasures", "Creativity"),
-            bodyParts = "Reproductive system, Face, Skin, Throat",
-            professions = "Entertainment, Fashion, Art, Hospitality, Beauty industry"
+            nature = stringResource(StringKey.PLANET_VENUS_NATURE),
+            element = stringResource(StringKey.PLANET_VENUS_ELEMENT),
+            represents = listOf(
+                stringResource(StringKey.PLANET_VENUS_REPRESENTS_1),
+                stringResource(StringKey.PLANET_VENUS_REPRESENTS_2),
+                stringResource(StringKey.PLANET_VENUS_REPRESENTS_3),
+                stringResource(StringKey.PLANET_VENUS_REPRESENTS_4),
+                stringResource(StringKey.PLANET_VENUS_REPRESENTS_5)
+            ),
+            bodyParts = stringResource(StringKey.PLANET_VENUS_BODY_PARTS),
+            professions = stringResource(StringKey.PLANET_VENUS_PROFESSIONS)
         )
         Planet.SATURN -> PlanetSignifications(
-            nature = "Malefic",
-            element = "Air",
-            represents = listOf("Discipline, Hard work", "Karma, Delays", "Longevity, Service", "Laborers, Servants", "Chronic issues"),
-            bodyParts = "Bones, Teeth, Knees, Joints, Nerves",
-            professions = "Mining, Agriculture, Labor, Judiciary, Real Estate"
+            nature = stringResource(StringKey.PLANET_SATURN_NATURE),
+            element = stringResource(StringKey.PLANET_SATURN_ELEMENT),
+            represents = listOf(
+                stringResource(StringKey.PLANET_SATURN_REPRESENTS_1),
+                stringResource(StringKey.PLANET_SATURN_REPRESENTS_2),
+                stringResource(StringKey.PLANET_SATURN_REPRESENTS_3),
+                stringResource(StringKey.PLANET_SATURN_REPRESENTS_4),
+                stringResource(StringKey.PLANET_SATURN_REPRESENTS_5)
+            ),
+            bodyParts = stringResource(StringKey.PLANET_SATURN_BODY_PARTS),
+            professions = stringResource(StringKey.PLANET_SATURN_PROFESSIONS)
         )
         Planet.RAHU -> PlanetSignifications(
-            nature = "Malefic",
-            element = "Air",
-            represents = listOf("Obsession, Illusion", "Foreign lands, Travel", "Technology, Innovation", "Unconventional paths", "Material desires"),
-            bodyParts = "Skin diseases, Nervous disorders",
-            professions = "Technology, Foreign affairs, Aviation, Politics, Research"
+            nature = stringResource(StringKey.PLANET_RAHU_NATURE),
+            element = stringResource(StringKey.PLANET_RAHU_ELEMENT),
+            represents = listOf(
+                stringResource(StringKey.PLANET_RAHU_REPRESENTS_1),
+                stringResource(StringKey.PLANET_RAHU_REPRESENTS_2),
+                stringResource(StringKey.PLANET_RAHU_REPRESENTS_3),
+                stringResource(StringKey.PLANET_RAHU_REPRESENTS_4),
+                stringResource(StringKey.PLANET_RAHU_REPRESENTS_5)
+            ),
+            bodyParts = stringResource(StringKey.PLANET_RAHU_BODY_PARTS),
+            professions = stringResource(StringKey.PLANET_RAHU_PROFESSIONS)
         )
         Planet.KETU -> PlanetSignifications(
-            nature = "Malefic",
-            element = "Fire",
-            represents = listOf("Spirituality, Liberation", "Past life karma", "Detachment, Isolation", "Occult, Mysticism", "Healing abilities"),
-            bodyParts = "Skin, Spine, Nervous system",
-            professions = "Spirituality, Research, Healing, Astrology, Philosophy"
+            nature = stringResource(StringKey.PLANET_KETU_NATURE),
+            element = stringResource(StringKey.PLANET_KETU_ELEMENT),
+            represents = listOf(
+                stringResource(StringKey.PLANET_KETU_REPRESENTS_1),
+                stringResource(StringKey.PLANET_KETU_REPRESENTS_2),
+                stringResource(StringKey.PLANET_KETU_REPRESENTS_3),
+                stringResource(StringKey.PLANET_KETU_REPRESENTS_4),
+                stringResource(StringKey.PLANET_KETU_REPRESENTS_5)
+            ),
+            bodyParts = stringResource(StringKey.PLANET_KETU_BODY_PARTS),
+            professions = stringResource(StringKey.PLANET_KETU_PROFESSIONS)
         )
         else -> PlanetSignifications("", "", emptyList(), "", "")
     }

@@ -1,5 +1,8 @@
 package com.astro.storm.ephemeris
 
+import com.astro.storm.data.localization.Language
+import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringResources
 import com.astro.storm.data.model.Planet
 import com.astro.storm.data.model.PlanetPosition
 import com.astro.storm.data.model.VedicChart
@@ -33,6 +36,17 @@ object AspectCalculator {
         SATURN_3RD("Saturn 3rd Aspect", 3, 60.0, AspectNature.CHALLENGING, "♄₃", 0.75),
         SATURN_10TH("Saturn 10th Aspect", 10, 270.0, AspectNature.CHALLENGING, "♄₁₀", 1.0);
 
+        fun getLocalizedName(language: Language): String = when (this) {
+            CONJUNCTION -> StringResources.get(StringKey.ASPECT_TYPE_CONJUNCTION, language)
+            SEVENTH_HOUSE -> StringResources.get(StringKey.ASPECT_TYPE_7TH, language)
+            MARS_4TH -> StringResources.get(StringKey.ASPECT_TYPE_MARS_4TH, language)
+            MARS_8TH -> StringResources.get(StringKey.ASPECT_TYPE_MARS_8TH, language)
+            JUPITER_5TH -> StringResources.get(StringKey.ASPECT_TYPE_JUPITER_5TH, language)
+            JUPITER_9TH -> StringResources.get(StringKey.ASPECT_TYPE_JUPITER_9TH, language)
+            SATURN_3RD -> StringResources.get(StringKey.ASPECT_TYPE_SATURN_3RD, language)
+            SATURN_10TH -> StringResources.get(StringKey.ASPECT_TYPE_SATURN_10TH, language)
+        }
+
         companion object {
             fun getSpecialAspects(planet: Planet): List<AspectType> {
                 return when (planet) {
@@ -49,7 +63,14 @@ object AspectCalculator {
         HARMONIOUS("Harmonious", true),
         CHALLENGING("Challenging", false),
         VARIABLE("Variable", null),
-        SIGNIFICANT("Significant", null)
+        SIGNIFICANT("Significant", null);
+
+        fun getLocalizedName(language: Language): String = when (this) {
+            HARMONIOUS -> StringResources.get(StringKey.ASPECT_NATURE_HARMONIOUS, language)
+            CHALLENGING -> StringResources.get(StringKey.ASPECT_NATURE_CHALLENGING, language)
+            VARIABLE -> StringResources.get(StringKey.ASPECT_NATURE_VARIABLE, language)
+            SIGNIFICANT -> StringResources.get(StringKey.ASPECT_NATURE_SIGNIFICANT, language)
+        }
     }
 
     enum class AspectMode {
@@ -86,6 +107,14 @@ object AspectCalculator {
                 drishtiBala >= 0.25 -> "Weak (Alpa)"
                 else -> "Negligible (Sunya)"
             }
+
+        fun getLocalizedStrengthDescription(language: Language): String = when {
+            drishtiBala >= 0.95 -> StringResources.get(StringKey.ASPECT_STRENGTH_EXACT, language)
+            drishtiBala >= 0.75 -> StringResources.get(StringKey.ASPECT_STRENGTH_ADHIKA, language)
+            drishtiBala >= 0.50 -> StringResources.get(StringKey.ASPECT_STRENGTH_MADHYA, language)
+            drishtiBala >= 0.25 -> StringResources.get(StringKey.ASPECT_STRENGTH_ALPA, language)
+            else -> StringResources.get(StringKey.ASPECT_STRENGTH_SUNYA, language)
+        }
 
         val isFullAspect: Boolean
             get() = aspectType.classicalStrength >= 1.0

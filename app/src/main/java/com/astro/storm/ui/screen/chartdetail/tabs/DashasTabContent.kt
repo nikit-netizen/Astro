@@ -298,7 +298,7 @@ private fun CurrentPeriodCard(timeline: DashaCalculator.DashaTimeline) {
             if (currentMahadasha != null) {
                 Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                     DashaPeriodRow(
-                        label = "Mahadasha",
+                        label = stringResource(StringKey.DASHA_LEVEL_MAHADASHA),
                         planet = currentMahadasha.planet,
                         startDate = currentMahadasha.startDate,
                         endDate = currentMahadasha.endDate,
@@ -309,7 +309,7 @@ private fun CurrentPeriodCard(timeline: DashaCalculator.DashaTimeline) {
 
                     currentAntardasha?.let { ad ->
                         DashaPeriodRow(
-                            label = "Antardasha",
+                            label = stringResource(StringKey.DASHA_LEVEL_ANTARDASHA),
                             planet = ad.planet,
                             startDate = ad.startDate,
                             endDate = ad.endDate,
@@ -321,7 +321,7 @@ private fun CurrentPeriodCard(timeline: DashaCalculator.DashaTimeline) {
 
                     currentPratyantardasha?.let { pd ->
                         DashaPeriodRow(
-                            label = "Pratyantardasha",
+                            label = stringResource(StringKey.DASHA_LEVEL_PRATYANTARDASHA),
                             planet = pd.planet,
                             startDate = pd.startDate,
                             endDate = pd.endDate,
@@ -333,7 +333,7 @@ private fun CurrentPeriodCard(timeline: DashaCalculator.DashaTimeline) {
 
                     currentSookshmadasha?.let { sd ->
                         DashaPeriodRow(
-                            label = "Sookshmadasha",
+                            label = stringResource(StringKey.DASHA_LEVEL_SOOKSHMADASHA),
                             planet = sd.planet,
                             startDate = sd.startDate,
                             endDate = sd.endDate,
@@ -345,7 +345,7 @@ private fun CurrentPeriodCard(timeline: DashaCalculator.DashaTimeline) {
 
                     currentPranadasha?.let { prd ->
                         DashaPeriodRow(
-                            label = "Pranadasha",
+                            label = stringResource(StringKey.DASHA_LEVEL_PRANADASHA),
                             planet = prd.planet,
                             startDate = prd.startDate,
                             endDate = prd.endDate,
@@ -357,7 +357,7 @@ private fun CurrentPeriodCard(timeline: DashaCalculator.DashaTimeline) {
 
                     currentDehadasha?.let { dd ->
                         DashaPeriodRow(
-                            label = "Dehadasha",
+                            label = stringResource(StringKey.DASHA_LEVEL_DEHADASHA),
                             planet = dd.planet,
                             startDate = dd.startDate,
                             endDate = dd.endDate,
@@ -511,7 +511,7 @@ private fun SandhiAlertsCard(
                     Spacer(modifier = Modifier.width(14.dp))
                     Column {
                         Text(
-                            text = "Dasha Sandhi Alerts",
+                            text = stringResource(StringKey.DASHA_SANDHI_ALERTS),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = ChartDetailColors.TextPrimary,
@@ -519,7 +519,7 @@ private fun SandhiAlertsCard(
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = "${sandhis.size} upcoming transition${if (sandhis.size != 1) "s" else ""} within 90 days",
+                            text = stringResource(StringKey.DASHA_UPCOMING_TRANSITIONS, sandhis.size, 90),
                             fontSize = 12.sp,
                             color = ChartDetailColors.TextMuted
                         )
@@ -528,7 +528,7 @@ private fun SandhiAlertsCard(
 
                 Icon(
                     Icons.Default.ExpandMore,
-                    contentDescription = if (isExpanded) "Collapse" else "Expand",
+                    contentDescription = if (isExpanded) stringResource(StringKey.DASHA_COLLAPSE) else stringResource(StringKey.DASHA_EXPAND),
                     tint = ChartDetailColors.TextMuted,
                     modifier = Modifier
                         .size(24.dp)
@@ -543,7 +543,7 @@ private fun SandhiAlertsCard(
             ) {
                 Column(modifier = Modifier.padding(top = 16.dp)) {
                     Text(
-                        text = "Sandhi periods mark transitions between planetary periods. These are sensitive times requiring careful attention as the energy shifts from one planet to another.",
+                        text = stringResource(StringKey.DASHA_SANDHI_EXPLANATION),
                         fontSize = 12.sp,
                         color = ChartDetailColors.TextSecondary,
                         lineHeight = 18.sp,
@@ -576,14 +576,8 @@ private fun SandhiAlertRow(
     val isImminent = daysUntil in 0..7
     val isWithinSandhi = sandhi.isWithinSandhi(today)
 
-    val levelLabel = when (sandhi.level) {
-        DashaCalculator.DashaLevel.MAHADASHA -> "Mahadasha"
-        DashaCalculator.DashaLevel.ANTARDASHA -> "Antardasha"
-        DashaCalculator.DashaLevel.PRATYANTARDASHA -> "Pratyantardasha"
-        DashaCalculator.DashaLevel.SOOKSHMADASHA -> "Sookshmadasha"
-        DashaCalculator.DashaLevel.PRANADASHA -> "Pranadasha"
-        DashaCalculator.DashaLevel.DEHADASHA -> "Dehadasha"
-    }
+    val language = LocalLanguage.current
+    val levelLabel = getDashaLevelName(sandhi.level, language)
 
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -639,14 +633,14 @@ private fun SandhiAlertRow(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "${sandhi.fromPlanet.displayName} → ${sandhi.toPlanet.displayName}",
+                    text = "${sandhi.fromPlanet.getLocalizedName(language)} → ${sandhi.toPlanet.getLocalizedName(language)}",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = ChartDetailColors.TextPrimary
                 )
                 Spacer(modifier = Modifier.height(1.dp))
                 Text(
-                    text = "$levelLabel transition",
+                    text = "$levelLabel ${stringResource(StringKey.DASHA_TRANSITION)}",
                     fontSize = 11.sp,
                     color = ChartDetailColors.TextMuted
                 )
@@ -655,10 +649,10 @@ private fun SandhiAlertRow(
             Column(horizontalAlignment = Alignment.End) {
                 Text(
                     text = when {
-                        isWithinSandhi -> "Active Now"
-                        daysUntil == 0L -> "Today"
-                        daysUntil == 1L -> "Tomorrow"
-                        isImminent -> "In $daysUntil days"
+                        isWithinSandhi -> stringResource(StringKey.DASHA_ACTIVE_NOW)
+                        daysUntil == 0L -> stringResource(StringKey.DASHA_TODAY)
+                        daysUntil == 1L -> stringResource(StringKey.DASHA_TOMORROW)
+                        isImminent -> stringResource(StringKey.DASHA_IN_DAYS, daysUntil.toInt())
                         else -> formatDate(sandhi.transitionDate, LocalDateSystem.current, LocalLanguage.current, DateFormat.MONTH_YEAR)
                     },
                     fontSize = 12.sp,
@@ -701,7 +695,7 @@ private fun EmptyDashaState() {
             )
             Spacer(modifier = Modifier.height(14.dp))
             Text(
-                text = "Unable to calculate current dasha period",
+                text = stringResource(StringKey.DASHA_UNABLE_CALCULATE),
                 fontSize = 14.sp,
                 color = ChartDetailColors.TextMuted
             )
@@ -932,7 +926,7 @@ private fun CurrentPeriodSummary(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Period Insights",
+                    text = stringResource(StringKey.DASHA_PERIOD_INSIGHTS),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = ChartDetailColors.AccentGold
@@ -952,6 +946,7 @@ private fun CurrentPeriodSummary(
 @Composable
 private fun DashaTimelineCard(timeline: DashaCalculator.DashaTimeline) {
     val today = LocalDate.now()
+    val language = LocalLanguage.current
 
     Surface(
         modifier = Modifier
@@ -988,7 +983,7 @@ private fun DashaTimelineCard(timeline: DashaCalculator.DashaTimeline) {
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
-                        text = "Dasha Timeline",
+                        text = stringResource(StringKey.DASHA_TIMELINE),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = ChartDetailColors.TextPrimary,
@@ -996,7 +991,7 @@ private fun DashaTimelineCard(timeline: DashaCalculator.DashaTimeline) {
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "Complete 120-year Vimshottari cycle",
+                        text = stringResource(StringKey.DASHA_COMPLETE_CYCLE),
                         fontSize = 12.sp,
                         color = ChartDetailColors.TextMuted
                     )
@@ -1068,7 +1063,7 @@ private fun DashaTimelineCard(timeline: DashaCalculator.DashaTimeline) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = dasha.planet.displayName,
+                            text = dasha.planet.getLocalizedName(language),
                             fontSize = 13.sp,
                             fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
                             color = when {
@@ -1091,7 +1086,7 @@ private fun DashaTimelineCard(timeline: DashaCalculator.DashaTimeline) {
                             color = if (isCurrent) planetColor.copy(alpha = 0.15f) else Color.Transparent
                         ) {
                             Text(
-                                text = formatDurationYears(dasha.durationYears),
+                                text = formatDurationYearsLocalized(dasha.durationYears, language),
                                 fontSize = 11.sp,
                                 fontWeight = if (isCurrent) FontWeight.SemiBold else FontWeight.Normal,
                                 color = if (isCurrent) planetColor else ChartDetailColors.TextMuted,
@@ -1102,15 +1097,6 @@ private fun DashaTimelineCard(timeline: DashaCalculator.DashaTimeline) {
                 }
             }
         }
-    }
-}
-
-private fun formatDurationYears(years: Double): String {
-    val wholeYears = years.toInt()
-    val months = ((years - wholeYears) * 12).toInt()
-    return when {
-        months > 0 -> "${wholeYears}y ${months}m"
-        else -> "${wholeYears} yrs"
     }
 }
 
@@ -1184,9 +1170,10 @@ private fun MahadashaCard(
                     }
                     Spacer(modifier = Modifier.width(14.dp))
                     Column {
+                        val language = LocalLanguage.current
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "${mahadasha.planet.displayName} Mahadasha",
+                                text = "${mahadasha.planet.getLocalizedName(language)} ${stringResource(StringKey.DASHA_LEVEL_MAHADASHA)}",
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = ChartDetailColors.TextPrimary,
@@ -1199,7 +1186,7 @@ private fun MahadashaCard(
                                     color = planetColor.copy(alpha = 0.2f)
                                 ) {
                                     Text(
-                                        text = "Active",
+                                        text = stringResource(StringKey.DASHA_ACTIVE),
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = planetColor,
@@ -1210,7 +1197,7 @@ private fun MahadashaCard(
                         }
                         Spacer(modifier = Modifier.height(3.dp))
                         Text(
-                            text = "${formatDurationYears(mahadasha.durationYears)} • ${formatDate(mahadasha.startDate, LocalDateSystem.current, LocalLanguage.current, DateFormat.FULL)} – ${formatDate(mahadasha.endDate, LocalDateSystem.current, LocalLanguage.current, DateFormat.FULL)}",
+                            text = "${formatDurationYearsLocalized(mahadasha.durationYears, language)} • ${formatDate(mahadasha.startDate, LocalDateSystem.current, LocalLanguage.current, DateFormat.FULL)} – ${formatDate(mahadasha.endDate, LocalDateSystem.current, LocalLanguage.current, DateFormat.FULL)}",
                             fontSize = 11.sp,
                             color = ChartDetailColors.TextMuted,
                             maxLines = 1,
@@ -1218,8 +1205,9 @@ private fun MahadashaCard(
                         )
                         if (isCurrentMahadasha) {
                             Spacer(modifier = Modifier.height(3.dp))
+                            val percentComplete = String.format(java.util.Locale.ENGLISH, "%.1f", mahadasha.getProgressPercent())
                             Text(
-                                text = "${String.format(java.util.Locale.ENGLISH, "%.1f", mahadasha.getProgressPercent())}% complete • ${formatRemainingYears(mahadasha.getRemainingYears())}",
+                                text = "${stringResource(StringKey.DASHA_PERCENT_COMPLETE, percentComplete)} • ${formatRemainingYearsLocalized(mahadasha.getRemainingYears(), language)}",
                                 fontSize = 10.sp,
                                 color = ChartDetailColors.AccentTeal,
                                 fontWeight = FontWeight.Medium
@@ -1232,7 +1220,7 @@ private fun MahadashaCard(
 
                 Icon(
                     Icons.Default.ExpandMore,
-                    contentDescription = if (isExpanded) "Collapse antardashas" else "Expand antardashas",
+                    contentDescription = if (isExpanded) stringResource(StringKey.DASHA_COLLAPSE) else stringResource(StringKey.DASHA_EXPAND),
                     tint = ChartDetailColors.TextMuted,
                     modifier = Modifier
                         .size(26.dp)
@@ -1256,7 +1244,7 @@ private fun MahadashaCard(
                         modifier = Modifier.padding(bottom = 12.dp)
                     ) {
                         Text(
-                            text = "Antardashas",
+                            text = stringResource(StringKey.DASHA_LEVEL_ANTARDASHA),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = ChartDetailColors.TextSecondary
@@ -1267,7 +1255,7 @@ private fun MahadashaCard(
                             color = ChartDetailColors.CardBackgroundElevated
                         ) {
                             Text(
-                                text = "${mahadasha.antardashas.size} sub-periods",
+                                text = stringResource(StringKey.DASHA_SUB_PERIODS, mahadasha.antardashas.size),
                                 fontSize = 10.sp,
                                 color = ChartDetailColors.TextMuted,
                                 fontWeight = FontWeight.Medium,
@@ -1301,6 +1289,7 @@ private fun AntardashaRow(
     val planetColor = ChartDetailColors.getPlanetColor(antardasha.planet)
     val today = LocalDate.now()
     val isPast = antardasha.endDate.isBefore(today)
+    val language = LocalLanguage.current
 
     Row(
         modifier = modifier
@@ -1343,7 +1332,7 @@ private fun AntardashaRow(
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "${mahadashaPlanet.symbol}–${antardasha.planet.displayName}",
+                        text = "${mahadashaPlanet.symbol}–${antardasha.planet.getLocalizedName(language)}",
                         fontSize = 13.sp,
                         fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
                         color = when {
@@ -1363,7 +1352,7 @@ private fun AntardashaRow(
                     }
                 }
                 if (isCurrent) {
-                    val remaining = formatRemainingDays(antardasha.getRemainingDays())
+                    val remaining = formatRemainingDaysLocalized(antardasha.getRemainingDays(), language)
                     if (remaining.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
@@ -1385,7 +1374,7 @@ private fun AntardashaRow(
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = formatDurationYears(antardasha.durationYears),
+                text = formatDurationYearsLocalized(antardasha.durationYears, language),
                 fontSize = 10.sp,
                 color = ChartDetailColors.TextMuted.copy(alpha = 0.8f)
             )
@@ -1444,7 +1433,7 @@ private fun DashaInfoCard(
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "About Vimshottari Dasha",
+                        text = stringResource(StringKey.DASHA_ABOUT_VIMSHOTTARI),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = ChartDetailColors.TextPrimary,
@@ -1453,7 +1442,7 @@ private fun DashaInfoCard(
                 }
                 Icon(
                     Icons.Default.ExpandMore,
-                    contentDescription = if (isExpanded) "Collapse" else "Expand",
+                    contentDescription = if (isExpanded) stringResource(StringKey.DASHA_COLLAPSE) else stringResource(StringKey.DASHA_EXPAND),
                     tint = ChartDetailColors.TextMuted,
                     modifier = Modifier
                         .size(24.dp)
@@ -1468,7 +1457,7 @@ private fun DashaInfoCard(
             ) {
                 Column(modifier = Modifier.padding(top = 18.dp)) {
                     Text(
-                        text = "The Vimshottari Dasha is the most widely used planetary period system in Vedic astrology (Jyotish). Derived from the Moon's nakshatra (lunar mansion) at birth, it divides the 120-year human lifespan into six levels of planetary periods. Starting from Mahadashas (major periods spanning years), it subdivides into Antardasha (months), Pratyantardasha (weeks), Sookshmadasha (days), Pranadasha (hours), and finally Dehadasha (minutes) — each governed by one of the nine Grahas.",
+                        text = stringResource(StringKey.DASHA_VIMSHOTTARI_DESC),
                         fontSize = 13.sp,
                         color = ChartDetailColors.TextSecondary,
                         lineHeight = 20.sp
@@ -1482,7 +1471,7 @@ private fun DashaInfoCard(
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
-                                text = "Dasha Periods (Vimshottari Sequence)",
+                                text = stringResource(StringKey.DASHA_PERIODS_SEQUENCE),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = ChartDetailColors.TextSecondary
@@ -1522,7 +1511,7 @@ private fun DashaInfoCard(
                                 horizontalArrangement = Arrangement.Center
                             ) {
                                 Text(
-                                    text = "Total Cycle: 120 Years",
+                                    text = stringResource(StringKey.DASHA_TOTAL_CYCLE),
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     color = ChartDetailColors.AccentGold
@@ -1538,7 +1527,7 @@ private fun DashaInfoCard(
                     Spacer(modifier = Modifier.height(14.dp))
 
                     Text(
-                        text = "Dasha Sandhi (junction periods) occur when transitioning between planetary periods and are considered sensitive times requiring careful attention.",
+                        text = stringResource(StringKey.DASHA_SANDHI_NOTE),
                         fontSize = 12.sp,
                         color = ChartDetailColors.TextMuted,
                         lineHeight = 18.sp
@@ -1551,13 +1540,15 @@ private fun DashaInfoCard(
 
 @Composable
 private fun DashaLevelsInfo() {
+    val language = LocalLanguage.current
+
     Surface(
         shape = RoundedCornerShape(14.dp),
         color = ChartDetailColors.CardBackgroundElevated
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
             Text(
-                text = "Dasha Hierarchy",
+                text = stringResource(StringKey.DASHA_HIERARCHY),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = ChartDetailColors.TextSecondary,
@@ -1565,12 +1556,12 @@ private fun DashaLevelsInfo() {
             )
 
             val levels = listOf(
-                "Mahadasha" to "Major period (years)",
-                "Antardasha (Bhukti)" to "Sub-period (months)",
-                "Pratyantardasha" to "Sub-sub-period (weeks)",
-                "Sookshmadasha" to "Subtle period (days)",
-                "Pranadasha" to "Breath period (hours)",
-                "Dehadasha" to "Body period (minutes)"
+                stringResource(StringKey.DASHA_LEVEL_MAHADASHA) to stringResource(StringKey.DASHA_MAJOR_PERIOD_YEARS),
+                "${stringResource(StringKey.DASHA_LEVEL_ANTARDASHA)} (${stringResource(StringKey.DASHA_BHUKTI)})" to stringResource(StringKey.DASHA_SUB_PERIOD_MONTHS),
+                stringResource(StringKey.DASHA_LEVEL_PRATYANTARDASHA) to stringResource(StringKey.DASHA_SUB_SUB_PERIOD_WEEKS),
+                stringResource(StringKey.DASHA_LEVEL_SOOKSHMADASHA) to stringResource(StringKey.DASHA_SUBTLE_PERIOD_DAYS),
+                stringResource(StringKey.DASHA_LEVEL_PRANADASHA) to stringResource(StringKey.DASHA_BREATH_PERIOD_HOURS),
+                stringResource(StringKey.DASHA_LEVEL_DEHADASHA) to stringResource(StringKey.DASHA_BODY_PERIOD_MINUTES)
             )
 
             levels.forEachIndexed { index, (name, description) ->
@@ -1618,6 +1609,7 @@ private fun DashaLevelsInfo() {
 
 @Composable
 private fun DashaDurationRow(planet: Planet, years: Int) {
+    val language = LocalLanguage.current
     val planetColor = ChartDetailColors.getPlanetColor(planet)
 
     Row(
@@ -1639,13 +1631,13 @@ private fun DashaDurationRow(planet: Planet, years: Int) {
         }
         Spacer(modifier = Modifier.width(10.dp))
         Text(
-            text = planet.displayName,
+            text = planet.getLocalizedName(language),
             fontSize = 12.sp,
             color = ChartDetailColors.TextPrimary,
             modifier = Modifier.weight(1f)
         )
         Text(
-            text = "$years yrs",
+            text = "${formatNumber(years, language)} ${stringResource(StringKey.DASHA_YEARS_ABBR)}",
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
             color = ChartDetailColors.TextMuted

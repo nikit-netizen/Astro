@@ -729,9 +729,10 @@ private fun DailyHoroscopeHeader(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                val language = LocalLanguage.current
                 InfoChip(
                     icon = Icons.Outlined.NightlightRound,
-                    label = "Moon in ${horoscope.moonSign.displayName}",
+                    label = stringResource(StringKey.TRANSITS_MOON_IN, horoscope.moonSign.getLocalizedName(language)),
                     modifier = Modifier.weight(1f)
                 )
                 InfoChip(
@@ -1852,7 +1853,7 @@ private fun DashaTimelinePreview(timeline: DashaCalculator.DashaTimeline) {
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
-                text = "Upcoming Periods",
+                text = stringResource(StringKey.DASHA_UPCOMING),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = AppTheme.TextPrimary
@@ -1877,7 +1878,7 @@ private fun DashaTimelinePreview(timeline: DashaCalculator.DashaTimeline) {
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Current Antardasha is the last in this Mahadasha",
+                        text = stringResource(StringKey.DASHA_LAST_IN_MAHADASHA),
                         style = MaterialTheme.typography.bodySmall,
                         color = AppTheme.TextMuted
                     )
@@ -1908,8 +1909,9 @@ private fun UpcomingPeriodItem(
     startDate: LocalDate,
     isFirst: Boolean
 ) {
+    val language = LocalLanguage.current
     val planetColor = getPlanetColor(planet)
-    
+
     val formattedDate = remember(startDate) {
         startDate.format(InsightsFormatters.fullDate)
     }
@@ -1918,9 +1920,7 @@ private fun UpcomingPeriodItem(
         ChronoUnit.DAYS.between(LocalDate.now(), startDate)
     }
 
-    val formattedDuration = remember(daysUntil) {
-        "in ${formatDuration(daysUntil)}"
-    }
+    val durationText = formatDuration(daysUntil)
 
     Row(
         modifier = Modifier
@@ -1949,13 +1949,13 @@ private fun UpcomingPeriodItem(
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "${mahadashaPlanet.displayName}-${planet.displayName}",
+                text = "${mahadashaPlanet.getLocalizedName(language)}-${planet.getLocalizedName(language)}",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 color = AppTheme.TextPrimary
             )
             Text(
-                text = "Starts $formattedDate",
+                text = stringResource(StringKey.DASHA_STARTS, formattedDate),
                 style = MaterialTheme.typography.bodySmall,
                 color = AppTheme.TextMuted
             )
@@ -1963,7 +1963,7 @@ private fun UpcomingPeriodItem(
 
         if (daysUntil > 0) {
             Text(
-                text = formattedDuration,
+                text = stringResource(StringKey.TIME_IN, durationText),
                 style = MaterialTheme.typography.labelSmall,
                 color = if (isFirst) AppTheme.AccentPrimary else AppTheme.TextMuted
             )
@@ -1977,7 +1977,7 @@ private fun PlanetaryTransitsSection(influences: List<HoroscopeCalculator.Planet
 
     Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
         Text(
-            text = "Current Transits",
+            text = stringResource(StringKey.TRANSITS_CURRENT),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             color = AppTheme.TextPrimary,
@@ -1997,6 +1997,7 @@ private fun PlanetaryTransitsSection(influences: List<HoroscopeCalculator.Planet
 
 @Composable
 private fun TransitCard(influence: HoroscopeCalculator.PlanetaryInfluence) {
+    val language = LocalLanguage.current
     val planetColor = getPlanetColor(influence.planet)
     val trendColor = if (influence.isPositive) AppTheme.SuccessColor else AppTheme.WarningColor
     val strengthDots = remember(influence.strength) { (influence.strength / 2).coerceIn(0, 5) }
@@ -2039,7 +2040,7 @@ private fun TransitCard(influence: HoroscopeCalculator.PlanetaryInfluence) {
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = influence.planet.displayName,
+                text = influence.planet.getLocalizedName(language),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 color = AppTheme.TextPrimary
@@ -2103,7 +2104,7 @@ private fun EmptyInsightsState() {
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "No Profile Selected",
+                text = stringResource(StringKey.NO_PROFILE_SELECTED),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold,
                 color = AppTheme.TextPrimary
@@ -2112,7 +2113,7 @@ private fun EmptyInsightsState() {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Select or create a profile to view your personalized astrological insights and predictions",
+                text = stringResource(StringKey.NO_PROFILE_MESSAGE_LONG),
                 style = MaterialTheme.typography.bodyMedium,
                 color = AppTheme.TextMuted,
                 textAlign = TextAlign.Center,
