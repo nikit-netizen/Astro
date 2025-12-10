@@ -3176,7 +3176,40 @@ enum class StringKey(val en: String, val ne: String) {
 
     // Prashna terms
     PRASHNA_MOOK("Mook (Dumb) Prashna", "मूक प्रश्न"),
-    PRASHNA_ARUDHA("Arudha Lagna", "आरूढ लग्न");
+    PRASHNA_ARUDHA("Arudha Lagna", "आरूढ लग्न"),
+
+    // ============================================
+    // REMEDIES REPORT LABELS
+    // ============================================
+    REPORT_NAME_LABEL("Name:", "नाम:"),
+    REPORT_ASCENDANT_LABEL("Ascendant:", "लग्न:"),
+    REPORT_MANTRA_LABEL("Mantra:", "मन्त्र:"),
+
+    // ============================================
+    // PLANET LIFE AREAS (For remedies)
+    // ============================================
+    PLANET_LIFE_AREA_SUN("authority, career, government favor, father's health, self-confidence", "अधिकार, करियर, सरकारी कृपा, बुबाको स्वास्थ्य, आत्मविश्वास"),
+    PLANET_LIFE_AREA_MOON("mental peace, mother's health, emotional stability, public relations", "मानसिक शान्ति, आमाको स्वास्थ्य, भावनात्मक स्थिरता, जनसम्पर्क"),
+    PLANET_LIFE_AREA_MARS("courage, siblings, property matters, physical strength, competition", "साहस, भाइबहिनी, सम्पत्ति मामिला, शारीरिक शक्ति, प्रतिस्पर्धा"),
+    PLANET_LIFE_AREA_MERCURY("intellect, communication, business, education, nervous system", "बुद्धि, सञ्चार, व्यापार, शिक्षा, स्नायु प्रणाली"),
+    PLANET_LIFE_AREA_JUPITER("wisdom, children, wealth, spirituality, teachers, dharma", "ज्ञान, सन्तान, धन, आध्यात्मिकता, गुरु, धर्म"),
+    PLANET_LIFE_AREA_VENUS("marriage, love, luxury, art, vehicles, pleasure", "विवाह, प्रेम, विलासिता, कला, सवारी, आनन्द"),
+    PLANET_LIFE_AREA_SATURN("longevity, service, discipline, karma, delays, chronic issues", "दीर्घायु, सेवा, अनुशासन, कर्म, ढिलाइ, दीर्घकालीन समस्या"),
+    PLANET_LIFE_AREA_RAHU("foreign connections, unconventional success, material desires", "विदेशी सम्बन्ध, अपरम्परागत सफलता, भौतिक इच्छा"),
+    PLANET_LIFE_AREA_KETU("spirituality, liberation, past karma, psychic abilities", "आध्यात्मिकता, मोक्ष, पूर्व कर्म, मानसिक क्षमता"),
+
+    // ============================================
+    // PLANETARY WEEKDAYS
+    // ============================================
+    PLANET_DAY_SUN("Sunday", "आइतबार"),
+    PLANET_DAY_MOON("Monday", "सोमबार"),
+    PLANET_DAY_MARS("Tuesday", "मंगलबार"),
+    PLANET_DAY_MERCURY("Wednesday", "बुधबार"),
+    PLANET_DAY_JUPITER("Thursday", "बिहिबार"),
+    PLANET_DAY_VENUS("Friday", "शुक्रबार"),
+    PLANET_DAY_SATURN("Saturday", "शनिबार"),
+    PLANET_DAY_RAHU("Saturday", "शनिबार"),
+    PLANET_DAY_KETU("Tuesday", "मंगलबार");
 
     companion object {
         /**
