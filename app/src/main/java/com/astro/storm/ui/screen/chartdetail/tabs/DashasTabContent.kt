@@ -1100,12 +1100,6 @@ private fun DashaTimelineCard(timeline: DashaCalculator.DashaTimeline) {
     }
 }
 
-private fun formatDurationYears(years: Double, language: Language = Language.ENGLISH): String {
-    val wholeYears = years.toInt()
-    val months = ((years - wholeYears) * 12).toInt()
-    return formatDurationYearsMonths(wholeYears, months, language)
-}
-
 @Composable
 private fun MahadashaCard(
     mahadasha: DashaCalculator.Mahadasha,
@@ -1295,6 +1289,7 @@ private fun AntardashaRow(
     val planetColor = ChartDetailColors.getPlanetColor(antardasha.planet)
     val today = LocalDate.now()
     val isPast = antardasha.endDate.isBefore(today)
+    val language = LocalLanguage.current
 
     Row(
         modifier = modifier
@@ -1334,7 +1329,6 @@ private fun AntardashaRow(
                 )
             }
             Spacer(modifier = Modifier.width(10.dp))
-            val language = LocalLanguage.current
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
