@@ -21,7 +21,7 @@ object StringResources {
     /**
      * Get localized string for a given key
      */
-    fun get(key: StringKey, language: Language): String {
+    fun get(key: StringKeyInterface, language: Language): String {
         return when (language) {
             Language.ENGLISH -> key.en
             Language.NEPALI -> key.ne
@@ -31,7 +31,7 @@ object StringResources {
     /**
      * Get localized string with format arguments
      */
-    fun get(key: StringKey, language: Language, vararg args: Any): String {
+    fun get(key: StringKeyInterface, language: Language, vararg args: Any): String {
         val template = get(key, language)
         return try {
             String.format(template, *args)
@@ -42,12 +42,22 @@ object StringResources {
 }
 
 /**
+ * Interface for all string key types to support multiple enums
+ */
+interface StringKeyInterface {
+    val en: String
+    val ne: String
+}
+
+/**
  * All translatable string keys with their translations
  *
  * Organized by category for maintainability.
  * Nepali translations are authentic and culturally appropriate for Vedic astrology context.
+ * 
+ * This is Part 1 of the enum split to handle method size limits in Kotlin compilation.
  */
-enum class StringKey(val en: String, val ne: String) {
+enum class StringKey(override val en: String, override val ne: String) : StringKeyInterface {
 
     // ============================================
     // NAVIGATION & TABS
@@ -2079,6 +2089,27 @@ enum class StringKey(val en: String, val ne: String) {
     CHART_RASHI("Rashi Chart (D1)", "राशि कुण्डली (D1)"),
     CHART_NAVAMSA("Navamsa Chart (D9)", "नवांश कुण्डली (D9)"),
 
+
+    companion object {
+        /**
+         * Find key by English value (searches both StringKey and StringKeyExtended)
+         */
+        fun findByEnglish(value: String): StringKeyInterface? {
+            // First check StringKey
+            entries.find { it.en.equals(value, ignoreCase = true) }?.let { return it }
+            // Then check StringKeyExtended
+            return StringKeyExtended.entries.find { it.en.equals(value, ignoreCase = true) }
+        }
+    }
+}
+
+/**
+ * Extended translatable string keys (Part 2 of the enum split)
+ * 
+ * Contains the remaining keys from the original StringKey enum
+ * to avoid exceeding method size limits in Kotlin compilation.
+ */
+enum class StringKeyExtended(override val en: String, override val ne: String) : StringKeyInterface {
     // ============================================
     // PLANET DIALOG - SECTION HEADERS
     // ============================================
@@ -2099,7 +2130,6 @@ enum class StringKey(val en: String, val ne: String) {
     DIALOG_CHESTA_BALA("Chesta Bala (Motional)", "चेष्टा बल"),
     DIALOG_NAISARGIKA_BALA("Naisargika Bala (Natural)", "नैसर्गिक बल"),
     DIALOG_DRIK_BALA("Drik Bala (Aspectual)", "दृग्बल"),
-    DIALOG_NATURE("Nature", "प्रकृति"),
     DIALOG_BENEFIC("Benefic", "शुभ"),
     DIALOG_MALEFIC("Malefic", "पापी"),
     DIALOG_ELEMENT("Element", "तत्व"),
@@ -4101,9 +4131,9 @@ enum class StringKey(val en: String, val ne: String) {
 
     companion object {
         /**
-         * Find key by English value
+         * Find extended key by English value
          */
-        fun findByEnglish(value: String): StringKey? {
+        fun findByEnglish(value: String): StringKeyInterface? {
             return entries.find { it.en.equals(value, ignoreCase = true) }
         }
     }
