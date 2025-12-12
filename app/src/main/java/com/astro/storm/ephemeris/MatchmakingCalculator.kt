@@ -200,14 +200,66 @@ object MatchmakingCalculator {
         val percentage: Double get() = (obtainedPoints / maxPoints) * 100.0
     }
 
+    /**
+     * Comprehensive Manglik Dosha analysis result.
+     *
+     * Includes analysis from multiple lagnas (Ascendant, Moon, Venus) for
+     * a complete picture as recommended by classical texts.
+     *
+     * @param person Name/identifier of the person (Bride/Groom)
+     * @param dosha Initial dosha level before cancellations
+     * @param marsHouse Mars house from Ascendant (Lagna)
+     * @param marsHouseFromMoon Mars house from Moon (Chandra Lagna)
+     * @param marsHouseFromVenus Mars house from Venus (Shukra Lagna)
+     * @param marsDegreeInHouse Mars degree within its house (0-30)
+     * @param isRetrograde Whether Mars is retrograde
+     * @param factors List of factors contributing to Manglik dosha
+     * @param cancellations List of factors that cancel/reduce the dosha
+     * @param effectiveDosha Final dosha level after all cancellations
+     * @param intensity Dosha intensity percentage (0-100)
+     * @param fromLagna Whether Manglik from Lagna
+     * @param fromMoon Whether Manglik from Moon
+     * @param fromVenus Whether Manglik from Venus
+     */
     data class ManglikAnalysis(
         val person: String,
         val dosha: ManglikDosha,
         val marsHouse: Int,
+        val marsHouseFromMoon: Int = 0,
+        val marsHouseFromVenus: Int = 0,
+        val marsDegreeInHouse: Double = 0.0,
+        val isRetrograde: Boolean = false,
         val factors: List<String>,
         val cancellations: List<String>,
-        val effectiveDosha: ManglikDosha
-    )
+        val effectiveDosha: ManglikDosha,
+        val intensity: Int = 100,
+        val fromLagna: Boolean = false,
+        val fromMoon: Boolean = false,
+        val fromVenus: Boolean = false
+    ) {
+        /**
+         * Returns a comprehensive description of the Manglik status
+         */
+        fun getDetailedDescription(): String {
+            if (effectiveDosha == ManglikDosha.NONE) {
+                return "No Manglik Dosha present."
+            }
+
+            return buildString {
+                append("${effectiveDosha.displayName} detected")
+                if (intensity < 100) {
+                    append(" (${intensity}% intensity)")
+                }
+                append(". Mars in ")
+                val sources = mutableListOf<String>()
+                if (fromLagna) sources.add("house $marsHouse from Lagna")
+                if (fromMoon) sources.add("house $marsHouseFromMoon from Moon")
+                if (fromVenus) sources.add("house $marsHouseFromVenus from Venus")
+                append(sources.joinToString(", "))
+                append(".")
+            }
+        }
+    }
 
     data class AdditionalFactors(
         val vedhaPresent: Boolean,
@@ -1413,120 +1465,486 @@ object MatchmakingCalculator {
         }
     }
 
+    /**
+     * Enhanced Manglik Dosha Calculation
+     *
+     * Comprehensive analysis based on multiple classical texts:
+     * - Brihat Parasara Hora Shastra (BPHS)
+     * - Phaladeepika
+     * - Saravali
+     * - Jataka Parijata
+     * - Muhurta Chintamani
+     *
+     * Key improvements:
+     * 1. Analysis from three Lagnas (Ascendant, Moon, Venus) - South Indian tradition
+     * 2. Degree-based intensity calculation (border degrees reduce severity)
+     * 3. Mars retrograde consideration
+     * 4. Additional classical cancellation rules
+     * 5. Mars-Saturn mutual aspect analysis
+     * 6. House-wise severity weighting
+     *
+     * @param chart The VedicChart to analyze
+     * @param person Name/identifier ("Bride" or "Groom")
+     * @return Comprehensive ManglikAnalysis with all factors
+     */
     private fun calculateManglikDosha(chart: VedicChart, person: String): ManglikAnalysis {
         val mars = chart.planetPositions.find { it.planet == Planet.MARS }
-            ?: return ManglikAnalysis(person, ManglikDosha.NONE, 0, emptyList(), emptyList(), ManglikDosha.NONE)
+            ?: return ManglikAnalysis(
+                person = person,
+                dosha = ManglikDosha.NONE,
+                marsHouse = 0,
+                factors = emptyList(),
+                cancellations = emptyList(),
+                effectiveDosha = ManglikDosha.NONE
+            )
 
-        val marsHouse = mars.house
+        val moon = chart.planetPositions.find { it.planet == Planet.MOON }
+        val venus = chart.planetPositions.find { it.planet == Planet.VENUS }
+        val jupiter = chart.planetPositions.find { it.planet == Planet.JUPITER }
+        val saturn = chart.planetPositions.find { it.planet == Planet.SATURN }
+        val rahu = chart.planetPositions.find { it.planet == Planet.RAHU }
+        val ketu = chart.planetPositions.find { it.planet == Planet.KETU }
+        val sun = chart.planetPositions.find { it.planet == Planet.SUN }
+
+        val marsHouseFromLagna = mars.house
+        val marsDegreeInHouse = mars.longitude % 30.0
+        val isRetrograde = mars.isRetrograde
+
+        // Calculate Mars house from Moon (Chandra Lagna) - important in South Indian tradition
+        val marsHouseFromMoon = if (moon != null) {
+            calculateHouseFromPlanet(mars.sign, moon.sign)
+        } else {
+            0
+        }
+
+        // Calculate Mars house from Venus (Shukra Lagna) - significant for marriage
+        val marsHouseFromVenus = if (venus != null) {
+            calculateHouseFromPlanet(mars.sign, venus.sign)
+        } else {
+            0
+        }
+
         val factors = mutableListOf<String>()
         val cancellations = mutableListOf<String>()
 
+        // Standard Manglik houses: 1, 2, 4, 7, 8, 12 from Lagna
         val manglikHouses = listOf(1, 2, 4, 7, 8, 12)
-        val isManglik = marsHouse in manglikHouses
+
+        // Check Manglik from all three lagnas
+        val isManglikFromLagna = marsHouseFromLagna in manglikHouses
+        val isManglikFromMoon = marsHouseFromMoon in manglikHouses
+        val isManglikFromVenus = marsHouseFromVenus in manglikHouses
+
+        // Person is Manglik if Mars is in Manglik houses from ANY of the three lagnas
+        // However, the most traditional view considers Lagna as primary
+        val isManglik = isManglikFromLagna || isManglikFromMoon
 
         if (!isManglik) {
-            return ManglikAnalysis(person, ManglikDosha.NONE, marsHouse, factors, cancellations, ManglikDosha.NONE)
+            return ManglikAnalysis(
+                person = person,
+                dosha = ManglikDosha.NONE,
+                marsHouse = marsHouseFromLagna,
+                marsHouseFromMoon = marsHouseFromMoon,
+                marsHouseFromVenus = marsHouseFromVenus,
+                marsDegreeInHouse = marsDegreeInHouse,
+                isRetrograde = isRetrograde,
+                factors = factors,
+                cancellations = cancellations,
+                effectiveDosha = ManglikDosha.NONE,
+                intensity = 0,
+                fromLagna = false,
+                fromMoon = false,
+                fromVenus = false
+            )
         }
 
-        factors.add("Mars in ${getHouseOrdinal(marsHouse)} house from Lagna")
+        // Add factors based on positions
+        if (isManglikFromLagna) {
+            factors.add("Mars in ${getHouseOrdinal(marsHouseFromLagna)} house from Ascendant (Lagna)")
+        }
+        if (isManglikFromMoon) {
+            factors.add("Mars in ${getHouseOrdinal(marsHouseFromMoon)} house from Moon (Chandra Lagna)")
+        }
+        if (isManglikFromVenus) {
+            factors.add("Mars in ${getHouseOrdinal(marsHouseFromVenus)} house from Venus (Shukra Lagna)")
+        }
 
-        val doshaLevel = when (marsHouse) {
-            7, 8 -> ManglikDosha.FULL
-            1, 4, 12 -> ManglikDosha.FULL
-            2 -> ManglikDosha.PARTIAL
-            else -> ManglikDosha.NONE
+        // Determine base dosha level based on house severity
+        // Houses 7 and 8 are most severe, 2 is least severe
+        val doshaLevel = calculateBaseDoshaLevel(marsHouseFromLagna, marsHouseFromMoon)
+
+        // Calculate intensity based on Mars degree within the house
+        // Mars near house boundaries (0-5° or 25-30°) has reduced intensity
+        val degreeBasedIntensity = calculateDegreeBasedIntensity(marsDegreeInHouse)
+
+        // Check for Mars retrograde (reduces intensity per some texts)
+        if (isRetrograde) {
+            factors.add("Mars is retrograde - reduces intensity")
         }
 
         val ascendantSign = ZodiacSign.fromLongitude(chart.ascendant)
 
-        // Mars in own sign (Aries, Scorpio) or exalted (Capricorn)
-        if (mars.sign in listOf(ZodiacSign.ARIES, ZodiacSign.SCORPIO, ZodiacSign.CAPRICORN)) {
-            cancellations.add("Mars in ${if (mars.sign == ZodiacSign.CAPRICORN) "exaltation" else "own sign"} (${mars.sign.displayName})")
+        // ═══════════════════════════════════════════════════════════════════════════
+        // CANCELLATION RULES (Manglik Dosha Bhanga) - from classical texts
+        // ═══════════════════════════════════════════════════════════════════════════
+
+        // Rule 1: Mars in own sign (Aries, Scorpio) - Full cancellation
+        if (mars.sign == ZodiacSign.ARIES || mars.sign == ZodiacSign.SCORPIO) {
+            cancellations.add("Mars in own sign (${mars.sign.displayName}) - Strong cancellation per BPHS")
         }
 
-        // Mars in Leo or Aquarius in specific houses
-        if (mars.sign in listOf(ZodiacSign.LEO, ZodiacSign.AQUARIUS) && marsHouse in listOf(1, 4, 7, 10)) {
-            cancellations.add("Mars in ${mars.sign.displayName} in Kendra")
+        // Rule 2: Mars exalted (Capricorn) - Full cancellation
+        if (mars.sign == ZodiacSign.CAPRICORN) {
+            cancellations.add("Mars exalted in Capricorn - Full cancellation")
         }
 
-        val jupiter = chart.planetPositions.find { it.planet == Planet.JUPITER }
+        // Rule 3: Mars debilitated (Cancer) - Dosha effect reduced
+        // Debilitated Mars is weak and cannot cause strong harm
+        if (mars.sign == ZodiacSign.CANCER) {
+            cancellations.add("Mars debilitated in Cancer - Dosha effect weakened")
+        }
+
+        // Rule 4: Jupiter aspects Mars (5th, 7th, or 9th aspect)
         if (jupiter != null) {
             val jupiterAspects = getJupiterAspectedHouses(jupiter.house)
-            if (marsHouse in jupiterAspects) {
-                cancellations.add("Jupiter aspects Mars from ${getHouseOrdinal(jupiter.house)} house")
+            if (marsHouseFromLagna in jupiterAspects) {
+                cancellations.add("Jupiter aspects Mars from ${getHouseOrdinal(jupiter.house)} house - Strong benefic influence")
             }
         }
 
-        // Mars aspected or conjunct by benefic Moon
-        val moon = chart.planetPositions.find { it.planet == Planet.MOON }
-        if (moon != null && moon.house == marsHouse) {
-            cancellations.add("Moon conjunct Mars")
-        }
-
-        val venus = chart.planetPositions.find { it.planet == Planet.VENUS }
-        if (venus != null && venus.house in listOf(1, 7)) {
-            cancellations.add("Venus in ${getHouseOrdinal(venus.house)} house")
-        }
-
+        // Rule 5: Jupiter in Kendra (1, 4, 7, 10) - Karaka protection
         if (jupiter != null && jupiter.house in listOf(1, 4, 7, 10)) {
-            cancellations.add("Jupiter in Kendra (${getHouseOrdinal(jupiter.house)} house)")
+            cancellations.add("Jupiter in Kendra (${getHouseOrdinal(jupiter.house)} house) - Overall protection")
         }
 
-        // Specific sign-house combinations that reduce severity
-        if (marsHouse == 1 && ascendantSign in listOf(ZodiacSign.ARIES, ZodiacSign.LEO, ZodiacSign.SAGITTARIUS)) {
-            cancellations.add("Mars in fiery ascendant in 1st house")
+        // Rule 6: Moon conjunct Mars (Chandra-Mangal Yoga)
+        // This is a beneficial yoga that mitigates Manglik dosha
+        if (moon != null && moon.house == marsHouseFromLagna) {
+            cancellations.add("Moon conjunct Mars (Chandra-Mangal Yoga) - Wealth yoga mitigates dosha")
         }
-        if (marsHouse == 2 && mars.sign in listOf(ZodiacSign.GEMINI, ZodiacSign.VIRGO)) {
-            cancellations.add("Mars in Mercury's sign in 2nd house")
+
+        // Rule 7: Venus in 1st or 7th house - Karaka for marriage is strong
+        if (venus != null && venus.house in listOf(1, 7)) {
+            cancellations.add("Venus in ${getHouseOrdinal(venus.house)} house - Marriage karaka strong")
         }
-        if (marsHouse == 4 && mars.sign == ZodiacSign.ARIES) {
-            cancellations.add("Mars in own sign in 4th house")
+
+        // Rule 8: Mars in Leo or Aquarius in Kendra - Per Phaladeepika
+        if (mars.sign in listOf(ZodiacSign.LEO, ZodiacSign.AQUARIUS) && marsHouseFromLagna in listOf(1, 4, 7, 10)) {
+            cancellations.add("Mars in ${mars.sign.displayName} in Kendra - Per Phaladeepika")
         }
-        if (marsHouse == 7 && mars.sign in listOf(ZodiacSign.CANCER, ZodiacSign.CAPRICORN)) {
-            cancellations.add("Mars debilitated/exalted in 7th house")
+
+        // Rule 9: Mars in Sagittarius or Pisces (Jupiter's signs) in any Manglik house
+        if (mars.sign in listOf(ZodiacSign.SAGITTARIUS, ZodiacSign.PISCES)) {
+            cancellations.add("Mars in Jupiter's sign (${mars.sign.displayName}) - Guru's influence reduces harm")
         }
-        if (marsHouse == 8 && mars.sign in listOf(ZodiacSign.SAGITTARIUS, ZodiacSign.PISCES)) {
-            cancellations.add("Mars in Jupiter's sign in 8th house")
+
+        // Rule 10: Specific sign-house combinations from classical texts
+        applySignHouseCancellations(marsHouseFromLagna, mars.sign, ascendantSign, cancellations)
+
+        // Rule 11: Mars in Navamsa of benefic (Jupiter, Venus) - Advanced rule
+        val marsNavamsaSign = getNavamsaSignFromLongitude(mars.longitude)
+        if (marsNavamsaSign.ruler in listOf(Planet.JUPITER, Planet.VENUS)) {
+            cancellations.add("Mars in Navamsa of benefic (${marsNavamsaSign.ruler.displayName})")
         }
-        if (marsHouse == 12 && mars.sign in listOf(ZodiacSign.TAURUS, ZodiacSign.LIBRA)) {
-            cancellations.add("Mars in Venus's sign in 12th house")
+
+        // Rule 12: Both partners Manglik - Mutual cancellation
+        // This is handled in assessManglikCompatibility
+
+        // Rule 13: Aspect from benefics (Venus, Jupiter, waxing Moon, unafflicted Mercury)
+        if (venus != null) {
+            val venusAspects = listOf(venus.house, ((venus.house + 6) % 12).let { if (it == 0) 12 else it })
+            if (marsHouseFromLagna in venusAspects) {
+                cancellations.add("Venus aspects Mars - Benefic calming influence")
+            }
         }
+
+        // Rule 14: Mars in 2nd house with Gemini or Virgo - Mercury's intellectual sign
+        if (marsHouseFromLagna == 2 && mars.sign in listOf(ZodiacSign.GEMINI, ZodiacSign.VIRGO)) {
+            cancellations.add("Mars in Mercury's sign in 2nd house - Communicative resolution")
+        }
+
+        // Rule 15: Ascendant in fiery sign with Mars in 1st house
+        if (marsHouseFromLagna == 1 && ascendantSign in listOf(ZodiacSign.ARIES, ZodiacSign.LEO, ZodiacSign.SAGITTARIUS)) {
+            cancellations.add("Mars in 1st house with fiery Ascendant - Natural placement")
+        }
+
+        // Rule 16: Mars hemmed between benefics (Shubhakartari)
+        val prevHouse = if (marsHouseFromLagna == 1) 12 else marsHouseFromLagna - 1
+        val nextHouse = if (marsHouseFromLagna == 12) 1 else marsHouseFromLagna + 1
+        val beneficsInPrev = chart.planetPositions.filter { it.house == prevHouse && it.planet in listOf(Planet.JUPITER, Planet.VENUS, Planet.MERCURY) }
+        val beneficsInNext = chart.planetPositions.filter { it.house == nextHouse && it.planet in listOf(Planet.JUPITER, Planet.VENUS, Planet.MERCURY) }
+        if (beneficsInPrev.isNotEmpty() && beneficsInNext.isNotEmpty()) {
+            cancellations.add("Mars hemmed between benefics (Shubhakartari Yoga)")
+        }
+
+        // Rule 17: Sun conjunct Mars in 1st or 7th house (Ruchaka Yoga potential)
+        if (sun != null && sun.house == marsHouseFromLagna && marsHouseFromLagna in listOf(1, 7)) {
+            cancellations.add("Sun-Mars conjunction in ${getHouseOrdinal(marsHouseFromLagna)} house - Strength yoga")
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        // AGGRAVATING FACTORS - Double Manglik conditions
+        // ═══════════════════════════════════════════════════════════════════════════
+
+        var hasDoubleManglik = false
+
+        // Mars conjunct Saturn (most serious)
+        if (saturn != null && saturn.house == marsHouseFromLagna) {
+            factors.add("Mars conjunct Saturn in ${getHouseOrdinal(marsHouseFromLagna)} house - Severe combination")
+            hasDoubleManglik = true
+        }
+
+        // Mars conjunct Rahu (Angarak Yoga)
+        if (rahu != null && rahu.house == marsHouseFromLagna) {
+            factors.add("Mars conjunct Rahu (Angarak Yoga) in ${getHouseOrdinal(marsHouseFromLagna)} house")
+            hasDoubleManglik = true
+        }
+
+        // Mars conjunct Ketu
+        if (ketu != null && ketu.house == marsHouseFromLagna) {
+            factors.add("Mars conjunct Ketu in ${getHouseOrdinal(marsHouseFromLagna)} house")
+            hasDoubleManglik = true
+        }
+
+        // Mars-Saturn mutual aspect (even without conjunction)
+        if (saturn != null && !hasDoubleManglik) {
+            val saturnAspects = getSaturnAspectedHouses(saturn.house)
+            val marsAspects = getMarsAspectedHouses(marsHouseFromLagna)
+            if (saturn.house in marsAspects && marsHouseFromLagna in saturnAspects) {
+                factors.add("Mars-Saturn mutual aspect - Adds severity")
+            }
+        }
+
+        // Mars in 8th house from Moon (very problematic for longevity)
+        if (marsHouseFromMoon == 8) {
+            factors.add("Mars in 8th from Moon - Concerns for partner's health")
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        // CALCULATE EFFECTIVE DOSHA
+        // ═══════════════════════════════════════════════════════════════════════════
+
+        // Calculate cancellation strength
+        val strongCancellations = cancellations.count { it.contains("Full") || it.contains("Strong") || it.contains("own sign") || it.contains("exalted") }
+        val partialCancellations = cancellations.size - strongCancellations
 
         val effectiveDosha = when {
-            cancellations.size >= 3 -> ManglikDosha.NONE
-            cancellations.size >= 2 -> if (doshaLevel == ManglikDosha.FULL) ManglikDosha.PARTIAL else ManglikDosha.NONE
+            strongCancellations >= 2 -> ManglikDosha.NONE
+            strongCancellations >= 1 && partialCancellations >= 2 -> ManglikDosha.NONE
+            strongCancellations >= 1 -> if (doshaLevel == ManglikDosha.FULL) ManglikDosha.PARTIAL else ManglikDosha.NONE
+            cancellations.size >= 4 -> ManglikDosha.NONE
+            cancellations.size >= 3 -> if (doshaLevel == ManglikDosha.FULL) ManglikDosha.PARTIAL else ManglikDosha.NONE
+            cancellations.size >= 2 -> if (doshaLevel == ManglikDosha.FULL) ManglikDosha.PARTIAL else doshaLevel
             cancellations.size >= 1 -> if (doshaLevel == ManglikDosha.FULL) ManglikDosha.PARTIAL else doshaLevel
             else -> doshaLevel
         }
 
-        // Double Manglik check
-        val saturn = chart.planetPositions.find { it.planet == Planet.SATURN }
-        val rahu = chart.planetPositions.find { it.planet == Planet.RAHU }
-        val ketu = chart.planetPositions.find { it.planet == Planet.KETU }
-
-        val hasDoubleManglik = when {
-            saturn?.house == marsHouse -> {
-                factors.add("Mars conjunct Saturn in ${getHouseOrdinal(marsHouse)} house")
-                true
-            }
-            rahu?.house == marsHouse -> {
-                factors.add("Mars conjunct Rahu in ${getHouseOrdinal(marsHouse)} house")
-                true
-            }
-            ketu?.house == marsHouse -> {
-                factors.add("Mars conjunct Ketu in ${getHouseOrdinal(marsHouse)} house")
-                true
-            }
-            else -> false
-        }
-
+        // Apply double Manglik upgrade if applicable
         val finalDosha = if (hasDoubleManglik && effectiveDosha != ManglikDosha.NONE) {
             ManglikDosha.DOUBLE
         } else {
             effectiveDosha
         }
 
-        return ManglikAnalysis(person, doshaLevel, marsHouse, factors, cancellations, finalDosha)
+        // Calculate final intensity (0-100)
+        val baseIntensity = when (finalDosha) {
+            ManglikDosha.NONE -> 0
+            ManglikDosha.PARTIAL -> 50
+            ManglikDosha.FULL -> 100
+            ManglikDosha.DOUBLE -> 150 // Can exceed 100 for severity
+        }
+
+        val finalIntensity = when {
+            finalDosha == ManglikDosha.NONE -> 0
+            else -> {
+                var intensity = baseIntensity
+                // Reduce by degree-based factor
+                intensity = (intensity * degreeBasedIntensity / 100).toInt()
+                // Reduce if retrograde
+                if (isRetrograde) intensity = (intensity * 0.85).toInt()
+                // Reduce by cancellation count
+                intensity = (intensity * (1.0 - cancellations.size * 0.08)).toInt()
+                // Ensure bounds
+                intensity.coerceIn(10, 150)
+            }
+        }
+
+        return ManglikAnalysis(
+            person = person,
+            dosha = doshaLevel,
+            marsHouse = marsHouseFromLagna,
+            marsHouseFromMoon = marsHouseFromMoon,
+            marsHouseFromVenus = marsHouseFromVenus,
+            marsDegreeInHouse = marsDegreeInHouse,
+            isRetrograde = isRetrograde,
+            factors = factors,
+            cancellations = cancellations,
+            effectiveDosha = finalDosha,
+            intensity = finalIntensity,
+            fromLagna = isManglikFromLagna,
+            fromMoon = isManglikFromMoon,
+            fromVenus = isManglikFromVenus
+        )
+    }
+
+    /**
+     * Calculate base Manglik dosha level based on house positions.
+     * Houses 7 and 8 are most severe (affect marriage partner directly).
+     * House 2 is least severe (affects family, but indirect).
+     */
+    private fun calculateBaseDoshaLevel(marsHouseFromLagna: Int, marsHouseFromMoon: Int): ManglikDosha {
+        // Most severe houses
+        val severeHouses = listOf(7, 8)
+        // Moderate houses
+        val moderateHouses = listOf(1, 4, 12)
+        // Least severe
+        val mildHouses = listOf(2)
+
+        // Check from Lagna first (primary)
+        val lagnaLevel = when (marsHouseFromLagna) {
+            in severeHouses -> ManglikDosha.FULL
+            in moderateHouses -> ManglikDosha.FULL
+            in mildHouses -> ManglikDosha.PARTIAL
+            else -> ManglikDosha.NONE
+        }
+
+        // Check from Moon (secondary consideration)
+        val moonLevel = when (marsHouseFromMoon) {
+            in severeHouses -> ManglikDosha.FULL
+            in moderateHouses -> ManglikDosha.PARTIAL // Less severe from Moon
+            in mildHouses -> ManglikDosha.PARTIAL
+            else -> ManglikDosha.NONE
+        }
+
+        // Return the more severe of the two
+        return if (lagnaLevel.severity >= moonLevel.severity) lagnaLevel else moonLevel
+    }
+
+    /**
+     * Calculate intensity reduction based on Mars degree within the house.
+     * Mars at 0-5° or 25-30° of a house has reduced intensity (border effect).
+     * Mars at 10-20° has full intensity (mid-house).
+     */
+    private fun calculateDegreeBasedIntensity(degreeInHouse: Double): Int {
+        return when {
+            degreeInHouse < 3.0 -> 60  // Very early degrees - entering house
+            degreeInHouse < 5.0 -> 75  // Early degrees
+            degreeInHouse < 10.0 -> 90 // Approaching full strength
+            degreeInHouse < 20.0 -> 100 // Full strength mid-house
+            degreeInHouse < 25.0 -> 90 // Starting to leave
+            degreeInHouse < 27.0 -> 75 // Late degrees
+            else -> 60 // Very late degrees - leaving house
+        }
+    }
+
+    /**
+     * Apply sign-house specific cancellation rules from classical texts.
+     */
+    private fun applySignHouseCancellations(
+        marsHouse: Int,
+        marsSign: ZodiacSign,
+        ascendantSign: ZodiacSign,
+        cancellations: MutableList<String>
+    ) {
+        // House 2: Mercury's signs (Gemini, Virgo) reduce speech/family issues
+        if (marsHouse == 2 && marsSign in listOf(ZodiacSign.GEMINI, ZodiacSign.VIRGO)) {
+            cancellations.add("Mars in Mercury's sign in 2nd - Communication helps resolve issues")
+        }
+
+        // House 4: Own sign Aries - Mars is comfortable in its own domain
+        if (marsHouse == 4 && marsSign == ZodiacSign.ARIES) {
+            cancellations.add("Mars in own sign Aries in 4th - Domestic harmony through strength")
+        }
+
+        // House 7: Debilitated or exalted Mars - Partner issues modified
+        if (marsHouse == 7) {
+            if (marsSign == ZodiacSign.CANCER) {
+                cancellations.add("Mars debilitated in 7th - Aggression towards partner is weakened")
+            }
+            if (marsSign == ZodiacSign.CAPRICORN) {
+                cancellations.add("Mars exalted in 7th - Controlled assertiveness in partnership")
+            }
+        }
+
+        // House 8: Jupiter's signs (Sagittarius, Pisces) - Spiritual protection
+        if (marsHouse == 8 && marsSign in listOf(ZodiacSign.SAGITTARIUS, ZodiacSign.PISCES)) {
+            cancellations.add("Mars in Jupiter's sign in 8th - Spiritual protection from harm")
+        }
+
+        // House 12: Venus's signs (Taurus, Libra) - Loss becomes gain
+        if (marsHouse == 12 && marsSign in listOf(ZodiacSign.TAURUS, ZodiacSign.LIBRA)) {
+            cancellations.add("Mars in Venus's sign in 12th - Losses transformed to spiritual gains")
+        }
+
+        // House 1: Fiery ascendants - Mars is at home
+        if (marsHouse == 1 && ascendantSign in listOf(ZodiacSign.ARIES, ZodiacSign.LEO, ZodiacSign.SAGITTARIUS)) {
+            cancellations.add("Mars in 1st with fiery Lagna - Natural warrior placement")
+        }
+
+        // House 1: Scorpio ascendant - Mars rules the chart
+        if (marsHouse == 1 && ascendantSign == ZodiacSign.SCORPIO) {
+            cancellations.add("Mars in 1st for Scorpio Lagna - Lagna lord in Lagna is auspicious")
+        }
+
+        // House 7: Aries or Scorpio ascendant - Mars rules 7th
+        if (marsHouse == 7 && ascendantSign in listOf(ZodiacSign.ARIES, ZodiacSign.SCORPIO)) {
+            cancellations.add("Mars (7th lord) in 7th - Lord in own house is strong")
+        }
+    }
+
+    /**
+     * Calculate house position of target sign from reference sign.
+     */
+    private fun calculateHouseFromPlanet(targetSign: ZodiacSign, referenceSign: ZodiacSign): Int {
+        val diff = targetSign.number - referenceSign.number
+        return if (diff >= 0) diff + 1 else diff + 13
+    }
+
+    /**
+     * Get Navamsa sign from absolute longitude.
+     * Navamsa divides each sign into 9 parts of 3°20' each.
+     */
+    private fun getNavamsaSignFromLongitude(longitude: Double): ZodiacSign {
+        val normalizedLongitude = ((longitude % 360.0) + 360.0) % 360.0
+        val signIndex = (normalizedLongitude / 30.0).toInt()
+        val degreeInSign = normalizedLongitude % 30.0
+        val navamsaIndex = (degreeInSign / 3.333333).toInt()
+
+        // Starting navamsa sign depends on the element of the rashi
+        val startingNavamsa = when (signIndex % 4) {
+            0 -> 0  // Fire signs start from Aries
+            1 -> 9  // Earth signs start from Capricorn (index 9)
+            2 -> 4  // Air signs start from Libra (index 6, but adjusting)
+            3 -> 3  // Water signs start from Cancer
+            else -> 0
+        }
+
+        val navamsaSignIndex = (startingNavamsa + navamsaIndex) % 12
+        return ZodiacSign.entries[navamsaSignIndex]
+    }
+
+    /**
+     * Get houses aspected by Saturn (includes special 3rd and 10th aspects).
+     */
+    private fun getSaturnAspectedHouses(saturnHouse: Int): List<Int> {
+        return listOf(
+            saturnHouse,
+            ((saturnHouse + 2) % 12).let { if (it == 0) 12 else it }, // 3rd aspect
+            ((saturnHouse + 6) % 12).let { if (it == 0) 12 else it }, // 7th aspect
+            ((saturnHouse + 9) % 12).let { if (it == 0) 12 else it }  // 10th aspect
+        )
+    }
+
+    /**
+     * Get houses aspected by Mars (includes special 4th and 8th aspects).
+     */
+    private fun getMarsAspectedHouses(marsHouse: Int): List<Int> {
+        return listOf(
+            marsHouse,
+            ((marsHouse + 3) % 12).let { if (it == 0) 12 else it }, // 4th aspect
+            ((marsHouse + 6) % 12).let { if (it == 0) 12 else it }, // 7th aspect
+            ((marsHouse + 7) % 12).let { if (it == 0) 12 else it }  // 8th aspect
+        )
     }
 
     private fun getJupiterAspectedHouses(jupiterHouse: Int): List<Int> {

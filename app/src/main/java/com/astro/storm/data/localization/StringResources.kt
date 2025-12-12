@@ -1423,6 +1423,34 @@ enum class StringKey(val en: String, val ne: String) {
     YOGA_DASA_MULA("Dasa-Mula Yoga", "दश-मूल योग"),
     YOGA_VARGOTTAMA_STRENGTH("Vargottama Strength", "वर्गोत्तम बल"),
 
+    // New Yogas - Grahan and Nodal Combinations
+    YOGA_SURYA_GRAHAN("Surya Grahan Yoga", "सूर्य ग्रहण योग"),
+    YOGA_SURYA_KETU_GRAHAN("Surya-Ketu Grahan Yoga", "सूर्य-केतु ग्रहण योग"),
+    YOGA_CHANDRA_GRAHAN("Chandra Grahan Yoga", "चन्द्र ग्रहण योग"),
+    YOGA_CHANDRA_KETU("Chandra-Ketu Yoga", "चन्द्र-केतु योग"),
+    YOGA_ANGARAK("Angarak Yoga", "अङ्गारक योग"),
+    YOGA_SHRAPIT("Shrapit Yoga", "शापित योग"),
+    YOGA_KALA_SARPA("Kala Sarpa Yoga", "कालसर्प योग"),
+    YOGA_PAPAKARTARI("Papakartari Yoga", "पापकर्तरी योग"),
+    YOGA_SHUBHAKARTARI("Shubhakartari Yoga", "शुभकर्तरी योग"),
+    YOGA_SANYASA("Sanyasa Yoga", "सन्यास योग"),
+    YOGA_CHAMARA("Chamara Yoga", "चामर योग"),
+    YOGA_DHARMA_KARMADHIPATI("Dharma-Karmadhipati Yoga", "धर्म-कर्माधिपति योग"),
+
+    // New Yoga Effects
+    YOGA_EFFECT_SURYA_GRAHAN("Father-related troubles, ego issues, government problems, health issues with head/eyes", "पिता सम्बन्धी समस्याहरू, अहंकार समस्याहरू, सरकारी समस्याहरू, टाउको/आँखामा स्वास्थ्य समस्याहरू"),
+    YOGA_EFFECT_SURYA_KETU_GRAHAN("Spiritual detachment, low self-esteem, father troubles, past-life karmic issues", "आध्यात्मिक विरक्ति, कम आत्मसम्मान, पिता समस्याहरू, पूर्वजन्म कर्म समस्याहरू"),
+    YOGA_EFFECT_CHANDRA_GRAHAN("Mental restlessness, mother troubles, emotional instability, obsessive tendencies", "मानसिक अशान्ति, आमा समस्याहरू, भावनात्मक अस्थिरता, जुनूनी प्रवृत्तिहरू"),
+    YOGA_EFFECT_CHANDRA_KETU("Detachment from emotions, past-life memories, psychic sensitivity, mother karma", "भावनाहरूबाट विरक्ति, पूर्वजन्म स्मृतिहरू, मनोवैज्ञानिक संवेदनशीलता, आमा कर्म"),
+    YOGA_EFFECT_ANGARAK("Accidents, surgery, aggression, sibling troubles, litigation, sudden events", "दुर्घटनाहरू, शल्यक्रिया, आक्रामकता, भाइबहिनी समस्याहरू, मुद्दा, अचानक घटनाहरू"),
+    YOGA_EFFECT_SHRAPIT("Past-life karma manifesting as chronic obstacles, delays, fear, ancestral issues", "पूर्वजन्म कर्म दीर्घकालीन बाधाहरू, ढिलाइ, डर, पुर्खौली समस्याहरूको रूपमा प्रकट"),
+    YOGA_EFFECT_KALA_SARPA("Karmic life patterns, sudden ups and downs, spiritual transformation potential", "कर्मजन्य जीवन ढाँचाहरू, अचानक उतार-चढाव, आध्यात्मिक रूपान्तरण सम्भावना"),
+    YOGA_EFFECT_PAPAKARTARI("Obstacles in self-expression, health challenges, restricted opportunities", "आत्म-अभिव्यक्तिमा बाधाहरू, स्वास्थ्य चुनौतीहरू, सीमित अवसरहरू"),
+    YOGA_EFFECT_SHUBHAKARTARI("Protected life, good health, success in endeavors, helpful people around", "सुरक्षित जीवन, राम्रो स्वास्थ्य, प्रयासहरूमा सफलता, वरपर मद्दतगर्ने मानिसहरू"),
+    YOGA_EFFECT_SANYASA("Renunciation tendencies, spiritual inclinations, detachment from worldly matters", "त्याग प्रवृत्तिहरू, आध्यात्मिक झुकाव, सांसारिक कुराहरूबाट विरक्ति"),
+    YOGA_EFFECT_CHAMARA("Royal honors, fame, eloquence, learned, respected by rulers", "राजकीय सम्मान, प्रसिद्धि, वाक्पटुता, पढेलेखेको, शासकहरूद्वारा सम्मानित"),
+    YOGA_EFFECT_DHARMA_KARMADHIPATI("Highly successful career, fortune through profession, fame, authority positions", "अत्यन्त सफल करियर, पेशाबाट भाग्य, प्रसिद्धि, अधिकार पदहरू"),
+
     // Yoga Effects Translations
     YOGA_EFFECT_RUCHAKA("Commander, army chief, valorous, muscular body, red complexion, successful in conflicts, skilled in warfare, leader of thieves or soldiers, wealth through martial arts or defense", "सेनापति, सेना प्रमुख, वीर, बलियो शरीर, रातो रंग, द्वन्द्वमा सफल, युद्ध कलामा दक्ष, चोर वा सैनिकहरूको नेता, युद्ध कला वा रक्षाबाट धन"),
     YOGA_EFFECT_BHADRA("Intelligent, eloquent speaker, skilled in arts and sciences, long-lived, wealthy through intellect, respected in assemblies, lion-like face, broad chest", "बुद्धिमान, वाक्पटु वक्ता, कला र विज्ञानमा दक्ष, दीर्घायु, बुद्धिबाट धनी, सभामा सम्मानित, सिंह जस्तो मुख, फराकिलो छाती"),

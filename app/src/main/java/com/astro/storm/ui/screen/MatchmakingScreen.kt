@@ -50,6 +50,7 @@ import com.astro.storm.data.localization.currentLanguage
 import com.astro.storm.data.localization.stringResource
 import com.astro.storm.data.model.VedicChart
 import com.astro.storm.ephemeris.MatchmakingCalculator
+import com.astro.storm.ephemeris.VedicAstrologyUtils
 import com.astro.storm.ui.theme.AppTheme
 import com.astro.storm.ui.viewmodel.ChartViewModel
 import kotlinx.coroutines.Dispatchers
@@ -2960,74 +2961,14 @@ private fun getNakshatraLord(chart: VedicChart): String {
 private fun getGana(chart: VedicChart): String {
     val unknownText = stringResource(StringKey.MISC_UNKNOWN)
     val moonPosition = getMoonPosition(chart) ?: return unknownText
-    return nakshatraGanaMap[moonPosition.nakshatra] ?: unknownText
+    // Use centralized VedicAstrologyUtils for consistent Gana lookup
+    return VedicAstrologyUtils.getGanaDisplayName(moonPosition.nakshatra)
 }
 
 @Composable
 private fun getYoni(chart: VedicChart): String {
     val unknownText = stringResource(StringKey.MISC_UNKNOWN)
     val moonPosition = getMoonPosition(chart) ?: return unknownText
-    return nakshatraYoniMap[moonPosition.nakshatra] ?: unknownText
+    // Use centralized VedicAstrologyUtils for consistent Yoni lookup
+    return VedicAstrologyUtils.getYoniDisplayName(moonPosition.nakshatra)
 }
-
-// Gana mapping for each nakshatra
-private val nakshatraGanaMap = mapOf(
-    com.astro.storm.data.model.Nakshatra.ASHWINI to "Deva",
-    com.astro.storm.data.model.Nakshatra.BHARANI to "Manushya",
-    com.astro.storm.data.model.Nakshatra.KRITTIKA to "Rakshasa",
-    com.astro.storm.data.model.Nakshatra.ROHINI to "Manushya",
-    com.astro.storm.data.model.Nakshatra.MRIGASHIRA to "Deva",
-    com.astro.storm.data.model.Nakshatra.ARDRA to "Manushya",
-    com.astro.storm.data.model.Nakshatra.PUNARVASU to "Deva",
-    com.astro.storm.data.model.Nakshatra.PUSHYA to "Deva",
-    com.astro.storm.data.model.Nakshatra.ASHLESHA to "Rakshasa",
-    com.astro.storm.data.model.Nakshatra.MAGHA to "Rakshasa",
-    com.astro.storm.data.model.Nakshatra.PURVA_PHALGUNI to "Manushya",
-    com.astro.storm.data.model.Nakshatra.UTTARA_PHALGUNI to "Manushya",
-    com.astro.storm.data.model.Nakshatra.HASTA to "Deva",
-    com.astro.storm.data.model.Nakshatra.CHITRA to "Rakshasa",
-    com.astro.storm.data.model.Nakshatra.SWATI to "Deva",
-    com.astro.storm.data.model.Nakshatra.VISHAKHA to "Rakshasa",
-    com.astro.storm.data.model.Nakshatra.ANURADHA to "Deva",
-    com.astro.storm.data.model.Nakshatra.JYESHTHA to "Rakshasa",
-    com.astro.storm.data.model.Nakshatra.MULA to "Rakshasa",
-    com.astro.storm.data.model.Nakshatra.PURVA_ASHADHA to "Manushya",
-    com.astro.storm.data.model.Nakshatra.UTTARA_ASHADHA to "Manushya",
-    com.astro.storm.data.model.Nakshatra.SHRAVANA to "Deva",
-    com.astro.storm.data.model.Nakshatra.DHANISHTHA to "Rakshasa",
-    com.astro.storm.data.model.Nakshatra.SHATABHISHA to "Rakshasa",
-    com.astro.storm.data.model.Nakshatra.PURVA_BHADRAPADA to "Manushya",
-    com.astro.storm.data.model.Nakshatra.UTTARA_BHADRAPADA to "Manushya",
-    com.astro.storm.data.model.Nakshatra.REVATI to "Deva"
-)
-
-// Yoni mapping for each nakshatra
-private val nakshatraYoniMap = mapOf(
-    com.astro.storm.data.model.Nakshatra.ASHWINI to "Horse (Male)",
-    com.astro.storm.data.model.Nakshatra.BHARANI to "Elephant (Male)",
-    com.astro.storm.data.model.Nakshatra.KRITTIKA to "Sheep (Female)",
-    com.astro.storm.data.model.Nakshatra.ROHINI to "Serpent (Male)",
-    com.astro.storm.data.model.Nakshatra.MRIGASHIRA to "Serpent (Female)",
-    com.astro.storm.data.model.Nakshatra.ARDRA to "Dog (Female)",
-    com.astro.storm.data.model.Nakshatra.PUNARVASU to "Cat (Female)",
-    com.astro.storm.data.model.Nakshatra.PUSHYA to "Sheep (Male)",
-    com.astro.storm.data.model.Nakshatra.ASHLESHA to "Cat (Male)",
-    com.astro.storm.data.model.Nakshatra.MAGHA to "Rat (Male)",
-    com.astro.storm.data.model.Nakshatra.PURVA_PHALGUNI to "Rat (Female)",
-    com.astro.storm.data.model.Nakshatra.UTTARA_PHALGUNI to "Cow (Male)",
-    com.astro.storm.data.model.Nakshatra.HASTA to "Buffalo (Female)",
-    com.astro.storm.data.model.Nakshatra.CHITRA to "Tiger (Female)",
-    com.astro.storm.data.model.Nakshatra.SWATI to "Buffalo (Male)",
-    com.astro.storm.data.model.Nakshatra.VISHAKHA to "Tiger (Male)",
-    com.astro.storm.data.model.Nakshatra.ANURADHA to "Deer (Female)",
-    com.astro.storm.data.model.Nakshatra.JYESHTHA to "Deer (Male)",
-    com.astro.storm.data.model.Nakshatra.MULA to "Dog (Male)",
-    com.astro.storm.data.model.Nakshatra.PURVA_ASHADHA to "Monkey (Male)",
-    com.astro.storm.data.model.Nakshatra.UTTARA_ASHADHA to "Mongoose (Male)",
-    com.astro.storm.data.model.Nakshatra.SHRAVANA to "Monkey (Female)",
-    com.astro.storm.data.model.Nakshatra.DHANISHTHA to "Lion (Female)",
-    com.astro.storm.data.model.Nakshatra.SHATABHISHA to "Horse (Female)",
-    com.astro.storm.data.model.Nakshatra.PURVA_BHADRAPADA to "Lion (Male)",
-    com.astro.storm.data.model.Nakshatra.UTTARA_BHADRAPADA to "Cow (Female)",
-    com.astro.storm.data.model.Nakshatra.REVATI to "Elephant (Female)"
-)
