@@ -93,7 +93,7 @@ fun SynastryScreen(
     )
 
     val animatedProgress by animateFloatAsState(
-        targetValue = synastryResult?.overallCompatibility?.div(100f) ?: 0f,
+        targetValue = (synastryResult?.overallCompatibility?.div(100.0)?.toFloat() ?: 0f),
         animationSpec = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
         label = "progress"
     )
@@ -563,7 +563,7 @@ private fun calculateHouseOverlays(
 }
 
 private fun getHouseForLongitude(longitude: Double, houseCusps: List<Double>): Int {
-    val normalizedLong = normalizeAngle(longitude)
+    val normalizedLong = AstrologicalUtils.normalizeAngle(longitude)
     for (i in 0 until 12) {
         val nextIndex = (i + 1) % 12
         val cusp = houseCusps[i]

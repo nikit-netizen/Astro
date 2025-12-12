@@ -1241,10 +1241,319 @@ object YogaCalculator {
             )
         }
 
-        // 6. Shakat (Cart) Yoga check
-        // Already covered in Nabhasa but adding here for completeness if applicable
+        // 6. Grahan Yoga - Rahu/Ketu conjunct Sun or Moon (eclipsed luminaries)
+        val sunPos = chart.planetPositions.find { it.planet == Planet.SUN }
+        val ketuPos = chart.planetPositions.find { it.planet == Planet.KETU }
+
+        // Sun-Rahu Grahan (Surya Grahan Yoga)
+        if (sunPos != null && rahuPos != null && areConjunct(sunPos, rahuPos)) {
+            val cancellations = mutableListOf<String>()
+            if (sunPos.house in listOf(3, 6, 10, 11)) {
+                cancellations.add("Sun in Upachaya house - effects reduced")
+            }
+            if (isExalted(sunPos) || isInOwnSign(sunPos)) {
+                cancellations.add("Sun is strong - mitigates negative effects")
+            }
+            yogas.add(
+                Yoga(
+                    name = "Surya Grahan Yoga",
+                    sanskritName = "Surya Grahan Yoga",
+                    category = YogaCategory.NEGATIVE_YOGA,
+                    planets = listOf(Planet.SUN, Planet.RAHU),
+                    houses = listOf(sunPos.house),
+                    description = "Sun conjunct Rahu (Solar eclipse combination)",
+                    effects = "Father-related troubles, ego issues, government problems, health issues with head/eyes",
+                    strength = if (cancellations.isEmpty()) YogaStrength.STRONG else YogaStrength.WEAK,
+                    strengthPercentage = if (cancellations.isEmpty()) 75.0 else 35.0,
+                    isAuspicious = false,
+                    activationPeriod = "Sun-Rahu periods",
+                    cancellationFactors = cancellations.ifEmpty { listOf("None identified") }
+                )
+            )
+        }
+
+        // Sun-Ketu Grahan
+        if (sunPos != null && ketuPos != null && areConjunct(sunPos, ketuPos)) {
+            yogas.add(
+                Yoga(
+                    name = "Surya-Ketu Grahan Yoga",
+                    sanskritName = "Surya-Ketu Grahan Yoga",
+                    category = YogaCategory.NEGATIVE_YOGA,
+                    planets = listOf(Planet.SUN, Planet.KETU),
+                    houses = listOf(sunPos.house),
+                    description = "Sun conjunct Ketu",
+                    effects = "Spiritual detachment, low self-esteem, father troubles, past-life karmic issues",
+                    strength = YogaStrength.MODERATE,
+                    strengthPercentage = 55.0,
+                    isAuspicious = false,
+                    activationPeriod = "Sun-Ketu periods",
+                    cancellationFactors = listOf("Jupiter aspect", "Sun in own/exalted sign")
+                )
+            )
+        }
+
+        // Moon-Rahu Grahan (Chandra Grahan Yoga)
+        if (rahuPos != null && areConjunct(moonPos, rahuPos)) {
+            val cancellations = mutableListOf<String>()
+            if (isExalted(moonPos) || isInOwnSign(moonPos)) {
+                cancellations.add("Moon is strong - reduces negative effects")
+            }
+            if (jupiterPos != null && (areConjunct(moonPos, jupiterPos) || areMutuallyAspecting(moonPos, jupiterPos))) {
+                cancellations.add("Jupiter aspects/conjoins Moon")
+            }
+            yogas.add(
+                Yoga(
+                    name = "Chandra Grahan Yoga",
+                    sanskritName = "Chandra Grahan Yoga",
+                    category = YogaCategory.NEGATIVE_YOGA,
+                    planets = listOf(Planet.MOON, Planet.RAHU),
+                    houses = listOf(moonPos.house),
+                    description = "Moon conjunct Rahu (Lunar eclipse combination)",
+                    effects = "Mental restlessness, mother troubles, emotional instability, obsessive tendencies",
+                    strength = if (cancellations.isEmpty()) YogaStrength.STRONG else YogaStrength.WEAK,
+                    strengthPercentage = if (cancellations.isEmpty()) 70.0 else 30.0,
+                    isAuspicious = false,
+                    activationPeriod = "Moon-Rahu periods",
+                    cancellationFactors = cancellations.ifEmpty { listOf("None identified") }
+                )
+            )
+        }
+
+        // Moon-Ketu conjunction
+        if (ketuPos != null && areConjunct(moonPos, ketuPos)) {
+            yogas.add(
+                Yoga(
+                    name = "Chandra-Ketu Yoga",
+                    sanskritName = "Chandra-Ketu Yoga",
+                    category = YogaCategory.NEGATIVE_YOGA,
+                    planets = listOf(Planet.MOON, Planet.KETU),
+                    houses = listOf(moonPos.house),
+                    description = "Moon conjunct Ketu",
+                    effects = "Detachment from emotions, past-life memories, psychic sensitivity, mother karma",
+                    strength = YogaStrength.MODERATE,
+                    strengthPercentage = 50.0,
+                    isAuspicious = false,
+                    activationPeriod = "Moon-Ketu periods",
+                    cancellationFactors = listOf("Jupiter aspect", "Moon in own/exalted sign", "Benefics in Kendra")
+                )
+            )
+        }
+
+        // 7. Angarak Yoga - Mars with Rahu (fiery and aggressive combination)
+        val marsPos = chart.planetPositions.find { it.planet == Planet.MARS }
+        if (marsPos != null && rahuPos != null && areConjunct(marsPos, rahuPos)) {
+            val cancellations = mutableListOf<String>()
+            if (isExalted(marsPos) || isInOwnSign(marsPos)) {
+                cancellations.add("Mars is strong - can channel energy positively")
+            }
+            if (marsPos.house in listOf(3, 6, 10, 11)) {
+                cancellations.add("Mars in Upachaya - aggression becomes drive")
+            }
+            yogas.add(
+                Yoga(
+                    name = "Angarak Yoga",
+                    sanskritName = "Angarak Yoga",
+                    category = YogaCategory.NEGATIVE_YOGA,
+                    planets = listOf(Planet.MARS, Planet.RAHU),
+                    houses = listOf(marsPos.house),
+                    description = "Mars conjunct Rahu (fiery combination)",
+                    effects = "Accidents, surgery, aggression, sibling troubles, litigation, sudden events",
+                    strength = if (cancellations.isEmpty()) YogaStrength.STRONG else YogaStrength.MODERATE,
+                    strengthPercentage = if (cancellations.isEmpty()) 80.0 else 50.0,
+                    isAuspicious = false,
+                    activationPeriod = "Mars-Rahu periods",
+                    cancellationFactors = cancellations.ifEmpty { listOf("None identified") }
+                )
+            )
+        }
+
+        // 8. Shrapit Yoga - Saturn with Rahu (cursed combination from past life)
+        val saturnPos = chart.planetPositions.find { it.planet == Planet.SATURN }
+        if (saturnPos != null && rahuPos != null && areConjunct(saturnPos, rahuPos)) {
+            yogas.add(
+                Yoga(
+                    name = "Shrapit Yoga",
+                    sanskritName = "Shrapit Yoga",
+                    category = YogaCategory.NEGATIVE_YOGA,
+                    planets = listOf(Planet.SATURN, Planet.RAHU),
+                    houses = listOf(saturnPos.house),
+                    description = "Saturn conjunct Rahu (cursed combination)",
+                    effects = "Past-life karma manifesting as chronic obstacles, delays, fear, ancestral issues",
+                    strength = YogaStrength.STRONG,
+                    strengthPercentage = 75.0,
+                    isAuspicious = false,
+                    activationPeriod = "Saturn-Rahu periods (especially impactful)",
+                    cancellationFactors = listOf("Jupiter aspect", "Saturn in own/exalted sign", "Proper remedial measures")
+                )
+            )
+        }
+
+        // 9. Kala Sarpa Yoga - All planets hemmed between Rahu and Ketu
+        if (rahuPos != null && ketuPos != null) {
+            val kalaSarpa = checkKalaSarpaYoga(chart, rahuPos, ketuPos)
+            if (kalaSarpa != null) {
+                yogas.add(kalaSarpa)
+            }
+        }
+
+        // 10. Papakartari Yoga on Lagna - Malefics in 2nd and 12th from Ascendant
+        val planetsIn2nd = chart.planetPositions.filter { it.house == 2 }
+        val planetsIn12th = chart.planetPositions.filter { it.house == 12 }
+        val malefics = listOf(Planet.SATURN, Planet.MARS, Planet.RAHU, Planet.KETU, Planet.SUN)
+
+        val hasMaleficIn2nd = planetsIn2nd.any { it.planet in malefics }
+        val hasMaleficIn12th = planetsIn12th.any { it.planet in malefics }
+
+        if (hasMaleficIn2nd && hasMaleficIn12th) {
+            val maleficPlanets = (planetsIn2nd.filter { it.planet in malefics } +
+                    planetsIn12th.filter { it.planet in malefics }).map { it.planet }.distinct()
+            yogas.add(
+                Yoga(
+                    name = "Papakartari Yoga",
+                    sanskritName = "Papakartari Yoga",
+                    category = YogaCategory.NEGATIVE_YOGA,
+                    planets = maleficPlanets,
+                    houses = listOf(1, 2, 12),
+                    description = "Ascendant hemmed between malefics in 2nd and 12th houses",
+                    effects = "Obstacles in self-expression, health challenges, restricted opportunities",
+                    strength = YogaStrength.MODERATE,
+                    strengthPercentage = 60.0,
+                    isAuspicious = false,
+                    activationPeriod = "Throughout life, especially during malefic Dashas",
+                    cancellationFactors = listOf("Strong Lagna lord", "Benefics aspecting Lagna", "Jupiter in Kendra")
+                )
+            )
+        }
 
         return yogas
+    }
+
+    /**
+     * Check for Kala Sarpa Yoga - All planets between Rahu-Ketu axis
+     * This is a significant yoga indicating karmic patterns from past lives.
+     *
+     * Types of Kala Sarpa based on Rahu's house position:
+     * 1st house: Anant, 2nd: Kulik, 3rd: Vasuki, 4th: Shankhpal,
+     * 5th: Padma, 6th: Mahapadma, 7th: Takshak, 8th: Karkotak,
+     * 9th: Shankhachud, 10th: Ghatak, 11th: Vishdhar, 12th: Sheshnag
+     */
+    private fun checkKalaSarpaYoga(
+        chart: VedicChart,
+        rahuPos: PlanetPosition,
+        ketuPos: PlanetPosition
+    ): Yoga? {
+        // Get all main planets excluding Rahu-Ketu
+        val mainPlanets = chart.planetPositions.filter {
+            it.planet in Planet.MAIN_PLANETS && it.planet != Planet.RAHU && it.planet != Planet.KETU
+        }
+
+        // Calculate Rahu-Ketu axis in terms of longitude
+        val rahuLong = rahuPos.longitude
+        val ketuLong = ketuPos.longitude
+
+        // Check if all planets are on one side of the Rahu-Ketu axis
+        // Rahu and Ketu are always 180° apart
+        var allOnRahuSide = true
+        var allOnKetuSide = true
+
+        mainPlanets.forEach { planet ->
+            val planetLong = planet.longitude
+
+            // Check relative position to Rahu-Ketu axis
+            // A planet is between Rahu and Ketu if its longitude falls in the arc from Rahu to Ketu (going one direction)
+            val rahuToKetu = if (rahuLong < ketuLong) {
+                planetLong in rahuLong..ketuLong
+            } else {
+                planetLong >= rahuLong || planetLong <= ketuLong
+            }
+
+            if (rahuToKetu) {
+                allOnKetuSide = false
+            } else {
+                allOnRahuSide = false
+            }
+        }
+
+        // If all planets are on one side, it's Kala Sarpa Yoga
+        if (allOnRahuSide || allOnKetuSide) {
+            // Determine the type based on Rahu's house
+            val kalaSarpaType = when (rahuPos.house) {
+                1 -> "Anant"
+                2 -> "Kulik"
+                3 -> "Vasuki"
+                4 -> "Shankhpal"
+                5 -> "Padma"
+                6 -> "Mahapadma"
+                7 -> "Takshak"
+                8 -> "Karkotak"
+                9 -> "Shankhachud"
+                10 -> "Ghatak"
+                11 -> "Vishdhar"
+                12 -> "Sheshnag"
+                else -> "Kala Sarpa"
+            }
+
+            // Determine direction (ascending or descending)
+            val direction = if (allOnRahuSide) "Ascending (Rahu moving)" else "Descending (Ketu moving)"
+
+            // Calculate cancellation factors
+            val cancellations = mutableListOf<String>()
+
+            // Cancellation 1: If any planet is exactly conjunct Rahu or Ketu
+            mainPlanets.forEach { planet ->
+                if (areConjunct(planet, rahuPos, customOrb = 3.0) ||
+                    areConjunct(planet, ketuPos, customOrb = 3.0)) {
+                    cancellations.add("${planet.planet.displayName} closely conjunct node - partial cancellation")
+                }
+            }
+
+            // Cancellation 2: Jupiter aspecting Rahu or Ketu
+            val jupiterPos = chart.planetPositions.find { it.planet == Planet.JUPITER }
+            if (jupiterPos != null) {
+                if (isAspecting(jupiterPos, rahuPos) || isAspecting(jupiterPos, ketuPos)) {
+                    cancellations.add("Jupiter aspects nodal axis")
+                }
+            }
+
+            return Yoga(
+                name = "$kalaSarpaType Kala Sarpa Yoga",
+                sanskritName = "कालसर्प योग - $kalaSarpaType",
+                category = YogaCategory.NEGATIVE_YOGA,
+                planets = listOf(Planet.RAHU, Planet.KETU),
+                houses = listOf(rahuPos.house, ketuPos.house),
+                description = "All planets between Rahu-Ketu axis ($direction)",
+                effects = "Karmic life patterns, sudden ups and downs, spiritual transformation potential, " +
+                        "delays in ${getKalaSarpaEffectArea(rahuPos.house)}",
+                strength = if (cancellations.isEmpty()) YogaStrength.STRONG else YogaStrength.MODERATE,
+                strengthPercentage = if (cancellations.isEmpty()) 85.0 else 55.0,
+                isAuspicious = false,
+                activationPeriod = "Rahu and Ketu Mahadashas especially impactful",
+                cancellationFactors = cancellations.ifEmpty { listOf("No cancellation factors present") }
+            )
+        }
+
+        return null
+    }
+
+    /**
+     * Get the primary effect area based on Rahu's house position for Kala Sarpa
+     */
+    private fun getKalaSarpaEffectArea(rahuHouse: Int): String {
+        return when (rahuHouse) {
+            1 -> "self/health matters"
+            2 -> "wealth/family matters"
+            3 -> "siblings/courage matters"
+            4 -> "home/mother/property matters"
+            5 -> "children/education matters"
+            6 -> "health/enemies matters"
+            7 -> "marriage/partnership matters"
+            8 -> "longevity/inheritance matters"
+            9 -> "fortune/father matters"
+            10 -> "career/reputation matters"
+            11 -> "gains/elder siblings matters"
+            12 -> "expenses/spirituality matters"
+            else -> "various life areas"
+        }
     }
 
     // ==================== ADDITIONAL IMPORTANT YOGAS ====================
@@ -1472,6 +1781,130 @@ object YogaCalculator {
             }
         }
 
+        // 6. Shubhakartari Yoga - Benefics in 2nd and 12th from Ascendant (opposite of Papakartari)
+        val planetsIn2nd = chart.planetPositions.filter { it.house == 2 }
+        val planetsIn12th = chart.planetPositions.filter { it.house == 12 }
+        val beneficPlanets = listOf(Planet.JUPITER, Planet.VENUS, Planet.MERCURY, Planet.MOON)
+
+        val hasBeneficIn2nd = planetsIn2nd.any { it.planet in beneficPlanets }
+        val hasBeneficIn12th = planetsIn12th.any { it.planet in beneficPlanets }
+
+        if (hasBeneficIn2nd && hasBeneficIn12th) {
+            val beneficsList = (planetsIn2nd.filter { it.planet in beneficPlanets } +
+                    planetsIn12th.filter { it.planet in beneficPlanets }).map { it.planet }.distinct()
+            val strength = calculateYogaStrength(chart,
+                (planetsIn2nd + planetsIn12th).filter { it.planet in beneficPlanets })
+            yogas.add(
+                Yoga(
+                    name = "Shubhakartari Yoga",
+                    sanskritName = "Shubhakartari Yoga",
+                    category = YogaCategory.SPECIAL_YOGA,
+                    planets = beneficsList,
+                    houses = listOf(1, 2, 12),
+                    description = "Ascendant hemmed between benefics in 2nd and 12th houses",
+                    effects = "Protected life, good health, success in endeavors, helpful people around",
+                    strength = strengthFromPercentage(strength),
+                    strengthPercentage = strength,
+                    isAuspicious = true,
+                    activationPeriod = "Throughout life, enhanced during benefic Dashas",
+                    cancellationFactors = emptyList()
+                )
+            )
+        }
+
+        // 7. Sanyasa Yoga - Multiple planets in one house, especially 10th
+        // Four or more planets in a single house create renunciation tendencies
+        val houseOccupancy = (1..12).associateWith { house ->
+            chart.planetPositions.filter { it.house == house && it.planet in Planet.MAIN_PLANETS }
+        }
+
+        houseOccupancy.forEach { (house, planets) ->
+            if (planets.size >= 4) {
+                // Check if Saturn is involved (stronger indication)
+                val hasSaturn = planets.any { it.planet == Planet.SATURN }
+                val hasKetu = planets.any { it.planet == Planet.KETU }
+
+                // Sanyasa yoga is more prominent in houses 1, 5, 9, 10, 12
+                val isSanyasaHouse = house in listOf(1, 5, 9, 10, 12)
+
+                if (isSanyasaHouse || hasSaturn || hasKetu) {
+                    val strength = calculateYogaStrength(chart, planets)
+                    yogas.add(
+                        Yoga(
+                            name = "Sanyasa Yoga",
+                            sanskritName = "Sanyasa Yoga",
+                            category = YogaCategory.SPECIAL_YOGA,
+                            planets = planets.map { it.planet },
+                            houses = listOf(house),
+                            description = "${planets.size} planets conjunct in ${house}th house",
+                            effects = "Renunciation tendencies, spiritual inclinations, detachment from worldly matters",
+                            strength = strengthFromPercentage(strength),
+                            strengthPercentage = strength,
+                            isAuspicious = true, // Spiritually auspicious
+                            activationPeriod = "During Dashas of conjunct planets",
+                            cancellationFactors = listOf("Strong attachment to family/wealth", "Jupiter afflicted")
+                        )
+                    )
+                }
+            }
+        }
+
+        // 8. Hans Yoga (variant spelling check) - Already covered as Hamsa in Mahapurusha
+
+        // 9. Chamara Yoga - Lagna lord exalted and aspected by Jupiter
+        val lord1 = houseLords[1]
+        if (lord1 != null) {
+            val lord1Pos = chart.planetPositions.find { it.planet == lord1 }
+            if (lord1Pos != null && isExalted(lord1Pos)) {
+                if (jupiterPos != null && isAspecting(jupiterPos, lord1Pos)) {
+                    val strength = calculateYogaStrength(chart, listOf(lord1Pos, jupiterPos))
+                    yogas.add(
+                        Yoga(
+                            name = "Chamara Yoga",
+                            sanskritName = "Chamara Yoga",
+                            category = YogaCategory.SPECIAL_YOGA,
+                            planets = listOf(lord1, Planet.JUPITER),
+                            houses = listOf(lord1Pos.house, jupiterPos.house),
+                            description = "Exalted Lagna lord aspected by Jupiter",
+                            effects = "Royal honors, fame, eloquence, learned, respected by rulers",
+                            strength = strengthFromPercentage(strength),
+                            strengthPercentage = strength,
+                            isAuspicious = true,
+                            activationPeriod = "${lord1.displayName} and Jupiter Dashas",
+                            cancellationFactors = emptyList()
+                        )
+                    )
+                }
+            }
+        }
+
+        // 10. Dharma-Karmadhipati Yoga - 9th and 10th lords connected (very important Raja Yoga)
+        val lord9Pos = chart.planetPositions.find { it.planet == houseLords[9] }
+        val lord10 = houseLords[10]
+        val lord10Pos = chart.planetPositions.find { it.planet == lord10 }
+
+        if (lord9Pos != null && lord10Pos != null && houseLords[9] != lord10) {
+            if (areConjunct(lord9Pos, lord10Pos) || areMutuallyAspecting(lord9Pos, lord10Pos) || areInExchange(lord9Pos, lord10Pos)) {
+                val strength = calculateYogaStrength(chart, listOf(lord9Pos, lord10Pos)) * 1.15 // Extra weight
+                yogas.add(
+                    Yoga(
+                        name = "Dharma-Karmadhipati Yoga",
+                        sanskritName = "Dharma-Karmadhipati Yoga",
+                        category = YogaCategory.SPECIAL_YOGA,
+                        planets = listOf(houseLords[9]!!, lord10!!),
+                        houses = listOf(lord9Pos.house, lord10Pos.house),
+                        description = "9th lord (fortune) and 10th lord (karma) connected",
+                        effects = "Highly successful career, fortune through profession, fame, authority positions",
+                        strength = strengthFromPercentage(strength),
+                        strengthPercentage = strength,
+                        isAuspicious = true,
+                        activationPeriod = "${houseLords[9]!!.displayName}-${lord10.displayName} periods",
+                        cancellationFactors = emptyList()
+                    )
+                )
+            }
+        }
+
         return yogas
     }
 
@@ -1606,26 +2039,36 @@ object YogaCalculator {
         }
 
         // Mars special aspects: 4th and 8th houses
+        // 4th house = 90° (square), 8th house = 210° (quincunx + 30°)
         if (aspectingPlanet.planet == Planet.MARS) {
-            if (houseDistance == 4 || houseDistance == 8) {
-                val expectedAngle = if (houseDistance == 4) 90.0 else 210.0
-                return isWithinAspectOrb(aspectingPlanet.longitude, targetPlanet.longitude, expectedAngle, aspectOrb)
+            if (houseDistance == 4) {
+                return isWithinAspectOrb(aspectingPlanet.longitude, targetPlanet.longitude, 90.0, aspectOrb)
+            }
+            if (houseDistance == 8) {
+                // 8th house is (8-1)*30 = 210° ahead
+                return isWithinAspectOrb(aspectingPlanet.longitude, targetPlanet.longitude, 210.0, aspectOrb)
             }
         }
 
         // Jupiter special aspects: 5th and 9th houses
+        // 5th house = 120° (trine), 9th house = 240° (trine)
         if (aspectingPlanet.planet == Planet.JUPITER) {
-            if (houseDistance == 5 || houseDistance == 9) {
-                val expectedAngle = if (houseDistance == 5) 120.0 else 240.0
-                return isWithinAspectOrb(aspectingPlanet.longitude, targetPlanet.longitude, expectedAngle, aspectOrb)
+            if (houseDistance == 5) {
+                return isWithinAspectOrb(aspectingPlanet.longitude, targetPlanet.longitude, 120.0, aspectOrb)
+            }
+            if (houseDistance == 9) {
+                return isWithinAspectOrb(aspectingPlanet.longitude, targetPlanet.longitude, 240.0, aspectOrb)
             }
         }
 
         // Saturn special aspects: 3rd and 10th houses
+        // 3rd house = 60° (sextile), 10th house = 270° (square from behind)
         if (aspectingPlanet.planet == Planet.SATURN) {
-            if (houseDistance == 3 || houseDistance == 10) {
-                val expectedAngle = if (houseDistance == 3) 60.0 else 270.0
-                return isWithinAspectOrb(aspectingPlanet.longitude, targetPlanet.longitude, expectedAngle, aspectOrb)
+            if (houseDistance == 3) {
+                return isWithinAspectOrb(aspectingPlanet.longitude, targetPlanet.longitude, 60.0, aspectOrb)
+            }
+            if (houseDistance == 10) {
+                return isWithinAspectOrb(aspectingPlanet.longitude, targetPlanet.longitude, 270.0, aspectOrb)
             }
         }
 
@@ -1852,33 +2295,18 @@ object YogaCalculator {
     }
 
     private fun isInOwnSign(pos: PlanetPosition): Boolean {
-        return pos.sign.ruler == pos.planet
+        // Delegate to centralized utility for consistency across the codebase
+        return VedicAstrologyUtils.isInOwnSign(pos)
     }
 
     private fun isExalted(pos: PlanetPosition): Boolean {
-        return when (pos.planet) {
-            Planet.SUN -> pos.sign == ZodiacSign.ARIES
-            Planet.MOON -> pos.sign == ZodiacSign.TAURUS
-            Planet.MARS -> pos.sign == ZodiacSign.CAPRICORN
-            Planet.MERCURY -> pos.sign == ZodiacSign.VIRGO
-            Planet.JUPITER -> pos.sign == ZodiacSign.CANCER
-            Planet.VENUS -> pos.sign in listOf(ZodiacSign.PISCES, ZodiacSign.TAURUS)
-            Planet.SATURN -> pos.sign == ZodiacSign.LIBRA
-            else -> false
-        }
+        // Delegate to centralized utility for consistency across the codebase
+        return VedicAstrologyUtils.isExalted(pos)
     }
 
     private fun isDebilitated(pos: PlanetPosition): Boolean {
-        return when (pos.planet) {
-            Planet.SUN -> pos.sign == ZodiacSign.LIBRA
-            Planet.MOON -> pos.sign == ZodiacSign.SCORPIO
-            Planet.MARS -> pos.sign == ZodiacSign.CANCER
-            Planet.MERCURY -> pos.sign == ZodiacSign.PISCES
-            Planet.JUPITER -> pos.sign == ZodiacSign.CAPRICORN
-            Planet.VENUS -> pos.sign == ZodiacSign.VIRGO
-            Planet.SATURN -> pos.sign == ZodiacSign.ARIES
-            else -> false
-        }
+        // Delegate to centralized utility for consistency across the codebase
+        return VedicAstrologyUtils.isDebilitated(pos)
     }
 
     private fun hasNeechaBhanga(pos: PlanetPosition, chart: VedicChart): Boolean {
@@ -2006,39 +2434,16 @@ object YogaCalculator {
      * - Saturn: Strong in 7th house (West)
      */
     private fun hasDigBala(pos: PlanetPosition): Boolean {
-        return when (pos.planet) {
-            Planet.SUN, Planet.MARS -> pos.house == 10
-            Planet.MOON, Planet.VENUS -> pos.house == 4
-            Planet.MERCURY, Planet.JUPITER -> pos.house == 1
-            Planet.SATURN -> pos.house == 7
-            else -> false
-        }
+        // Delegate to centralized utility for consistency across the codebase
+        return VedicAstrologyUtils.hasDigBala(pos)
     }
 
     /**
      * Check if planet is in a friend's sign based on natural friendship.
      */
     private fun isInFriendSign(pos: PlanetPosition): Boolean {
-        val friends = getFriends(pos.planet)
-        return pos.sign.ruler in friends
-    }
-
-    /**
-     * Get natural friends of a planet based on BPHS.
-     */
-    private fun getFriends(planet: Planet): List<Planet> {
-        return when (planet) {
-            Planet.SUN -> listOf(Planet.MOON, Planet.MARS, Planet.JUPITER)
-            Planet.MOON -> listOf(Planet.SUN, Planet.MERCURY)
-            Planet.MARS -> listOf(Planet.SUN, Planet.MOON, Planet.JUPITER)
-            Planet.MERCURY -> listOf(Planet.SUN, Planet.VENUS)
-            Planet.JUPITER -> listOf(Planet.SUN, Planet.MOON, Planet.MARS)
-            Planet.VENUS -> listOf(Planet.MERCURY, Planet.SATURN)
-            Planet.SATURN -> listOf(Planet.MERCURY, Planet.VENUS)
-            Planet.RAHU -> listOf(Planet.VENUS, Planet.SATURN)
-            Planet.KETU -> listOf(Planet.MARS, Planet.JUPITER)
-            else -> emptyList()
-        }
+        // Delegate to centralized utility for consistency across the codebase
+        return VedicAstrologyUtils.isInFriendSign(pos)
     }
 
     /**
@@ -2453,6 +2858,19 @@ object YogaCalculator {
             englishName.contains("Parvata") -> StringKey.YOGA_PARVATA
             englishName.contains("Kahala") -> StringKey.YOGA_KAHALA
             englishName.contains("Dhana") -> StringKey.YOGA_CAT_DHANA
+            // New yogas
+            englishName.contains("Surya Grahan") && !englishName.contains("Ketu") -> StringKey.YOGA_SURYA_GRAHAN
+            englishName.contains("Surya-Ketu Grahan") -> StringKey.YOGA_SURYA_KETU_GRAHAN
+            englishName.contains("Chandra Grahan") -> StringKey.YOGA_CHANDRA_GRAHAN
+            englishName.contains("Chandra-Ketu") -> StringKey.YOGA_CHANDRA_KETU
+            englishName.contains("Angarak") -> StringKey.YOGA_ANGARAK
+            englishName.contains("Shrapit") -> StringKey.YOGA_SHRAPIT
+            englishName.contains("Kala Sarpa") -> StringKey.YOGA_KALA_SARPA
+            englishName.contains("Papakartari") -> StringKey.YOGA_PAPAKARTARI
+            englishName.contains("Shubhakartari") -> StringKey.YOGA_SHUBHAKARTARI
+            englishName.contains("Sanyasa") -> StringKey.YOGA_SANYASA
+            englishName.contains("Chamara") -> StringKey.YOGA_CHAMARA
+            englishName.contains("Dharma-Karmadhipati") -> StringKey.YOGA_DHARMA_KARMADHIPATI
             else -> return englishName // Fallback to English name
         }
         return StringResources.get(key, language)
@@ -2505,6 +2923,19 @@ object YogaCalculator {
             yogaName.contains("Yuga") -> StringKey.YOGA_EFFECT_YUGA
             yogaName.contains("Gola") -> StringKey.YOGA_EFFECT_GOLA
             yogaName.contains("Veena") -> StringKey.YOGA_EFFECT_VEENA
+            // New yogas - Grahan and Nodal Combinations
+            yogaName.contains("Surya Grahan") && !yogaName.contains("Ketu") -> StringKey.YOGA_EFFECT_SURYA_GRAHAN
+            yogaName.contains("Surya-Ketu Grahan") -> StringKey.YOGA_EFFECT_SURYA_KETU_GRAHAN
+            yogaName.contains("Chandra Grahan") -> StringKey.YOGA_EFFECT_CHANDRA_GRAHAN
+            yogaName.contains("Chandra-Ketu") -> StringKey.YOGA_EFFECT_CHANDRA_KETU
+            yogaName.contains("Angarak") -> StringKey.YOGA_EFFECT_ANGARAK
+            yogaName.contains("Shrapit") -> StringKey.YOGA_EFFECT_SHRAPIT
+            yogaName.contains("Kala Sarpa") -> StringKey.YOGA_EFFECT_KALA_SARPA
+            yogaName.contains("Papakartari") -> StringKey.YOGA_EFFECT_PAPAKARTARI
+            yogaName.contains("Shubhakartari") -> StringKey.YOGA_EFFECT_SHUBHAKARTARI
+            yogaName.contains("Sanyasa") -> StringKey.YOGA_EFFECT_SANYASA
+            yogaName.contains("Chamara") -> StringKey.YOGA_EFFECT_CHAMARA
+            yogaName.contains("Dharma-Karmadhipati") -> StringKey.YOGA_EFFECT_DHARMA_KARMADHIPATI
             else -> return "" // Return empty for unknown yogas, caller should use original
         }
         return StringResources.get(key, language)

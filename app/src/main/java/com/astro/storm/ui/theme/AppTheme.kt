@@ -5,6 +5,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import com.astro.storm.data.model.Planet
 
 /**
  * Unified App Theme Colors with Dark/Light Mode Support
@@ -344,6 +345,25 @@ object AppTheme {
     val LifeAreaGrowth: Color get() = DarkAppThemeColors.LifeAreaGrowth
     val LifeAreaFinance: Color get() = DarkAppThemeColors.LifeAreaFinance
     val LifeAreaSpiritual: Color get() = DarkAppThemeColors.LifeAreaSpiritual
+
+    // Alias for backward compatibility
+    val CardElevated: Color get() = DarkAppThemeColors.CardBackgroundElevated
+
+    /**
+     * Get color for a specific planet
+     */
+    fun getPlanetColor(planet: Planet): Color = when (planet) {
+        Planet.SUN -> PlanetSun
+        Planet.MOON -> PlanetMoon
+        Planet.MARS -> PlanetMars
+        Planet.MERCURY -> PlanetMercury
+        Planet.JUPITER -> PlanetJupiter
+        Planet.VENUS -> PlanetVenus
+        Planet.SATURN -> PlanetSaturn
+        Planet.RAHU -> PlanetRahu
+        Planet.KETU -> PlanetKetu
+        else -> AccentGold
+    }
 }
 
 /**

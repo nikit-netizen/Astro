@@ -270,7 +270,7 @@ private fun ShadbalaOverviewTab(
     language: Language
 ) {
     val overallProgress by animateFloatAsState(
-        targetValue = (analysis.overallStrengthScore / 150f).coerceIn(0f, 1f),
+        targetValue = (analysis.overallStrengthScore / 150.0).coerceIn(0.0, 1.0).toFloat(),
         animationSpec = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
         label = "overall_progress"
     )
@@ -510,7 +510,7 @@ private fun PlanetStrengthRow(
     language: Language
 ) {
     val progress by animateFloatAsState(
-        targetValue = (shadbala.percentageOfRequired / 150f).coerceIn(0f, 1f),
+        targetValue = (shadbala.percentageOfRequired / 150.0).coerceIn(0.0, 1.0).toFloat(),
         animationSpec = tween(800),
         label = "progress"
     )
