@@ -14,6 +14,8 @@ import android.provider.MediaStore
 import androidx.compose.ui.unit.Density
 import com.astro.storm.data.localization.LocalizationManager
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyAnalysis
+import com.astro.storm.data.localization.StringKeyMatch
 import com.astro.storm.data.model.Planet
 import com.astro.storm.data.model.PlanetPosition
 import com.astro.storm.data.model.VedicChart
@@ -189,7 +191,7 @@ class ChartExporter(private val context: Context) {
         paint.textSize = 24f
         paint.typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD)
         paint.color = Color.rgb(70, 70, 70)
-        canvas.drawText(locManager.getString(StringKey.EXPORT_VEDIC_REPORT), PDF_MARGIN.toFloat(), yPos + 24f, paint)
+        canvas.drawText(locManager.getString(StringKeyAnalysis.EXPORT_VEDIC_REPORT), PDF_MARGIN.toFloat(), yPos + 24f, paint)
         yPos += 50f
 
         // Birth Information Box
@@ -205,13 +207,13 @@ class ChartExporter(private val context: Context) {
         canvas.drawRect(PDF_MARGIN.toFloat(), yPos, (options.pageSize.width - PDF_MARGIN).toFloat(), yPos + 80f, boxPaint)
 
         yPos += 15f
-        canvas.drawText("${locManager.getString(StringKey.EXPORT_NAME)} ${chart.birthData.name}", PDF_MARGIN + 10f, yPos + 12f, paint)
+        canvas.drawText("${locManager.getString(StringKeyAnalysis.EXPORT_NAME)} ${chart.birthData.name}", PDF_MARGIN + 10f, yPos + 12f, paint)
         yPos += 18f
-        canvas.drawText("${locManager.getString(StringKey.EXPORT_DATE_TIME)} ${chart.birthData.dateTime}", PDF_MARGIN + 10f, yPos + 12f, paint)
+        canvas.drawText("${locManager.getString(StringKeyAnalysis.EXPORT_DATE_TIME)} ${chart.birthData.dateTime}", PDF_MARGIN + 10f, yPos + 12f, paint)
         yPos += 18f
-        canvas.drawText("${locManager.getString(StringKey.EXPORT_LOCATION)} ${chart.birthData.location}", PDF_MARGIN + 10f, yPos + 12f, paint)
+        canvas.drawText("${locManager.getString(StringKeyAnalysis.EXPORT_LOCATION)} ${chart.birthData.location}", PDF_MARGIN + 10f, yPos + 12f, paint)
         yPos += 18f
-        canvas.drawText("${locManager.getString(StringKey.EXPORT_COORDINATES)} ${formatCoordinate(chart.birthData.latitude.toDouble(), true)}, ${formatCoordinate(chart.birthData.longitude.toDouble(), false)}", PDF_MARGIN + 10f, yPos + 12f, paint)
+        canvas.drawText("${locManager.getString(StringKeyAnalysis.EXPORT_COORDINATES)} ${formatCoordinate(chart.birthData.latitude.toDouble(), true)}, ${formatCoordinate(chart.birthData.longitude.toDouble(), false)}", PDF_MARGIN + 10f, yPos + 12f, paint)
 
         yPos += 40f
 
@@ -224,7 +226,7 @@ class ChartExporter(private val context: Context) {
 
             paint.textSize = 10f
             paint.textAlign = Paint.Align.CENTER
-            canvas.drawText(locManager.getString(StringKey.CHART_RASHI), options.pageSize.width / 2f, yPos, paint)
+            canvas.drawText(locManager.getString(StringKeyAnalysis.CHART_RASHI), options.pageSize.width / 2f, yPos, paint)
             paint.textAlign = Paint.Align.LEFT
             yPos += 20f
         }
@@ -235,7 +237,7 @@ class ChartExporter(private val context: Context) {
             val navamsaBitmap = chartRenderer.createDivisionalChartBitmap(
                 navamsaData.planetPositions,
                 navamsaData.ascendantLongitude,
-                locManager.getString(StringKey.CHART_NAVAMSA),
+                locManager.getString(StringKeyAnalysis.CHART_NAVAMSA),
                 250, 250, density
             )
             val navamsaX = (options.pageSize.width - 250) / 2f
@@ -244,7 +246,7 @@ class ChartExporter(private val context: Context) {
 
             paint.textSize = 10f
             paint.textAlign = Paint.Align.CENTER
-            canvas.drawText(locManager.getString(StringKey.CHART_NAVAMSA), options.pageSize.width / 2f, yPos, paint)
+            canvas.drawText(locManager.getString(StringKeyAnalysis.CHART_NAVAMSA), options.pageSize.width / 2f, yPos, paint)
             paint.textAlign = Paint.Align.LEFT
         }
 
@@ -276,7 +278,7 @@ class ChartExporter(private val context: Context) {
         paint.textSize = 18f
         paint.typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD)
         paint.color = Color.rgb(70, 70, 70)
-        canvas.drawText(locManager.getString(StringKey.EXPORT_PLANETARY_POSITIONS), PDF_MARGIN.toFloat(), yPos + 18f, paint)
+        canvas.drawText(locManager.getString(StringKeyAnalysis.EXPORT_PLANETARY_POSITIONS), PDF_MARGIN.toFloat(), yPos + 18f, paint)
         yPos += 40f
 
         // Table Header
@@ -284,13 +286,13 @@ class ChartExporter(private val context: Context) {
         paint.typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
 
         val columns = listOf(
-            locManager.getString(StringKey.EXPORT_PLANET),
-            locManager.getString(StringKey.EXPORT_SIGN),
-            locManager.getString(StringKey.EXPORT_DEGREE),
-            locManager.getString(StringKey.EXPORT_NAKSHATRA),
-            locManager.getString(StringKey.EXPORT_PADA),
-            locManager.getString(StringKey.EXPORT_HOUSE),
-            locManager.getString(StringKey.EXPORT_STATUS)
+            locManager.getString(StringKeyAnalysis.EXPORT_PLANET),
+            locManager.getString(StringKeyAnalysis.EXPORT_SIGN),
+            locManager.getString(StringKeyAnalysis.EXPORT_DEGREE),
+            locManager.getString(StringKeyAnalysis.EXPORT_NAKSHATRA),
+            locManager.getString(StringKeyAnalysis.EXPORT_PADA),
+            locManager.getString(StringKeyAnalysis.EXPORT_HOUSE),
+            locManager.getString(StringKeyAnalysis.EXPORT_STATUS)
         )
         val columnWidths = listOf(60f, 80f, 70f, 100f, 40f, 50f, 80f)
         var xPos = PDF_MARGIN.toFloat()
@@ -322,8 +324,8 @@ class ChartExporter(private val context: Context) {
 
             val status = buildString {
                 if (position.isRetrograde) append("R ")
-                if (isExalted(position.planet, position.sign)) append("${locManager.getString(StringKey.PLANETARY_STATUS_EXALTED)} ")
-                if (isDebilitated(position.planet, position.sign)) append("${locManager.getString(StringKey.PLANETARY_STATUS_DEBILITATED)} ")
+                if (isExalted(position.planet, position.sign)) append("${locManager.getString(StringKeyMatch.PLANETARY_STATUS_EXALTED)} ")
+                if (isDebilitated(position.planet, position.sign)) append("${locManager.getString(StringKeyMatch.PLANETARY_STATUS_DEBILITATED)} ")
             }.trim().ifEmpty { "-" }
 
             val data = listOf(
@@ -354,19 +356,19 @@ class ChartExporter(private val context: Context) {
         yPos += 20f
         paint.textSize = 14f
         paint.typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD)
-        canvas.drawText(locManager.getString(StringKey.EXPORT_ASTRONOMICAL_DATA), PDF_MARGIN.toFloat(), yPos + 14f, paint)
+        canvas.drawText(locManager.getString(StringKeyAnalysis.EXPORT_ASTRONOMICAL_DATA), PDF_MARGIN.toFloat(), yPos + 14f, paint)
         yPos += 30f
 
         paint.textSize = 10f
         paint.typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL)
 
         val astroData = listOf(
-            "${locManager.getString(StringKey.CHART_JULIAN_DAY)}: ${String.format("%.6f", chart.julianDay)}",
-            "${locManager.getString(StringKey.CHART_AYANAMSA)}: ${chart.ayanamsaName}",
-            "${locManager.getString(StringKey.CHART_AYANAMSA)}: ${formatDegree(chart.ayanamsa)}",
-            "${locManager.getString(StringKey.CHART_ASCENDANT_LAGNA)}: ${formatDegree(chart.ascendant)} (${ZodiacSign.fromLongitude(chart.ascendant).displayName})",
-            "${locManager.getString(StringKey.CHART_MIDHEAVEN)}: ${formatDegree(chart.midheaven)} (${ZodiacSign.fromLongitude(chart.midheaven).displayName})",
-            "${locManager.getString(StringKey.CHART_HOUSE_SYSTEM)}: ${chart.houseSystem.displayName}"
+            "${locManager.getString(StringKeyAnalysis.CHART_JULIAN_DAY)}: ${String.format("%.6f", chart.julianDay)}",
+            "${locManager.getString(StringKeyAnalysis.CHART_AYANAMSA)}: ${chart.ayanamsaName}",
+            "${locManager.getString(StringKeyAnalysis.CHART_AYANAMSA)}: ${formatDegree(chart.ayanamsa)}",
+            "${locManager.getString(StringKeyAnalysis.CHART_ASCENDANT_LAGNA)}: ${formatDegree(chart.ascendant)} (${ZodiacSign.fromLongitude(chart.ascendant).displayName})",
+            "${locManager.getString(StringKeyAnalysis.CHART_MIDHEAVEN)}: ${formatDegree(chart.midheaven)} (${ZodiacSign.fromLongitude(chart.midheaven).displayName})",
+            "${locManager.getString(StringKeyAnalysis.CHART_HOUSE_SYSTEM)}: ${chart.houseSystem.displayName}"
         )
 
         astroData.forEach { line ->
@@ -378,7 +380,7 @@ class ChartExporter(private val context: Context) {
         yPos += 20f
         paint.textSize = 14f
         paint.typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD)
-        canvas.drawText(locManager.getString(StringKey.EXPORT_HOUSE_CUSPS), PDF_MARGIN.toFloat(), yPos + 14f, paint)
+        canvas.drawText(locManager.getString(StringKeyAnalysis.EXPORT_HOUSE_CUSPS), PDF_MARGIN.toFloat(), yPos + 14f, paint)
         yPos += 30f
 
         paint.textSize = 9f
@@ -391,7 +393,7 @@ class ChartExporter(private val context: Context) {
         chart.houseCusps.forEachIndexed { index, cusp ->
             val houseNum = index + 1
             val sign = ZodiacSign.fromLongitude(cusp)
-            val text = "${locManager.getString(StringKey.EXPORT_HOUSE)} $houseNum: ${formatDegree(cusp)} (${sign.abbreviation})"
+            val text = "${locManager.getString(StringKeyAnalysis.EXPORT_HOUSE)} $houseNum: ${formatDegree(cusp)} (${sign.abbreviation})"
 
             if (houseNum <= 6) {
                 canvas.drawText(text, col1X, yPos + 12f, paint)
@@ -429,7 +431,7 @@ class ChartExporter(private val context: Context) {
             paint.textSize = 18f
             paint.typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD)
             paint.color = Color.rgb(70, 70, 70)
-            canvas.drawText(locManager.getString(StringKey.EXPORT_YOGA_ANALYSIS), PDF_MARGIN.toFloat(), yPos + 18f, paint)
+            canvas.drawText(locManager.getString(StringKeyAnalysis.EXPORT_YOGA_ANALYSIS), PDF_MARGIN.toFloat(), yPos + 18f, paint)
             yPos += 35f
 
             val yogaAnalysis = YogaCalculator.calculateYogas(chart)
@@ -438,9 +440,9 @@ class ChartExporter(private val context: Context) {
             paint.typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL)
 
             // Summary
-            canvas.drawText("${locManager.getString(StringKey.EXPORT_TOTAL_YOGAS)} ${yogaAnalysis.allYogas.size}", PDF_MARGIN.toFloat(), yPos + 12f, paint)
+            canvas.drawText("${locManager.getString(StringKeyAnalysis.EXPORT_TOTAL_YOGAS)} ${yogaAnalysis.allYogas.size}", PDF_MARGIN.toFloat(), yPos + 12f, paint)
             yPos += 18f
-            canvas.drawText("${locManager.getString(StringKey.EXPORT_OVERALL_YOGA_STRENGTH)} ${String.format("%.1f", yogaAnalysis.overallYogaStrength)}%", PDF_MARGIN.toFloat(), yPos + 12f, paint)
+            canvas.drawText("${locManager.getString(StringKeyAnalysis.EXPORT_OVERALL_YOGA_STRENGTH)} ${String.format("%.1f", yogaAnalysis.overallYogaStrength)}%", PDF_MARGIN.toFloat(), yPos + 12f, paint)
             yPos += 25f
 
             // List top yogas
@@ -452,7 +454,7 @@ class ChartExporter(private val context: Context) {
             if (topYogas.isNotEmpty()) {
                 paint.textSize = 12f
                 paint.typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
-                canvas.drawText("${locManager.getString(StringKey.EXPORT_KEY_YOGAS)}", PDF_MARGIN.toFloat(), yPos + 12f, paint)
+                canvas.drawText("${locManager.getString(StringKeyAnalysis.EXPORT_KEY_YOGAS)}", PDF_MARGIN.toFloat(), yPos + 12f, paint)
                 yPos += 20f
 
                 paint.textSize = 9f
@@ -479,7 +481,7 @@ class ChartExporter(private val context: Context) {
                 paint.textSize = 12f
                 paint.typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
                 paint.color = Color.rgb(150, 50, 50)
-                canvas.drawText("${locManager.getString(StringKey.EXPORT_CHALLENGING_YOGAS)}", PDF_MARGIN.toFloat(), yPos + 12f, paint)
+                canvas.drawText("${locManager.getString(StringKeyAnalysis.EXPORT_CHALLENGING_YOGAS)}", PDF_MARGIN.toFloat(), yPos + 12f, paint)
                 yPos += 20f
 
                 paint.textSize = 9f
@@ -490,7 +492,7 @@ class ChartExporter(private val context: Context) {
                     canvas.drawText("• ${yoga.name}", PDF_MARGIN.toFloat() + 10f, yPos + 10f, paint)
                     yPos += 14f
                     if (yoga.cancellationFactors.isNotEmpty()) {
-                        canvas.drawText("  ${locManager.getString(StringKey.EXPORT_MITIGATED_BY)} ${yoga.cancellationFactors.first()}", PDF_MARGIN.toFloat() + 15f, yPos + 10f, paint)
+                        canvas.drawText("  ${locManager.getString(StringKeyAnalysis.EXPORT_MITIGATED_BY)} ${yoga.cancellationFactors.first()}", PDF_MARGIN.toFloat() + 15f, yPos + 10f, paint)
                         yPos += 14f
                     }
                 }
@@ -504,7 +506,7 @@ class ChartExporter(private val context: Context) {
             paint.textSize = 18f
             paint.typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD)
             paint.color = Color.rgb(70, 70, 70)
-            canvas.drawText(locManager.getString(StringKey.EXPORT_PLANETARY_ASPECTS), PDF_MARGIN.toFloat(), yPos + 18f, paint)
+            canvas.drawText(locManager.getString(StringKeyAnalysis.EXPORT_PLANETARY_ASPECTS), PDF_MARGIN.toFloat(), yPos + 18f, paint)
             yPos += 35f
 
             val aspectMatrix = AspectCalculator.calculateAspectMatrix(chart)
@@ -519,9 +521,9 @@ class ChartExporter(private val context: Context) {
                 .take(15)
 
             significantAspects.forEach { aspect ->
-                val applying = if (aspect.isApplying) locManager.getString(StringKey.TRANSIT_APPLYING) else locManager.getString(StringKey.TRANSIT_SEPARATING)
+                val applying = if (aspect.isApplying) locManager.getString(StringKeyAnalysis.TRANSIT_APPLYING) else locManager.getString(StringKeyAnalysis.TRANSIT_SEPARATING)
                 val text = "${aspect.aspectingPlanet.displayName} ${aspect.aspectType.displayName} ${aspect.aspectedPlanet.displayName} " +
-                        "(${locManager.getString(StringKey.TRANSIT_ORB, String.format("%.1f", aspect.exactOrb))}, $applying)"
+                        "(${locManager.getString(StringKeyAnalysis.TRANSIT_ORB, String.format("%.1f", aspect.exactOrb))}, $applying)"
                 canvas.drawText(text, PDF_MARGIN.toFloat(), yPos + 10f, paint)
                 yPos += 14f
 
@@ -555,7 +557,7 @@ class ChartExporter(private val context: Context) {
         paint.textSize = 18f
         paint.typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD)
         paint.color = Color.rgb(70, 70, 70)
-        canvas.drawText(locManager.getString(StringKey.EXPORT_SHADBALA_ANALYSIS), PDF_MARGIN.toFloat(), yPos + 18f, paint)
+        canvas.drawText(locManager.getString(StringKeyAnalysis.EXPORT_SHADBALA_ANALYSIS), PDF_MARGIN.toFloat(), yPos + 18f, paint)
         yPos += 40f
 
         val shadbala = ShadbalaCalculator.calculateShadbala(chart)
@@ -564,11 +566,11 @@ class ChartExporter(private val context: Context) {
         paint.textSize = 11f
         paint.typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL)
 
-        canvas.drawText("${locManager.getString(StringKey.EXPORT_OVERALL_CHART_STRENGTH)} ${String.format("%.1f", shadbala.overallStrengthScore)}%", PDF_MARGIN.toFloat(), yPos + 12f, paint)
+        canvas.drawText("${locManager.getString(StringKeyAnalysis.EXPORT_OVERALL_CHART_STRENGTH)} ${String.format("%.1f", shadbala.overallStrengthScore)}%", PDF_MARGIN.toFloat(), yPos + 12f, paint)
         yPos += 20f
-        canvas.drawText("${locManager.getString(StringKey.EXPORT_STRONGEST_PLANET)} ${shadbala.strongestPlanet.displayName}", PDF_MARGIN.toFloat(), yPos + 12f, paint)
+        canvas.drawText("${locManager.getString(StringKeyAnalysis.EXPORT_STRONGEST_PLANET)} ${shadbala.strongestPlanet.displayName}", PDF_MARGIN.toFloat(), yPos + 12f, paint)
         yPos += 20f
-        canvas.drawText("${locManager.getString(StringKey.EXPORT_WEAKEST_PLANET)} ${shadbala.weakestPlanet.displayName}", PDF_MARGIN.toFloat(), yPos + 12f, paint)
+        canvas.drawText("${locManager.getString(StringKeyAnalysis.EXPORT_WEAKEST_PLANET)} ${shadbala.weakestPlanet.displayName}", PDF_MARGIN.toFloat(), yPos + 12f, paint)
         yPos += 35f
 
         // Detailed Table
@@ -576,11 +578,11 @@ class ChartExporter(private val context: Context) {
         paint.typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
 
         val columns = listOf(
-            locManager.getString(StringKey.EXPORT_PLANET),
-            locManager.getString(StringKey.EXPORT_TOTAL_RUPAS),
-            locManager.getString(StringKey.EXPORT_REQUIRED),
-            locManager.getString(StringKey.EXPORT_PERCENT),
-            locManager.getString(StringKey.EXPORT_RATING)
+            locManager.getString(StringKeyAnalysis.EXPORT_PLANET),
+            locManager.getString(StringKeyAnalysis.EXPORT_TOTAL_RUPAS),
+            locManager.getString(StringKeyAnalysis.EXPORT_REQUIRED),
+            locManager.getString(StringKeyAnalysis.EXPORT_PERCENT),
+            locManager.getString(StringKeyAnalysis.EXPORT_RATING)
         )
         val columnWidths = listOf(80f, 80f, 70f, 60f, 120f)
         var xPos = PDF_MARGIN.toFloat()
@@ -637,19 +639,19 @@ class ChartExporter(private val context: Context) {
         if (strongest != null) {
             paint.textSize = 12f
             paint.typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
-            canvas.drawText("${strongest.planet.displayName} ${locManager.getString(StringKey.EXPORT_STRENGTH_BREAKDOWN)}", PDF_MARGIN.toFloat(), yPos + 12f, paint)
+            canvas.drawText("${strongest.planet.displayName} ${locManager.getString(StringKeyAnalysis.EXPORT_STRENGTH_BREAKDOWN)}", PDF_MARGIN.toFloat(), yPos + 12f, paint)
             yPos += 25f
 
             paint.textSize = 9f
             paint.typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL)
 
             val breakdown = listOf(
-                "${locManager.getString(StringKey.DIALOG_STHANA_BALA)}: ${String.format("%.1f", strongest.sthanaBala.total)} ${locManager.getString(StringKey.EXPORT_VIRUPAS)}",
-                "${locManager.getString(StringKey.DIALOG_DIG_BALA)}: ${String.format("%.1f", strongest.digBala)} ${locManager.getString(StringKey.EXPORT_VIRUPAS)}",
-                "${locManager.getString(StringKey.DIALOG_KALA_BALA)}: ${String.format("%.1f", strongest.kalaBala.total)} ${locManager.getString(StringKey.EXPORT_VIRUPAS)}",
-                "${locManager.getString(StringKey.DIALOG_CHESTA_BALA)}: ${String.format("%.1f", strongest.chestaBala)} ${locManager.getString(StringKey.EXPORT_VIRUPAS)}",
-                "${locManager.getString(StringKey.DIALOG_NAISARGIKA_BALA)}: ${String.format("%.1f", strongest.naisargikaBala)} ${locManager.getString(StringKey.EXPORT_VIRUPAS)}",
-                "${locManager.getString(StringKey.DIALOG_DRIK_BALA)}: ${String.format("%.1f", strongest.drikBala)} ${locManager.getString(StringKey.EXPORT_VIRUPAS)}"
+                "${locManager.getString(StringKeyAnalysis.DIALOG_STHANA_BALA)}: ${String.format("%.1f", strongest.sthanaBala.total)} ${locManager.getString(StringKeyAnalysis.EXPORT_VIRUPAS)}",
+                "${locManager.getString(StringKeyAnalysis.DIALOG_DIG_BALA)}: ${String.format("%.1f", strongest.digBala)} ${locManager.getString(StringKeyAnalysis.EXPORT_VIRUPAS)}",
+                "${locManager.getString(StringKeyAnalysis.DIALOG_KALA_BALA)}: ${String.format("%.1f", strongest.kalaBala.total)} ${locManager.getString(StringKeyAnalysis.EXPORT_VIRUPAS)}",
+                "${locManager.getString(StringKeyAnalysis.DIALOG_CHESTA_BALA)}: ${String.format("%.1f", strongest.chestaBala)} ${locManager.getString(StringKeyAnalysis.EXPORT_VIRUPAS)}",
+                "${locManager.getString(StringKeyAnalysis.DIALOG_NAISARGIKA_BALA)}: ${String.format("%.1f", strongest.naisargikaBala)} ${locManager.getString(StringKeyAnalysis.EXPORT_VIRUPAS)}",
+                "${locManager.getString(StringKeyAnalysis.DIALOG_DRIK_BALA)}: ${String.format("%.1f", strongest.drikBala)} ${locManager.getString(StringKeyAnalysis.EXPORT_VIRUPAS)}"
             )
 
             breakdown.forEach { line ->
@@ -684,7 +686,7 @@ class ChartExporter(private val context: Context) {
         paint.textSize = 18f
         paint.typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD)
         paint.color = Color.rgb(70, 70, 70)
-        canvas.drawText(locManager.getString(StringKey.EXPORT_ASHTAKAVARGA_ANALYSIS), PDF_MARGIN.toFloat(), yPos + 18f, paint)
+        canvas.drawText(locManager.getString(StringKeyAnalysis.EXPORT_ASHTAKAVARGA_ANALYSIS), PDF_MARGIN.toFloat(), yPos + 18f, paint)
         yPos += 40f
 
         val ashtakavarga = AshtakavargaCalculator.calculateAshtakavarga(chart)
@@ -692,7 +694,7 @@ class ChartExporter(private val context: Context) {
         // SAV Summary
         paint.textSize = 12f
         paint.typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
-        canvas.drawText(locManager.getString(StringKey.EXPORT_SARVASHTAKAVARGA), PDF_MARGIN.toFloat(), yPos + 12f, paint)
+        canvas.drawText(locManager.getString(StringKeyAnalysis.EXPORT_SARVASHTAKAVARGA), PDF_MARGIN.toFloat(), yPos + 12f, paint)
         yPos += 25f
 
         paint.textSize = 9f
@@ -730,7 +732,7 @@ class ChartExporter(private val context: Context) {
         // BAV for each planet
         paint.textSize = 10f
         paint.typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
-        canvas.drawText(locManager.getString(StringKey.EXPORT_BHINNASHTAKAVARGA), PDF_MARGIN.toFloat(), yPos + 12f, paint)
+        canvas.drawText(locManager.getString(StringKeyAnalysis.EXPORT_BHINNASHTAKAVARGA), PDF_MARGIN.toFloat(), yPos + 12f, paint)
         yPos += 25f
 
         paint.textSize = 8f
@@ -757,22 +759,22 @@ class ChartExporter(private val context: Context) {
         // Transit Interpretation Guide
         paint.textSize = 11f
         paint.typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
-        canvas.drawText(locManager.getString(StringKey.EXPORT_TRANSIT_GUIDE), PDF_MARGIN.toFloat(), yPos + 12f, paint)
+        canvas.drawText(locManager.getString(StringKeyAnalysis.EXPORT_TRANSIT_GUIDE), PDF_MARGIN.toFloat(), yPos + 12f, paint)
         yPos += 22f
 
         paint.textSize = 9f
         paint.typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL)
 
         val guide = listOf(
-            locManager.getString(StringKey.EXPORT_SAV_EXCELLENT),
-            locManager.getString(StringKey.EXPORT_SAV_GOOD),
-            locManager.getString(StringKey.EXPORT_SAV_AVERAGE),
-            locManager.getString(StringKey.EXPORT_SAV_CHALLENGING),
+            locManager.getString(StringKeyAnalysis.EXPORT_SAV_EXCELLENT),
+            locManager.getString(StringKeyAnalysis.EXPORT_SAV_GOOD),
+            locManager.getString(StringKeyAnalysis.EXPORT_SAV_AVERAGE),
+            locManager.getString(StringKeyAnalysis.EXPORT_SAV_CHALLENGING),
             "",
-            locManager.getString(StringKey.EXPORT_BAV_EXCELLENT),
-            locManager.getString(StringKey.EXPORT_BAV_GOOD),
-            locManager.getString(StringKey.EXPORT_BAV_AVERAGE),
-            locManager.getString(StringKey.EXPORT_BAV_CHALLENGING)
+            locManager.getString(StringKeyAnalysis.EXPORT_BAV_EXCELLENT),
+            locManager.getString(StringKeyAnalysis.EXPORT_BAV_GOOD),
+            locManager.getString(StringKeyAnalysis.EXPORT_BAV_AVERAGE),
+            locManager.getString(StringKeyAnalysis.EXPORT_BAV_CHALLENGING)
         )
 
         guide.forEach { line ->
@@ -791,10 +793,10 @@ class ChartExporter(private val context: Context) {
         paint.color = Color.rgb(128, 128, 128)
 
         val footerY = pageSize.height - 25f
-        canvas.drawText(locManager.getString(StringKey.EXPORT_GENERATED_BY), PDF_MARGIN.toFloat(), footerY, paint)
+        canvas.drawText(locManager.getString(StringKeyAnalysis.EXPORT_GENERATED_BY), PDF_MARGIN.toFloat(), footerY, paint)
 
         paint.textAlign = Paint.Align.RIGHT
-        canvas.drawText(locManager.getString(StringKey.EXPORT_PAGE, pageNumber), (pageSize.width - PDF_MARGIN).toFloat(), footerY, paint)
+        canvas.drawText(locManager.getString(StringKeyAnalysis.EXPORT_PAGE, pageNumber), (pageSize.width - PDF_MARGIN).toFloat(), footerY, paint)
         paint.textAlign = Paint.Align.LEFT
     }
 
@@ -1283,34 +1285,34 @@ class ChartExporter(private val context: Context) {
         try {
             val report = buildString {
                 appendLine("═══════════════════════════════════════════════════════════════════════════════")
-                appendLine("                         ${locManager.getString(StringKey.EXPORT_VEDIC_REPORT)}")
-                appendLine("                              ${locManager.getString(StringKey.EXPORT_GENERATED_BY_SHORT)}")
+                appendLine("                         ${locManager.getString(StringKeyAnalysis.EXPORT_VEDIC_REPORT)}")
+                appendLine("                              ${locManager.getString(StringKeyAnalysis.EXPORT_GENERATED_BY_SHORT)}")
                 appendLine("═══════════════════════════════════════════════════════════════════════════════")
                 appendLine()
-                appendLine("${locManager.getString(StringKey.EXPORT_GENERATED)}: ${displayDateFormatter.format(Date())}")
+                appendLine("${locManager.getString(StringKeyAnalysis.EXPORT_GENERATED)}: ${displayDateFormatter.format(Date())}")
                 appendLine()
 
                 // Birth Information
-                appendLine(locManager.getString(StringKey.EXPORT_BIRTH_INFO))
+                appendLine(locManager.getString(StringKeyAnalysis.EXPORT_BIRTH_INFO))
                 appendLine("─────────────────────────────────────────────────────────────────────────────")
-                appendLine("${locManager.getString(StringKey.EXPORT_NAME)} ${chart.birthData.name}")
-                appendLine("${locManager.getString(StringKey.EXPORT_DATE_TIME)} ${chart.birthData.dateTime}")
-                appendLine("${locManager.getString(StringKey.EXPORT_LOCATION)} ${chart.birthData.location}")
-                appendLine("${locManager.getString(StringKey.EXPORT_COORDINATES)} ${formatCoordinate(chart.birthData.latitude.toDouble(), true)}, ${formatCoordinate(chart.birthData.longitude.toDouble(), false)}")
-                appendLine("${locManager.getString(StringKey.EXPORT_TIMEZONE)}: ${chart.birthData.timezone}")
+                appendLine("${locManager.getString(StringKeyAnalysis.EXPORT_NAME)} ${chart.birthData.name}")
+                appendLine("${locManager.getString(StringKeyAnalysis.EXPORT_DATE_TIME)} ${chart.birthData.dateTime}")
+                appendLine("${locManager.getString(StringKeyAnalysis.EXPORT_LOCATION)} ${chart.birthData.location}")
+                appendLine("${locManager.getString(StringKeyAnalysis.EXPORT_COORDINATES)} ${formatCoordinate(chart.birthData.latitude.toDouble(), true)}, ${formatCoordinate(chart.birthData.longitude.toDouble(), false)}")
+                appendLine("${locManager.getString(StringKeyAnalysis.EXPORT_TIMEZONE)}: ${chart.birthData.timezone}")
                 appendLine()
 
                 // Chart Summary
-                appendLine(locManager.getString(StringKey.EXPORT_CHART_SUMMARY))
+                appendLine(locManager.getString(StringKeyAnalysis.EXPORT_CHART_SUMMARY))
                 appendLine("─────────────────────────────────────────────────────────────────────────────")
                 val ascSign = ZodiacSign.fromLongitude(chart.ascendant)
                 val moonPos = chart.planetPositions.find { it.planet == Planet.MOON }
                 val sunPos = chart.planetPositions.find { it.planet == Planet.SUN }
 
-                appendLine("${locManager.getString(StringKey.CHART_ASCENDANT_LAGNA)}: ${ascSign.displayName}")
-                moonPos?.let { appendLine("${locManager.getString(StringKey.EXPORT_MOON_SIGN)}: ${it.sign.displayName}") }
-                sunPos?.let { appendLine("${locManager.getString(StringKey.EXPORT_SUN_SIGN)}: ${it.sign.displayName}") }
-                moonPos?.let { appendLine("${locManager.getString(StringKey.EXPORT_BIRTH_NAKSHATRA)}: ${it.nakshatra.displayName} (${locManager.getString(StringKey.PANCHANGA_PADA)} ${it.nakshatraPada})") }
+                appendLine("${locManager.getString(StringKeyAnalysis.CHART_ASCENDANT_LAGNA)}: ${ascSign.displayName}")
+                moonPos?.let { appendLine("${locManager.getString(StringKeyAnalysis.EXPORT_MOON_SIGN)}: ${it.sign.displayName}") }
+                sunPos?.let { appendLine("${locManager.getString(StringKeyAnalysis.EXPORT_SUN_SIGN)}: ${it.sign.displayName}") }
+                moonPos?.let { appendLine("${locManager.getString(StringKeyAnalysis.EXPORT_BIRTH_NAKSHATRA)}: ${it.nakshatra.displayName} (${locManager.getString(StringKeyAnalysis.PANCHANGA_PADA)} ${it.nakshatraPada})") }
                 appendLine()
 
                 // Planetary Positions
@@ -1334,9 +1336,9 @@ class ChartExporter(private val context: Context) {
 
                 // Footer
                 appendLine("═══════════════════════════════════════════════════════════════════════════════")
-                appendLine("                    ${locManager.getString(StringKey.EXPORT_GENERATED_BY_SHORT)}")
-                appendLine("                  ${locManager.getString(StringKey.EXPORT_ULTRA_PRECISION)}")
-                appendLine("                  ${locManager.getString(StringKey.EXPORT_CALC_ENGINE)}")
+                appendLine("                    ${locManager.getString(StringKeyAnalysis.EXPORT_GENERATED_BY_SHORT)}")
+                appendLine("                  ${locManager.getString(StringKeyAnalysis.EXPORT_ULTRA_PRECISION)}")
+                appendLine("                  ${locManager.getString(StringKeyAnalysis.EXPORT_CALC_ENGINE)}")
                 appendLine("═══════════════════════════════════════════════════════════════════════════════")
             }
 

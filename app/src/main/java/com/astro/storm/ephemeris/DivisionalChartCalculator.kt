@@ -2,6 +2,7 @@ package com.astro.storm.ephemeris
 
 import com.astro.storm.data.localization.Language
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyAnalysis
 import com.astro.storm.data.localization.StringResources
 import com.astro.storm.data.model.*
 import com.astro.storm.ephemeris.VedicAstrologyUtils.normalizeLongitude
@@ -839,10 +840,10 @@ data class DivisionalChartData(
     }
 
     fun toLocalizedPlainText(language: Language): String {
-        val ascendantLabel = StringResources.get(StringKey.CHART_LAGNA, language)
-        val planetaryPositionsLabel = StringResources.get(StringKey.CHART_PLANETARY_POSITIONS, language)
-        val houseLabel = StringResources.get(StringKey.HOUSE, language)
-        val retroLabel = StringResources.get(StringKey.CHART_LEGEND_RETRO_SHORT, language)
+        val ascendantLabel = StringResources.get(StringKeyAnalysis.CHART_LAGNA, language)
+        val planetaryPositionsLabel = StringResources.get(StringKeyAnalysis.CHART_PLANETARY_POSITIONS, language)
+        val houseLabel = StringResources.get(StringKeyAnalysis.HOUSE, language)
+        val retroLabel = StringResources.get(StringKeyAnalysis.CHART_LEGEND_RETRO_SHORT, language)
 
         return buildString {
             appendLine("═══════════════════════════════════════════════════")

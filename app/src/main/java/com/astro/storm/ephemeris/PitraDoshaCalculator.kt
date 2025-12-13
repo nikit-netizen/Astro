@@ -2,6 +2,7 @@ package com.astro.storm.ephemeris
 
 import com.astro.storm.data.localization.Language
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyDosha
 import com.astro.storm.data.localization.StringResources
 import com.astro.storm.data.model.Planet
 import com.astro.storm.data.model.PlanetPosition
@@ -63,11 +64,11 @@ object PitraDoshaCalculator {
         SEVERE;
 
         fun getLocalizedName(language: Language): String = when (this) {
-            NONE -> StringResources.get(StringKey.PITRA_DOSHA_NONE, language)
-            MINOR -> StringResources.get(StringKey.PITRA_DOSHA_MINOR, language)
-            MODERATE -> StringResources.get(StringKey.PITRA_DOSHA_MODERATE, language)
-            SIGNIFICANT -> StringResources.get(StringKey.PITRA_DOSHA_SIGNIFICANT, language)
-            SEVERE -> StringResources.get(StringKey.PITRA_DOSHA_SEVERE, language)
+            NONE -> StringResources.get(StringKeyDosha.PITRA_DOSHA_NONE, language)
+            MINOR -> StringResources.get(StringKeyDosha.PITRA_DOSHA_MINOR, language)
+            MODERATE -> StringResources.get(StringKeyDosha.PITRA_DOSHA_MODERATE, language)
+            SIGNIFICANT -> StringResources.get(StringKeyDosha.PITRA_DOSHA_SIGNIFICANT, language)
+            SEVERE -> StringResources.get(StringKeyDosha.PITRA_DOSHA_SEVERE, language)
         }
     }
 
@@ -91,23 +92,23 @@ object PitraDoshaCalculator {
         COMBINED_AFFLICTION;
 
         fun getLocalizedName(language: Language): String = when (this) {
-            SURYA_RAHU_YOGA -> StringResources.get(StringKey.PITRA_TYPE_SURYA_RAHU, language)
-            SURYA_KETU_YOGA -> StringResources.get(StringKey.PITRA_TYPE_SURYA_KETU, language)
-            SURYA_SHANI_YOGA -> StringResources.get(StringKey.PITRA_TYPE_SURYA_SHANI, language)
-            NINTH_HOUSE_AFFLICTION -> StringResources.get(StringKey.PITRA_TYPE_NINTH_HOUSE, language)
-            NINTH_LORD_AFFLICTION -> StringResources.get(StringKey.PITRA_TYPE_NINTH_LORD, language)
-            RAHU_IN_NINTH -> StringResources.get(StringKey.PITRA_TYPE_RAHU_NINTH, language)
-            COMBINED_AFFLICTION -> StringResources.get(StringKey.PITRA_TYPE_COMBINED, language)
+            SURYA_RAHU_YOGA -> StringResources.get(StringKeyDosha.PITRA_TYPE_SURYA_RAHU, language)
+            SURYA_KETU_YOGA -> StringResources.get(StringKeyDosha.PITRA_TYPE_SURYA_KETU, language)
+            SURYA_SHANI_YOGA -> StringResources.get(StringKeyDosha.PITRA_TYPE_SURYA_SHANI, language)
+            NINTH_HOUSE_AFFLICTION -> StringResources.get(StringKeyDosha.PITRA_TYPE_NINTH_HOUSE, language)
+            NINTH_LORD_AFFLICTION -> StringResources.get(StringKeyDosha.PITRA_TYPE_NINTH_LORD, language)
+            RAHU_IN_NINTH -> StringResources.get(StringKeyDosha.PITRA_TYPE_RAHU_NINTH, language)
+            COMBINED_AFFLICTION -> StringResources.get(StringKeyDosha.PITRA_TYPE_COMBINED, language)
         }
 
         fun getDescription(language: Language): String = when (this) {
-            SURYA_RAHU_YOGA -> StringResources.get(StringKey.PITRA_DESC_SURYA_RAHU, language)
-            SURYA_KETU_YOGA -> StringResources.get(StringKey.PITRA_DESC_SURYA_KETU, language)
-            SURYA_SHANI_YOGA -> StringResources.get(StringKey.PITRA_DESC_SURYA_SHANI, language)
-            NINTH_HOUSE_AFFLICTION -> StringResources.get(StringKey.PITRA_DESC_NINTH_HOUSE, language)
-            NINTH_LORD_AFFLICTION -> StringResources.get(StringKey.PITRA_DESC_NINTH_LORD, language)
-            RAHU_IN_NINTH -> StringResources.get(StringKey.PITRA_DESC_RAHU_NINTH, language)
-            COMBINED_AFFLICTION -> StringResources.get(StringKey.PITRA_DESC_COMBINED, language)
+            SURYA_RAHU_YOGA -> StringResources.get(StringKeyDosha.PITRA_DESC_SURYA_RAHU, language)
+            SURYA_KETU_YOGA -> StringResources.get(StringKeyDosha.PITRA_DESC_SURYA_KETU, language)
+            SURYA_SHANI_YOGA -> StringResources.get(StringKeyDosha.PITRA_DESC_SURYA_SHANI, language)
+            NINTH_HOUSE_AFFLICTION -> StringResources.get(StringKeyDosha.PITRA_DESC_NINTH_HOUSE, language)
+            NINTH_LORD_AFFLICTION -> StringResources.get(StringKeyDosha.PITRA_DESC_NINTH_LORD, language)
+            RAHU_IN_NINTH -> StringResources.get(StringKeyDosha.PITRA_DESC_RAHU_NINTH, language)
+            COMBINED_AFFLICTION -> StringResources.get(StringKeyDosha.PITRA_DESC_COMBINED, language)
         }
     }
 
@@ -164,10 +165,10 @@ object PitraDoshaCalculator {
         fun getSummary(language: Language): String {
             return if (isPresent) {
                 val levelName = level.getLocalizedName(language)
-                StringResources.get(StringKey.PITRA_DOSHA_PRESENT_SUMMARY, language)
+                StringResources.get(StringKeyDosha.PITRA_DOSHA_PRESENT_SUMMARY, language)
                     .replace("{level}", levelName)
             } else {
-                StringResources.get(StringKey.PITRA_DOSHA_ABSENT_SUMMARY, language)
+                StringResources.get(StringKeyDosha.PITRA_DOSHA_ABSENT_SUMMARY, language)
             }
         }
     }
@@ -480,24 +481,24 @@ object PitraDoshaCalculator {
 
         // Universal Pitra remedies
         remedies.add(PitraRemedy(
-            titleKey = StringKey.REMEDY_PITRA_TARPAN_TITLE,
-            descriptionKey = StringKey.REMEDY_PITRA_TARPAN_DESC,
+            titleKey = StringKeyDosha.REMEDY_PITRA_TARPAN_TITLE,
+            descriptionKey = StringKeyDosha.REMEDY_PITRA_TARPAN_DESC,
             type = RemedyType.TARPAN,
             timing = "Amavasya (New Moon) or Pitru Paksha",
             mantra = "ॐ पितृभ्यो नमः"
         ))
 
         remedies.add(PitraRemedy(
-            titleKey = StringKey.REMEDY_SHRADDHA_TITLE,
-            descriptionKey = StringKey.REMEDY_SHRADDHA_DESC,
+            titleKey = StringKeyDosha.REMEDY_SHRADDHA_TITLE,
+            descriptionKey = StringKeyDosha.REMEDY_SHRADDHA_DESC,
             type = RemedyType.SHRADDHA,
             timing = "Father's death anniversary or Pitru Paksha",
             mantra = null
         ))
 
         remedies.add(PitraRemedy(
-            titleKey = StringKey.REMEDY_CROW_FEEDING_TITLE,
-            descriptionKey = StringKey.REMEDY_CROW_FEEDING_DESC,
+            titleKey = StringKeyDosha.REMEDY_CROW_FEEDING_TITLE,
+            descriptionKey = StringKeyDosha.REMEDY_CROW_FEEDING_DESC,
             type = RemedyType.DAAN,
             timing = "Daily, especially during Pitru Paksha",
             mantra = null
@@ -505,16 +506,16 @@ object PitraDoshaCalculator {
 
         if (level == PitraDoshaLevel.SIGNIFICANT || level == PitraDoshaLevel.SEVERE) {
             remedies.add(PitraRemedy(
-                titleKey = StringKey.REMEDY_NARAYAN_BALI_TITLE,
-                descriptionKey = StringKey.REMEDY_NARAYAN_BALI_DESC,
+                titleKey = StringKeyDosha.REMEDY_NARAYAN_BALI_TITLE,
+                descriptionKey = StringKeyDosha.REMEDY_NARAYAN_BALI_DESC,
                 type = RemedyType.PUJA,
                 timing = "Once in lifetime at Trimbakeshwar or Gaya",
                 mantra = null
             ))
 
             remedies.add(PitraRemedy(
-                titleKey = StringKey.REMEDY_PIND_DAAN_TITLE,
-                descriptionKey = StringKey.REMEDY_PIND_DAAN_DESC,
+                titleKey = StringKeyDosha.REMEDY_PIND_DAAN_TITLE,
+                descriptionKey = StringKeyDosha.REMEDY_PIND_DAAN_DESC,
                 type = RemedyType.PILGRIMAGE,
                 timing = "Pitru Paksha at Gaya",
                 mantra = null
@@ -523,8 +524,8 @@ object PitraDoshaCalculator {
 
         // Mantra remedy
         remedies.add(PitraRemedy(
-            titleKey = StringKey.REMEDY_PITRA_GAYATRI_TITLE,
-            descriptionKey = StringKey.REMEDY_PITRA_GAYATRI_DESC,
+            titleKey = StringKeyDosha.REMEDY_PITRA_GAYATRI_TITLE,
+            descriptionKey = StringKeyDosha.REMEDY_PITRA_GAYATRI_DESC,
             type = RemedyType.MANTRA,
             timing = "Daily during Brahma Muhurta",
             mantra = "ॐ देवताभ्यः पितृभ्यश्च महायोगिभ्य एव च। नमः स्वधायै स्वाहायै नित्यमेव नमो नमः।।"

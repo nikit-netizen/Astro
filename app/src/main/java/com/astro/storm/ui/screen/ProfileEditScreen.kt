@@ -33,6 +33,7 @@ import com.astro.storm.data.localization.Language
 import com.astro.storm.data.localization.LocalDateSystem
 import com.astro.storm.data.localization.LocalLanguage
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyMatch
 import com.astro.storm.data.localization.getLocalizedName
 import com.astro.storm.data.localization.stringResource
 import com.astro.storm.data.model.BirthData
@@ -128,7 +129,7 @@ fun ProfileEditScreen(
     }
 
     // Extract localized string outside of regular function (stringResource is @Composable)
-    val unknownText = stringResource(StringKey.MISC_UNKNOWN)
+    val unknownText = stringResource(StringKeyMatch.MISC_UNKNOWN)
 
     fun saveProfile() {
         try {

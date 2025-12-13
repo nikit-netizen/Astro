@@ -6,6 +6,8 @@ import com.astro.storm.data.model.ZodiacSign
 import com.astro.storm.data.model.Nakshatra
 import com.astro.storm.data.localization.Language
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyMatch
+import com.astro.storm.data.localization.StringKeyDosha
 import com.astro.storm.data.localization.StringResources
 import java.util.UUID
 import kotlin.math.abs
@@ -23,12 +25,12 @@ object RemediesCalculator {
 
         fun getLocalizedName(language: Language): String {
             val key = when (this) {
-                VERY_STRONG -> StringKey.PLANETARY_STRENGTH_VERY_STRONG
-                STRONG -> StringKey.PLANETARY_STRENGTH_STRONG
-                MODERATE -> StringKey.PLANETARY_STRENGTH_MODERATE
-                WEAK -> StringKey.PLANETARY_STRENGTH_WEAK
-                VERY_WEAK -> StringKey.PLANETARY_STRENGTH_VERY_WEAK
-                AFFLICTED -> StringKey.PLANETARY_STRENGTH_AFFLICTED
+                VERY_STRONG -> StringKeyMatch.PLANETARY_STRENGTH_VERY_STRONG
+                STRONG -> StringKeyMatch.PLANETARY_STRENGTH_STRONG
+                MODERATE -> StringKeyMatch.PLANETARY_STRENGTH_MODERATE
+                WEAK -> StringKeyMatch.PLANETARY_STRENGTH_WEAK
+                VERY_WEAK -> StringKeyMatch.PLANETARY_STRENGTH_VERY_WEAK
+                AFFLICTED -> StringKeyMatch.PLANETARY_STRENGTH_AFFLICTED
             }
             return StringResources.get(key, language)
         }
@@ -48,16 +50,16 @@ object RemediesCalculator {
 
         fun getLocalizedName(language: Language): String {
             val key = when (this) {
-                GEMSTONE -> StringKey.REMEDY_CAT_GEMSTONE
-                MANTRA -> StringKey.REMEDY_CAT_MANTRA
-                YANTRA -> StringKey.REMEDY_CAT_YANTRA
-                CHARITY -> StringKey.REMEDY_CAT_CHARITY
-                FASTING -> StringKey.REMEDY_CAT_FASTING
-                COLOR -> StringKey.REMEDY_CAT_COLOR
-                METAL -> StringKey.REMEDY_CAT_METAL
-                RUDRAKSHA -> StringKey.REMEDY_CAT_RUDRAKSHA
-                DEITY -> StringKey.REMEDY_CAT_DEITY
-                LIFESTYLE -> StringKey.REMEDY_CAT_LIFESTYLE
+                GEMSTONE -> StringKeyMatch.REMEDY_CAT_GEMSTONE
+                MANTRA -> StringKeyMatch.REMEDY_CAT_MANTRA
+                YANTRA -> StringKeyMatch.REMEDY_CAT_YANTRA
+                CHARITY -> StringKeyMatch.REMEDY_CAT_CHARITY
+                FASTING -> StringKeyMatch.REMEDY_CAT_FASTING
+                COLOR -> StringKeyMatch.REMEDY_CAT_COLOR
+                METAL -> StringKeyMatch.REMEDY_CAT_METAL
+                RUDRAKSHA -> StringKeyMatch.REMEDY_CAT_RUDRAKSHA
+                DEITY -> StringKeyMatch.REMEDY_CAT_DEITY
+                LIFESTYLE -> StringKeyMatch.REMEDY_CAT_LIFESTYLE
             }
             return StringResources.get(key, language)
         }
@@ -71,10 +73,10 @@ object RemediesCalculator {
 
         fun getLocalizedName(language: Language): String {
             val key = when (this) {
-                ESSENTIAL -> StringKey.REMEDY_PRIORITY_ESSENTIAL
-                HIGHLY_RECOMMENDED -> StringKey.REMEDY_PRIORITY_HIGHLY_RECOMMENDED
-                RECOMMENDED -> StringKey.REMEDY_PRIORITY_RECOMMENDED
-                OPTIONAL -> StringKey.REMEDY_PRIORITY_OPTIONAL
+                ESSENTIAL -> StringKeyMatch.REMEDY_PRIORITY_ESSENTIAL
+                HIGHLY_RECOMMENDED -> StringKeyMatch.REMEDY_PRIORITY_HIGHLY_RECOMMENDED
+                RECOMMENDED -> StringKeyMatch.REMEDY_PRIORITY_RECOMMENDED
+                OPTIONAL -> StringKeyMatch.REMEDY_PRIORITY_OPTIONAL
             }
             return StringResources.get(key, language)
         }
@@ -160,21 +162,21 @@ object RemediesCalculator {
         val essentialRemediesCount: Int get() = remedies.count { it.priority == RemedyPriority.ESSENTIAL }
 
         fun toPlainText(language: Language = Language.ENGLISH): String = buildString {
-            val reportTitle = StringResources.get(StringKey.REPORT_REMEDIES, language)
-            val strengthAnalysisTitle = StringResources.get(StringKey.REPORT_PLANETARY_STRENGTH_ANALYSIS, language)
-            val planetsAttentionTitle = StringResources.get(StringKey.REPORT_PLANETS_REQUIRING_ATTENTION, language)
-            val recommendedRemediesTitle = StringResources.get(StringKey.REPORT_RECOMMENDED_REMEDIES, language)
-            val generalRecommendationsTitle = StringResources.get(StringKey.REPORT_GENERAL_RECOMMENDATIONS, language)
-            val summaryTitle = StringResources.get(StringKey.REPORT_SUMMARY, language)
-            val generatedBy = StringResources.get(StringKey.REPORT_GENERATED_BY, language)
-            val nameLabel = StringResources.get(StringKey.REPORT_NAME_LABEL, language)
-            val ascendantLabel = StringResources.get(StringKey.REPORT_ASCENDANT_LABEL, language)
-            val moonSignLabel = StringResources.get(StringKey.REPORT_MOON_SIGN_LABEL, language)
-            val categoryLabel = StringResources.get(StringKey.REPORT_CATEGORY, language)
-            val planetLabel = StringResources.get(StringKey.REPORT_PLANET, language)
-            val methodLabel = StringResources.get(StringKey.REPORT_METHOD, language)
-            val timingLabel = StringResources.get(StringKey.REPORT_TIMING, language)
-            val mantraLabel = StringResources.get(StringKey.REPORT_MANTRA_LABEL, language)
+            val reportTitle = StringResources.get(StringKeyMatch.REPORT_REMEDIES, language)
+            val strengthAnalysisTitle = StringResources.get(StringKeyMatch.REPORT_PLANETARY_STRENGTH_ANALYSIS, language)
+            val planetsAttentionTitle = StringResources.get(StringKeyMatch.REPORT_PLANETS_REQUIRING_ATTENTION, language)
+            val recommendedRemediesTitle = StringResources.get(StringKeyMatch.REPORT_RECOMMENDED_REMEDIES, language)
+            val generalRecommendationsTitle = StringResources.get(StringKeyMatch.REPORT_GENERAL_RECOMMENDATIONS, language)
+            val summaryTitle = StringResources.get(StringKeyMatch.REPORT_SUMMARY, language)
+            val generatedBy = StringResources.get(StringKeyMatch.REPORT_GENERATED_BY, language)
+            val nameLabel = StringResources.get(StringKeyDosha.REPORT_NAME_LABEL, language)
+            val ascendantLabel = StringResources.get(StringKeyDosha.REPORT_ASCENDANT_LABEL, language)
+            val moonSignLabel = StringResources.get(StringKeyMatch.REPORT_MOON_SIGN_LABEL, language)
+            val categoryLabel = StringResources.get(StringKeyMatch.REPORT_CATEGORY, language)
+            val planetLabel = StringResources.get(StringKeyMatch.REPORT_PLANET, language)
+            val methodLabel = StringResources.get(StringKeyMatch.REPORT_METHOD, language)
+            val timingLabel = StringResources.get(StringKeyMatch.REPORT_TIMING, language)
+            val mantraLabel = StringResources.get(StringKeyDosha.REPORT_MANTRA_LABEL, language)
 
             appendLine("═══════════════════════════════════════════════════════════")
             appendLine("              $reportTitle")
@@ -2257,16 +2259,16 @@ val ascendantSign: ZodiacSign = ZodiacSign.values()[(ascendantLongitude / 30.0).
      */
     fun getLocalizedPlanetaryWeekday(planet: Planet, language: Language): String {
         val key = when (planet) {
-            Planet.SUN -> StringKey.PLANET_DAY_SUN
-            Planet.MOON -> StringKey.PLANET_DAY_MOON
-            Planet.MARS -> StringKey.PLANET_DAY_MARS
-            Planet.MERCURY -> StringKey.PLANET_DAY_MERCURY
-            Planet.JUPITER -> StringKey.PLANET_DAY_JUPITER
-            Planet.VENUS -> StringKey.PLANET_DAY_VENUS
-            Planet.SATURN -> StringKey.PLANET_DAY_SATURN
-            Planet.RAHU -> StringKey.PLANET_DAY_RAHU
-            Planet.KETU -> StringKey.PLANET_DAY_KETU
-            else -> StringKey.PLANET_DAY_SUN
+            Planet.SUN -> StringKeyDosha.PLANET_DAY_SUN
+            Planet.MOON -> StringKeyDosha.PLANET_DAY_MOON
+            Planet.MARS -> StringKeyDosha.PLANET_DAY_MARS
+            Planet.MERCURY -> StringKeyDosha.PLANET_DAY_MERCURY
+            Planet.JUPITER -> StringKeyDosha.PLANET_DAY_JUPITER
+            Planet.VENUS -> StringKeyDosha.PLANET_DAY_VENUS
+            Planet.SATURN -> StringKeyDosha.PLANET_DAY_SATURN
+            Planet.RAHU -> StringKeyDosha.PLANET_DAY_RAHU
+            Planet.KETU -> StringKeyDosha.PLANET_DAY_KETU
+            else -> StringKeyDosha.PLANET_DAY_SUN
         }
         return StringResources.get(key, language)
     }
@@ -2291,16 +2293,16 @@ val ascendantSign: ZodiacSign = ZodiacSign.values()[(ascendantLongitude / 30.0).
      */
     fun getLocalizedPlanetLifeArea(planet: Planet, language: Language): String {
         val key = when (planet) {
-            Planet.SUN -> StringKey.PLANET_LIFE_AREA_SUN
-            Planet.MOON -> StringKey.PLANET_LIFE_AREA_MOON
-            Planet.MARS -> StringKey.PLANET_LIFE_AREA_MARS
-            Planet.MERCURY -> StringKey.PLANET_LIFE_AREA_MERCURY
-            Planet.JUPITER -> StringKey.PLANET_LIFE_AREA_JUPITER
-            Planet.VENUS -> StringKey.PLANET_LIFE_AREA_VENUS
-            Planet.SATURN -> StringKey.PLANET_LIFE_AREA_SATURN
-            Planet.RAHU -> StringKey.PLANET_LIFE_AREA_RAHU
-            Planet.KETU -> StringKey.PLANET_LIFE_AREA_KETU
-            else -> return StringResources.get(StringKey.LABEL_UNKNOWN, language)
+            Planet.SUN -> StringKeyDosha.PLANET_LIFE_AREA_SUN
+            Planet.MOON -> StringKeyDosha.PLANET_LIFE_AREA_MOON
+            Planet.MARS -> StringKeyDosha.PLANET_LIFE_AREA_MARS
+            Planet.MERCURY -> StringKeyDosha.PLANET_LIFE_AREA_MERCURY
+            Planet.JUPITER -> StringKeyDosha.PLANET_LIFE_AREA_JUPITER
+            Planet.VENUS -> StringKeyDosha.PLANET_LIFE_AREA_VENUS
+            Planet.SATURN -> StringKeyDosha.PLANET_LIFE_AREA_SATURN
+            Planet.RAHU -> StringKeyDosha.PLANET_LIFE_AREA_RAHU
+            Planet.KETU -> StringKeyDosha.PLANET_LIFE_AREA_KETU
+            else -> return StringResources.get(StringKeyDosha.LABEL_UNKNOWN, language)
         }
         return StringResources.get(key, language)
     }

@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyAnalysis
 import com.astro.storm.data.localization.stringResource
 import com.astro.storm.data.model.VedicChart
 import com.astro.storm.ephemeris.DivisionalChartData
@@ -171,20 +172,20 @@ fun FullScreenChartDialog(
                 IconButton(onClick = onDismiss) {
                     Icon(
                         Icons.Default.Close,
-                        contentDescription = stringResource(StringKey.DIALOG_CLOSE),
+                        contentDescription = stringResource(StringKeyAnalysis.DIALOG_CLOSE),
                         tint = DialogColors.TextPrimary
                     )
                 }
             }
 
             // Localized strings for action buttons
-            val resetLabel = stringResource(StringKey.DIALOG_RESET)
-            val zoomInLabel = stringResource(StringKey.DIALOG_ZOOM_IN)
-            val zoomOutLabel = stringResource(StringKey.DIALOG_ZOOM_OUT)
-            val savingLabel = stringResource(StringKey.DIALOG_SAVING)
-            val downloadLabel = stringResource(StringKey.DIALOG_DOWNLOAD)
-            val savedMessage = stringResource(StringKey.DIALOG_CHART_SAVED)
-            val failedMessage = stringResource(StringKey.DIALOG_SAVE_FAILED)
+            val resetLabel = stringResource(StringKeyAnalysis.DIALOG_RESET)
+            val zoomInLabel = stringResource(StringKeyAnalysis.DIALOG_ZOOM_IN)
+            val zoomOutLabel = stringResource(StringKeyAnalysis.DIALOG_ZOOM_OUT)
+            val savingLabel = stringResource(StringKeyAnalysis.DIALOG_SAVING)
+            val downloadLabel = stringResource(StringKeyAnalysis.DIALOG_DOWNLOAD)
+            val savedMessage = stringResource(StringKeyAnalysis.DIALOG_CHART_SAVED)
+            val failedMessage = stringResource(StringKeyAnalysis.DIALOG_SAVE_FAILED)
 
             // Bottom action bar
             Row(

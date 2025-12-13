@@ -2,6 +2,7 @@ package com.astro.storm.ephemeris
 
 import com.astro.storm.data.localization.Language
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyMatch
 import com.astro.storm.data.localization.StringResources
 import com.astro.storm.data.model.Nakshatra
 import com.astro.storm.data.model.Planet
@@ -448,9 +449,9 @@ object VedicAstrologyUtils {
      */
     fun getGanaName(gana: Gana, language: Language): String {
         return when (gana) {
-            Gana.DEVA -> StringResources.get(StringKey.GANA_DEVA, language)
-            Gana.MANUSHYA -> StringResources.get(StringKey.GANA_MANUSHYA, language)
-            Gana.RAKSHASA -> StringResources.get(StringKey.GANA_RAKSHASA, language)
+            Gana.DEVA -> StringResources.get(StringKeyMatch.GANA_DEVA, language)
+            Gana.MANUSHYA -> StringResources.get(StringKeyMatch.GANA_MANUSHYA, language)
+            Gana.RAKSHASA -> StringResources.get(StringKeyMatch.GANA_RAKSHASA, language)
         }
     }
 
@@ -467,33 +468,33 @@ object VedicAstrologyUtils {
     enum class Gender { MALE, FEMALE }
 
     private val nakshatraYoniMap = mapOf(
-        Nakshatra.ASHWINI to YoniInfo("Horse", StringKey.YONI_HORSE, Gender.MALE, 1),
-        Nakshatra.BHARANI to YoniInfo("Elephant", StringKey.YONI_ELEPHANT, Gender.MALE, 2),
-        Nakshatra.KRITTIKA to YoniInfo("Sheep", StringKey.YONI_SHEEP, Gender.FEMALE, 3),
-        Nakshatra.ROHINI to YoniInfo("Serpent", StringKey.YONI_SERPENT, Gender.MALE, 4),
-        Nakshatra.MRIGASHIRA to YoniInfo("Serpent", StringKey.YONI_SERPENT, Gender.FEMALE, 4),
-        Nakshatra.ARDRA to YoniInfo("Dog", StringKey.YONI_DOG, Gender.FEMALE, 5),
-        Nakshatra.PUNARVASU to YoniInfo("Cat", StringKey.YONI_CAT, Gender.FEMALE, 6),
-        Nakshatra.PUSHYA to YoniInfo("Sheep", StringKey.YONI_SHEEP, Gender.MALE, 3),
-        Nakshatra.ASHLESHA to YoniInfo("Cat", StringKey.YONI_CAT, Gender.MALE, 6),
-        Nakshatra.MAGHA to YoniInfo("Rat", StringKey.YONI_RAT, Gender.MALE, 7),
-        Nakshatra.PURVA_PHALGUNI to YoniInfo("Rat", StringKey.YONI_RAT, Gender.FEMALE, 7),
-        Nakshatra.UTTARA_PHALGUNI to YoniInfo("Cow", StringKey.YONI_COW, Gender.MALE, 8),
-        Nakshatra.HASTA to YoniInfo("Buffalo", StringKey.YONI_BUFFALO, Gender.FEMALE, 9),
-        Nakshatra.CHITRA to YoniInfo("Tiger", StringKey.YONI_TIGER, Gender.FEMALE, 10),
-        Nakshatra.SWATI to YoniInfo("Buffalo", StringKey.YONI_BUFFALO, Gender.MALE, 9),
-        Nakshatra.VISHAKHA to YoniInfo("Tiger", StringKey.YONI_TIGER, Gender.MALE, 10),
-        Nakshatra.ANURADHA to YoniInfo("Deer", StringKey.YONI_DEER, Gender.FEMALE, 11),
-        Nakshatra.JYESHTHA to YoniInfo("Deer", StringKey.YONI_DEER, Gender.MALE, 11),
-        Nakshatra.MULA to YoniInfo("Dog", StringKey.YONI_DOG, Gender.MALE, 5),
-        Nakshatra.PURVA_ASHADHA to YoniInfo("Monkey", StringKey.YONI_MONKEY, Gender.MALE, 12),
-        Nakshatra.UTTARA_ASHADHA to YoniInfo("Mongoose", StringKey.YONI_MONGOOSE, Gender.MALE, 13),
-        Nakshatra.SHRAVANA to YoniInfo("Monkey", StringKey.YONI_MONKEY, Gender.FEMALE, 12),
-        Nakshatra.DHANISHTHA to YoniInfo("Lion", StringKey.YONI_LION, Gender.FEMALE, 14),
-        Nakshatra.SHATABHISHA to YoniInfo("Horse", StringKey.YONI_HORSE, Gender.FEMALE, 1),
-        Nakshatra.PURVA_BHADRAPADA to YoniInfo("Lion", StringKey.YONI_LION, Gender.MALE, 14),
-        Nakshatra.UTTARA_BHADRAPADA to YoniInfo("Cow", StringKey.YONI_COW, Gender.FEMALE, 8),
-        Nakshatra.REVATI to YoniInfo("Elephant", StringKey.YONI_ELEPHANT, Gender.FEMALE, 2)
+        Nakshatra.ASHWINI to YoniInfo("Horse", StringKeyMatch.YONI_HORSE, Gender.MALE, 1),
+        Nakshatra.BHARANI to YoniInfo("Elephant", StringKeyMatch.YONI_ELEPHANT, Gender.MALE, 2),
+        Nakshatra.KRITTIKA to YoniInfo("Sheep", StringKeyMatch.YONI_SHEEP, Gender.FEMALE, 3),
+        Nakshatra.ROHINI to YoniInfo("Serpent", StringKeyMatch.YONI_SERPENT, Gender.MALE, 4),
+        Nakshatra.MRIGASHIRA to YoniInfo("Serpent", StringKeyMatch.YONI_SERPENT, Gender.FEMALE, 4),
+        Nakshatra.ARDRA to YoniInfo("Dog", StringKeyMatch.YONI_DOG, Gender.FEMALE, 5),
+        Nakshatra.PUNARVASU to YoniInfo("Cat", StringKeyMatch.YONI_CAT, Gender.FEMALE, 6),
+        Nakshatra.PUSHYA to YoniInfo("Sheep", StringKeyMatch.YONI_SHEEP, Gender.MALE, 3),
+        Nakshatra.ASHLESHA to YoniInfo("Cat", StringKeyMatch.YONI_CAT, Gender.MALE, 6),
+        Nakshatra.MAGHA to YoniInfo("Rat", StringKeyMatch.YONI_RAT, Gender.MALE, 7),
+        Nakshatra.PURVA_PHALGUNI to YoniInfo("Rat", StringKeyMatch.YONI_RAT, Gender.FEMALE, 7),
+        Nakshatra.UTTARA_PHALGUNI to YoniInfo("Cow", StringKeyMatch.YONI_COW, Gender.MALE, 8),
+        Nakshatra.HASTA to YoniInfo("Buffalo", StringKeyMatch.YONI_BUFFALO, Gender.FEMALE, 9),
+        Nakshatra.CHITRA to YoniInfo("Tiger", StringKeyMatch.YONI_TIGER, Gender.FEMALE, 10),
+        Nakshatra.SWATI to YoniInfo("Buffalo", StringKeyMatch.YONI_BUFFALO, Gender.MALE, 9),
+        Nakshatra.VISHAKHA to YoniInfo("Tiger", StringKeyMatch.YONI_TIGER, Gender.MALE, 10),
+        Nakshatra.ANURADHA to YoniInfo("Deer", StringKeyMatch.YONI_DEER, Gender.FEMALE, 11),
+        Nakshatra.JYESHTHA to YoniInfo("Deer", StringKeyMatch.YONI_DEER, Gender.MALE, 11),
+        Nakshatra.MULA to YoniInfo("Dog", StringKeyMatch.YONI_DOG, Gender.MALE, 5),
+        Nakshatra.PURVA_ASHADHA to YoniInfo("Monkey", StringKeyMatch.YONI_MONKEY, Gender.MALE, 12),
+        Nakshatra.UTTARA_ASHADHA to YoniInfo("Mongoose", StringKeyMatch.YONI_MONGOOSE, Gender.MALE, 13),
+        Nakshatra.SHRAVANA to YoniInfo("Monkey", StringKeyMatch.YONI_MONKEY, Gender.FEMALE, 12),
+        Nakshatra.DHANISHTHA to YoniInfo("Lion", StringKeyMatch.YONI_LION, Gender.FEMALE, 14),
+        Nakshatra.SHATABHISHA to YoniInfo("Horse", StringKeyMatch.YONI_HORSE, Gender.FEMALE, 1),
+        Nakshatra.PURVA_BHADRAPADA to YoniInfo("Lion", StringKeyMatch.YONI_LION, Gender.MALE, 14),
+        Nakshatra.UTTARA_BHADRAPADA to YoniInfo("Cow", StringKeyMatch.YONI_COW, Gender.FEMALE, 8),
+        Nakshatra.REVATI to YoniInfo("Elephant", StringKeyMatch.YONI_ELEPHANT, Gender.FEMALE, 2)
     )
 
     /**

@@ -2,7 +2,7 @@ package com.astro.storm.ephemeris
 
 import com.astro.storm.data.localization.Language
 import com.astro.storm.data.localization.StringKey
-import com.astro.storm.data.localization.StringKeyExtended
+import com.astro.storm.data.localization.StringKeyMatch
 import com.astro.storm.data.localization.StringResources
 import com.astro.storm.data.model.*
 import kotlin.math.abs
@@ -154,10 +154,10 @@ object MatchmakingCalculator {
         val mahendraCount = ((groomNakshatra.number - brideNakshatra.number + 27) % 27) + 1
         val mahendraSatisfied = mahendraCount in MatchmakingConstants.MAHENDRA_POSITIONS
         val mahendraDetails = if (mahendraSatisfied) {
-            StringResources.get(StringKey.MAHENDRA_FAVORABLE, language)
+            StringResources.get(StringKeyMatch.MAHENDRA_FAVORABLE, language)
                 .replace("{count}", mahendraCount.toString())
         } else {
-            StringResources.get(StringKey.MAHENDRA_NOT_APPLICABLE, language)
+            StringResources.get(StringKeyMatch.MAHENDRA_NOT_APPLICABLE, language)
         }
 
         return AdditionalFactors(
@@ -186,12 +186,12 @@ object MatchmakingCalculator {
         return if (hasVedha) {
             Pair(
                 true,
-                StringResources.get(StringKey.VEDHA_PRESENT, language)
+                StringResources.get(StringKeyMatch.VEDHA_PRESENT, language)
                     .replace("{nak1}", brideNakshatra.getLocalizedName(language))
                     .replace("{nak2}", groomNakshatra.getLocalizedName(language))
             )
         } else {
-            Pair(false, StringResources.get(StringKey.VEDHA_NOT_PRESENT, language))
+            Pair(false, StringResources.get(StringKeyMatch.VEDHA_NOT_PRESENT, language))
         }
     }
 
@@ -207,14 +207,14 @@ object MatchmakingCalculator {
     ): Pair<Boolean, String> {
         // Different Rajju - fully compatible
         if (brideRajju != groomRajju) {
-            return Pair(true, StringResources.get(StringKey.RAJJU_COMPATIBLE, language))
+            return Pair(true, StringResources.get(StringKeyMatch.RAJJU_COMPATIBLE, language))
         }
 
         // Same Rajju but different Arudha - partial compatibility
         if (brideArudha != groomArudha) {
             return Pair(
                 true,
-                StringResources.get(StringKey.RAJJU_SAME_DIFF_ARUDHA, language)
+                StringResources.get(StringKeyMatch.RAJJU_SAME_DIFF_ARUDHA, language)
                     .replace("{rajju}", brideRajju.getLocalizedName(language))
                     .replace("{arudha1}", brideArudha.displayName)
                     .replace("{arudha2}", groomArudha.displayName)
@@ -224,7 +224,7 @@ object MatchmakingCalculator {
         // Same Rajju and same Arudha - most problematic
         return Pair(
             false,
-            StringResources.get(StringKey.RAJJU_SAME_SAME_ARUDHA, language)
+            StringResources.get(StringKeyMatch.RAJJU_SAME_SAME_ARUDHA, language)
                 .replace("{rajju}", brideRajju.getLocalizedName(language))
                 .replace("{body}", brideRajju.getLocalizedBodyPart(language))
                 .replace("{arudha}", brideArudha.displayName)
@@ -249,56 +249,56 @@ object MatchmakingCalculator {
 
         val nadiAnalysis = gunaAnalyses.find { it.name == "Nadi" }
         if (nadiAnalysis != null && nadiAnalysis.obtainedPoints == 0.0) {
-            considerations.add(StringResources.get(StringKey.SPECIAL_NADI_DOSHA, language))
+            considerations.add(StringResources.get(StringKeyMatch.SPECIAL_NADI_DOSHA, language))
         }
 
         val bhakootAnalysis = gunaAnalyses.find { it.name == "Bhakoot" }
         if (bhakootAnalysis != null && bhakootAnalysis.obtainedPoints == 0.0) {
             considerations.add(
-                StringResources.get(StringKey.SPECIAL_BHAKOOT_DOSHA, language)
+                StringResources.get(StringKeyMatch.SPECIAL_BHAKOOT_DOSHA, language)
                     .replace("{analysis}", bhakootAnalysis.analysis)
             )
         }
 
         if (brideManglik.effectiveDosha.severity > 0 && groomManglik.effectiveDosha.severity == 0) {
             considerations.add(
-                StringResources.get(StringKey.SPECIAL_BRIDE_MANGLIK, language)
+                StringResources.get(StringKeyMatch.SPECIAL_BRIDE_MANGLIK, language)
                     .replace("{dosha}", brideManglik.effectiveDosha.getLocalizedName(language))
             )
         } else if (groomManglik.effectiveDosha.severity > 0 && brideManglik.effectiveDosha.severity == 0) {
             considerations.add(
-                StringResources.get(StringKey.SPECIAL_GROOM_MANGLIK, language)
+                StringResources.get(StringKeyMatch.SPECIAL_GROOM_MANGLIK, language)
                     .replace("{dosha}", groomManglik.effectiveDosha.getLocalizedName(language))
             )
         }
 
         val ganaAnalysis = gunaAnalyses.find { it.name == "Gana" }
         if (ganaAnalysis != null && ganaAnalysis.obtainedPoints == 0.0) {
-            considerations.add(StringResources.get(StringKey.SPECIAL_GANA_INCOMPAT, language))
+            considerations.add(StringResources.get(StringKeyMatch.SPECIAL_GANA_INCOMPAT, language))
         }
 
         val yoniAnalysis = gunaAnalyses.find { it.name == "Yoni" }
         if (yoniAnalysis != null && yoniAnalysis.obtainedPoints == 0.0) {
-            considerations.add(StringResources.get(StringKey.SPECIAL_YONI_INCOMPAT, language))
+            considerations.add(StringResources.get(StringKeyMatch.SPECIAL_YONI_INCOMPAT, language))
         }
 
         if (additionalFactors.vedhaPresent) {
             considerations.add(
-                StringResources.get(StringKey.SPECIAL_VEDHA, language)
+                StringResources.get(StringKeyMatch.SPECIAL_VEDHA, language)
                     .replace("{details}", additionalFactors.vedhaDetails)
             )
         }
 
         if (!additionalFactors.rajjuCompatible) {
             considerations.add(
-                StringResources.get(StringKey.SPECIAL_RAJJU, language)
+                StringResources.get(StringKeyMatch.SPECIAL_RAJJU, language)
                     .replace("{details}", additionalFactors.rajjuDetails)
             )
         }
 
         if (!additionalFactors.streeDeerghaSatisfied) {
             considerations.add(
-                StringResources.get(StringKey.SPECIAL_STREE_DEERGHA, language)
+                StringResources.get(StringKeyMatch.SPECIAL_STREE_DEERGHA, language)
                     .replace("{diff}", additionalFactors.streeDeerghaDiff.toString())
             )
         }
@@ -306,7 +306,7 @@ object MatchmakingCalculator {
         val lowScores = gunaAnalyses.count { !it.isPositive }
         if (lowScores >= 4) {
             considerations.add(
-                StringResources.get(StringKey.SPECIAL_MULTIPLE_LOW, language)
+                StringResources.get(StringKeyMatch.SPECIAL_MULTIPLE_LOW, language)
                     .replace("{count}", lowScores.toString())
             )
         }
@@ -327,7 +327,7 @@ object MatchmakingCalculator {
         }
 
         if (considerations.isEmpty()) {
-            considerations.add(StringResources.get(StringKey.SPECIAL_NO_ISSUES, language))
+            considerations.add(StringResources.get(StringKeyMatch.SPECIAL_NO_ISSUES, language))
         }
 
         return considerations
@@ -359,7 +359,7 @@ object MatchmakingCalculator {
             remedies.add(StringResources.get(StringKey.REMEDY_BHAKOOT_1, language))
             remedies.add(StringResources.get(StringKey.REMEDY_BHAKOOT_2, language))
             if (bhakootAnalysis.analysis.contains("6-8")) {
-                remedies.add(StringResources.get(StringKey.REMEDY_SHADASHTAK, language))
+                remedies.add(StringResources.get(StringKeyMatch.REMEDY_SHADASHTAK, language))
             }
         }
 
@@ -369,15 +369,15 @@ object MatchmakingCalculator {
             remedies.add(StringResources.get(StringKey.REMEDY_MANGLIK_3, language))
 
             if (brideManglik.effectiveDosha.severity > 0) {
-                remedies.add(StringResources.get(StringKey.REMEDY_MANGLIK_BRIDE, language))
+                remedies.add(StringResources.get(StringKeyMatch.REMEDY_MANGLIK_BRIDE, language))
             }
             if (groomManglik.effectiveDosha.severity > 0) {
-                remedies.add(StringResources.get(StringKey.REMEDY_MANGLIK_GROOM, language))
+                remedies.add(StringResources.get(StringKeyMatch.REMEDY_MANGLIK_GROOM, language))
             }
 
             if (brideManglik.effectiveDosha == ManglikDosha.DOUBLE ||
                 groomManglik.effectiveDosha == ManglikDosha.DOUBLE) {
-                remedies.add(StringResources.get(StringKey.REMEDY_DOUBLE_MANGLIK, language))
+                remedies.add(StringResources.get(StringKeyMatch.REMEDY_DOUBLE_MANGLIK, language))
             }
         }
 
@@ -407,11 +407,11 @@ object MatchmakingCalculator {
 
         if (!additionalFactors.rajjuCompatible) {
             val rajjuRemedy = when (additionalFactors.brideRajju) {
-                Rajju.SIRO -> StringResources.get(StringKey.REMEDY_RAJJU_SIRO, language)
-                Rajju.KANTHA -> StringResources.get(StringKey.REMEDY_RAJJU_KANTHA, language)
-                Rajju.NABHI -> StringResources.get(StringKey.REMEDY_RAJJU_NABHI, language)
-                Rajju.KATI -> StringResources.get(StringKey.REMEDY_RAJJU_KATI, language)
-                Rajju.PADA -> StringResources.get(StringKey.REMEDY_RAJJU_PADA, language)
+                Rajju.SIRO -> StringResources.get(StringKeyMatch.REMEDY_RAJJU_SIRO, language)
+                Rajju.KANTHA -> StringResources.get(StringKeyMatch.REMEDY_RAJJU_KANTHA, language)
+                Rajju.NABHI -> StringResources.get(StringKeyMatch.REMEDY_RAJJU_NABHI, language)
+                Rajju.KATI -> StringResources.get(StringKeyMatch.REMEDY_RAJJU_KATI, language)
+                Rajju.PADA -> StringResources.get(StringKeyMatch.REMEDY_RAJJU_PADA, language)
             }
             remedies.add(rajjuRemedy)
         }
@@ -429,8 +429,8 @@ object MatchmakingCalculator {
         }
 
         if (remedies.isEmpty()) {
-            remedies.add(StringResources.get(StringKey.REMEDY_NONE_NEEDED, language))
-            remedies.add(StringResources.get(StringKey.REMEDY_SATYANARAYAN, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_NONE_NEEDED, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_SATYANARAYAN, language))
         }
 
         return remedies
@@ -455,17 +455,17 @@ object MatchmakingCalculator {
 
         return buildString {
             appendLine("═══════════════════════════════════════════════════════════")
-            appendLine("                    ${StringResources.get(StringKey.SUMMARY_TITLE, language)}")
+            appendLine("                    ${StringResources.get(StringKeyMatch.SUMMARY_TITLE, language)}")
             appendLine("═══════════════════════════════════════════════════════════")
             appendLine()
-            appendLine("${StringResources.get(StringKey.SUMMARY_OVERALL_SCORE, language)}: ${String.format("%.1f", totalPoints)} / 36 (${String.format("%.1f", percentageScore)}%)")
-            appendLine("${StringResources.get(StringKey.SUMMARY_RATING, language)}: ${rating.getLocalizedName(language)}")
+            appendLine("${StringResources.get(StringKeyMatch.SUMMARY_OVERALL_SCORE, language)}: ${String.format("%.1f", totalPoints)} / 36 (${String.format("%.1f", percentageScore)}%)")
+            appendLine("${StringResources.get(StringKeyMatch.SUMMARY_RATING, language)}: ${rating.getLocalizedName(language)}")
             appendLine()
             appendLine("─────────────────────────────────────────────────────────────")
 
             if (strongPoints.isNotEmpty()) {
                 appendLine()
-                appendLine("${StringResources.get(StringKey.SUMMARY_STRENGTHS, language)} (${strongPoints.size}):")
+                appendLine("${StringResources.get(StringKeyMatch.SUMMARY_STRENGTHS, language)} (${strongPoints.size}):")
                 strongPoints.forEach { guna ->
                     appendLine("  - ${guna.name} (${guna.obtainedPoints.toInt()}/${guna.maxPoints.toInt()})")
                 }
@@ -473,7 +473,7 @@ object MatchmakingCalculator {
 
             if (weakPoints.isNotEmpty()) {
                 appendLine()
-                appendLine("${StringResources.get(StringKey.SUMMARY_CONCERNS, language)} (${weakPoints.size}):")
+                appendLine("${StringResources.get(StringKeyMatch.SUMMARY_CONCERNS, language)} (${weakPoints.size}):")
                 weakPoints.forEach { guna ->
                     appendLine("  - ${guna.name} (${guna.obtainedPoints.toInt()}/${guna.maxPoints.toInt()})")
                 }
@@ -482,25 +482,25 @@ object MatchmakingCalculator {
             appendLine()
             appendLine("─────────────────────────────────────────────────────────────")
             appendLine()
-            appendLine("${StringResources.get(StringKey.SUMMARY_MANGLIK, language)}:")
-            appendLine("  ${StringResources.get(StringKey.BRIDE, language)}: ${brideManglik.effectiveDosha.getLocalizedName(language)}")
-            appendLine("  ${StringResources.get(StringKey.GROOM, language)}: ${groomManglik.effectiveDosha.getLocalizedName(language)}")
+            appendLine("${StringResources.get(StringKeyMatch.SUMMARY_MANGLIK, language)}:")
+            appendLine("  ${StringResources.get(StringKeyMatch.BRIDE, language)}: ${brideManglik.effectiveDosha.getLocalizedName(language)}")
+            appendLine("  ${StringResources.get(StringKeyMatch.GROOM, language)}: ${groomManglik.effectiveDosha.getLocalizedName(language)}")
 
             val manglikOk = (brideManglik.effectiveDosha.severity == 0 && groomManglik.effectiveDosha.severity == 0) ||
                 (brideManglik.effectiveDosha.severity > 0 && groomManglik.effectiveDosha.severity > 0)
-            appendLine("  ${StringResources.get(StringKey.STATUS, language)}: ${if (manglikOk) StringResources.get(StringKey.COMPATIBLE, language) else StringResources.get(StringKey.NEEDS_ATTENTION, language)}")
+            appendLine("  ${StringResources.get(StringKeyMatch.STATUS, language)}: ${if (manglikOk) StringResources.get(StringKeyMatch.COMPATIBLE, language) else StringResources.get(StringKeyMatch.NEEDS_ATTENTION, language)}")
 
             appendLine()
-            appendLine("${StringResources.get(StringKey.SUMMARY_ADDITIONAL, language)}:")
-            appendLine("  Vedha: ${if (additionalFactors.vedhaPresent) StringResources.get(StringKey.PRESENT, language) else StringResources.get(StringKey.NOT_PRESENT, language)}")
-            appendLine("  Rajju: ${if (additionalFactors.rajjuCompatible) StringResources.get(StringKey.COMPATIBLE, language) else StringResources.get(StringKey.SAME_RAJJU, language)}")
-            appendLine("  Stree Deergha: ${if (additionalFactors.streeDeerghaSatisfied) StringResources.get(StringKey.SATISFIED, language) else StringResources.get(StringKey.NOT_SATISFIED, language)}")
-            appendLine("  Mahendra: ${if (additionalFactors.mahendraSatisfied) StringResources.get(StringKey.FAVORABLE, language) else StringResources.get(StringKey.NOT_APPLICABLE, language)}")
+            appendLine("${StringResources.get(StringKeyMatch.SUMMARY_ADDITIONAL, language)}:")
+            appendLine("  Vedha: ${if (additionalFactors.vedhaPresent) StringResources.get(StringKeyMatch.PRESENT, language) else StringResources.get(StringKeyMatch.NOT_PRESENT, language)}")
+            appendLine("  Rajju: ${if (additionalFactors.rajjuCompatible) StringResources.get(StringKeyMatch.COMPATIBLE, language) else StringResources.get(StringKeyMatch.SAME_RAJJU, language)}")
+            appendLine("  Stree Deergha: ${if (additionalFactors.streeDeerghaSatisfied) StringResources.get(StringKeyMatch.SATISFIED, language) else StringResources.get(StringKeyMatch.NOT_SATISFIED, language)}")
+            appendLine("  Mahendra: ${if (additionalFactors.mahendraSatisfied) StringResources.get(StringKeyMatch.FAVORABLE, language) else StringResources.get(StringKeyMatch.NOT_APPLICABLE, language)}")
 
             appendLine()
             appendLine("─────────────────────────────────────────────────────────────")
             appendLine()
-            appendLine("${StringResources.get(StringKey.SUMMARY_RECOMMENDATION, language)}:")
+            appendLine("${StringResources.get(StringKeyMatch.SUMMARY_RECOMMENDATION, language)}:")
             appendLine()
             appendLine(rating.getLocalizedDescription(language))
         }
@@ -522,27 +522,27 @@ object MatchmakingCalculator {
 
         return buildString {
             appendLine("═══════════════════════════════════════════════════════════════════")
-            appendLine("                    ${StringResources.get(StringKey.DETAILED_TITLE, language)}")
+            appendLine("                    ${StringResources.get(StringKeyMatch.DETAILED_TITLE, language)}")
             appendLine("═══════════════════════════════════════════════════════════════════")
             appendLine()
 
-            appendLine("${StringResources.get(StringKey.BIRTH_DATA_SUMMARY, language)}")
+            appendLine("${StringResources.get(StringKeyMatch.BIRTH_DATA_SUMMARY, language)}")
             appendLine("─────────────────────────────────────────────────────────────────────")
             appendLine()
-            appendLine("${StringResources.get(StringKey.BRIDE, language).uppercase()}: ${brideChart.birthData.name}")
+            appendLine("${StringResources.get(StringKeyMatch.BRIDE, language).uppercase()}: ${brideChart.birthData.name}")
             if (brideMoon != null) {
                 val (brideNakshatra, bridePada) = Nakshatra.fromLongitude(brideMoon.longitude)
-                appendLine("  ${StringResources.get(StringKey.MOON_SIGN, language)}: ${brideMoon.sign.getLocalizedName(language)}")
-                appendLine("  ${StringResources.get(StringKey.NAKSHATRA_LABEL, language)}: ${brideNakshatra.getLocalizedName(language)} (${StringResources.get(StringKey.PADA_LABEL, language)} $bridePada)")
-                appendLine("  ${StringResources.get(StringKey.MOON_LONGITUDE, language)}: ${String.format("%.2f", brideMoon.longitude)}°")
+                appendLine("  ${StringResources.get(StringKeyMatch.MOON_SIGN, language)}: ${brideMoon.sign.getLocalizedName(language)}")
+                appendLine("  ${StringResources.get(StringKeyMatch.NAKSHATRA_LABEL, language)}: ${brideNakshatra.getLocalizedName(language)} (${StringResources.get(StringKeyMatch.PADA_LABEL, language)} $bridePada)")
+                appendLine("  ${StringResources.get(StringKeyMatch.MOON_LONGITUDE, language)}: ${String.format("%.2f", brideMoon.longitude)}°")
             }
             appendLine()
-            appendLine("${StringResources.get(StringKey.GROOM, language).uppercase()}: ${groomChart.birthData.name}")
+            appendLine("${StringResources.get(StringKeyMatch.GROOM, language).uppercase()}: ${groomChart.birthData.name}")
             if (groomMoon != null) {
                 val (groomNakshatra, groomPada) = Nakshatra.fromLongitude(groomMoon.longitude)
-                appendLine("  ${StringResources.get(StringKey.MOON_SIGN, language)}: ${groomMoon.sign.getLocalizedName(language)}")
-                appendLine("  ${StringResources.get(StringKey.NAKSHATRA_LABEL, language)}: ${groomNakshatra.getLocalizedName(language)} (${StringResources.get(StringKey.PADA_LABEL, language)} $groomPada)")
-                appendLine("  ${StringResources.get(StringKey.MOON_LONGITUDE, language)}: ${String.format("%.2f", groomMoon.longitude)}°")
+                appendLine("  ${StringResources.get(StringKeyMatch.MOON_SIGN, language)}: ${groomMoon.sign.getLocalizedName(language)}")
+                appendLine("  ${StringResources.get(StringKeyMatch.NAKSHATRA_LABEL, language)}: ${groomNakshatra.getLocalizedName(language)} (${StringResources.get(StringKeyMatch.PADA_LABEL, language)} $groomPada)")
+                appendLine("  ${StringResources.get(StringKeyMatch.MOON_LONGITUDE, language)}: ${String.format("%.2f", groomMoon.longitude)}°")
             }
 
             appendLine()
@@ -551,19 +551,19 @@ object MatchmakingCalculator {
 
             gunaAnalyses.forEach { guna ->
                 val scoreBar = buildScoreBar(guna.obtainedPoints, guna.maxPoints)
-                val status = if (guna.isPositive) StringResources.get(StringKey.FAVORABLE, language) else StringResources.get(StringKey.NEEDS_ATTENTION, language)
+                val status = if (guna.isPositive) StringResources.get(StringKeyMatch.FAVORABLE, language) else StringResources.get(StringKeyMatch.NEEDS_ATTENTION, language)
 
                 appendLine("┌─────────────────────────────────────────────────────────────────┐")
                 appendLine("│ ${guna.name.uppercase().padEnd(20)} ${guna.obtainedPoints.toInt()}/${guna.maxPoints.toInt()} points    $status")
                 appendLine("├─────────────────────────────────────────────────────────────────┤")
                 appendLine("│ $scoreBar")
                 appendLine("│")
-                appendLine("│ ${StringResources.get(StringKey.PURPOSE, language)}: ${guna.description}")
+                appendLine("│ ${StringResources.get(StringKeyMatch.PURPOSE, language)}: ${guna.description}")
                 appendLine("│")
-                appendLine("│ ${StringResources.get(StringKey.BRIDE, language)}: ${guna.brideValue}")
-                appendLine("│ ${StringResources.get(StringKey.GROOM, language)}: ${guna.groomValue}")
+                appendLine("│ ${StringResources.get(StringKeyMatch.BRIDE, language)}: ${guna.brideValue}")
+                appendLine("│ ${StringResources.get(StringKeyMatch.GROOM, language)}: ${guna.groomValue}")
                 appendLine("│")
-                appendLine("│ ${StringResources.get(StringKey.ANALYSIS_LABEL, language)}:")
+                appendLine("│ ${StringResources.get(StringKeyMatch.ANALYSIS_LABEL, language)}:")
                 wrapText(guna.analysis, 65).forEach { line ->
                     appendLine("│   $line")
                 }
@@ -573,32 +573,32 @@ object MatchmakingCalculator {
 
             appendLine("═══════════════════════════════════════════════════════════════════")
             appendLine()
-            appendLine("${StringResources.get(StringKey.ADDITIONAL_FACTORS_TITLE, language)}")
+            appendLine("${StringResources.get(StringKeyMatch.ADDITIONAL_FACTORS_TITLE, language)}")
             appendLine("─────────────────────────────────────────────────────────────────────")
             appendLine()
 
-            appendLine("VEDHA (${StringResources.get(StringKey.OBSTRUCTION, language)})")
-            appendLine("  ${StringResources.get(StringKey.STATUS, language)}: ${if (additionalFactors.vedhaPresent) StringResources.get(StringKey.PRESENT, language) else StringResources.get(StringKey.NOT_PRESENT, language)}")
-            appendLine("  ${StringResources.get(StringKey.DETAILS, language)}: ${additionalFactors.vedhaDetails}")
+            appendLine("VEDHA (${StringResources.get(StringKeyMatch.OBSTRUCTION, language)})")
+            appendLine("  ${StringResources.get(StringKeyMatch.STATUS, language)}: ${if (additionalFactors.vedhaPresent) StringResources.get(StringKeyMatch.PRESENT, language) else StringResources.get(StringKeyMatch.NOT_PRESENT, language)}")
+            appendLine("  ${StringResources.get(StringKeyMatch.DETAILS, language)}: ${additionalFactors.vedhaDetails}")
             appendLine()
 
-            appendLine("RAJJU (${StringResources.get(StringKey.COSMIC_BOND, language)})")
-            appendLine("  ${StringResources.get(StringKey.BRIDE, language)}: ${additionalFactors.brideRajju.getLocalizedName(language)} (${additionalFactors.brideRajju.getLocalizedBodyPart(language)})")
-            appendLine("  ${StringResources.get(StringKey.GROOM, language)}: ${additionalFactors.groomRajju.getLocalizedName(language)} (${additionalFactors.groomRajju.getLocalizedBodyPart(language)})")
-            appendLine("  ${StringResources.get(StringKey.STATUS, language)}: ${if (additionalFactors.rajjuCompatible) StringResources.get(StringKey.COMPATIBLE, language) else StringResources.get(StringKey.SAME_RAJJU, language)}")
+            appendLine("RAJJU (${StringResources.get(StringKeyMatch.COSMIC_BOND, language)})")
+            appendLine("  ${StringResources.get(StringKeyMatch.BRIDE, language)}: ${additionalFactors.brideRajju.getLocalizedName(language)} (${additionalFactors.brideRajju.getLocalizedBodyPart(language)})")
+            appendLine("  ${StringResources.get(StringKeyMatch.GROOM, language)}: ${additionalFactors.groomRajju.getLocalizedName(language)} (${additionalFactors.groomRajju.getLocalizedBodyPart(language)})")
+            appendLine("  ${StringResources.get(StringKeyMatch.STATUS, language)}: ${if (additionalFactors.rajjuCompatible) StringResources.get(StringKeyMatch.COMPATIBLE, language) else StringResources.get(StringKeyMatch.SAME_RAJJU, language)}")
             if (!additionalFactors.rajjuCompatible) {
-                appendLine("  ${StringResources.get(StringKey.WARNING_LABEL, language)}: ${additionalFactors.rajjuDetails}")
+                appendLine("  ${StringResources.get(StringKeyMatch.WARNING_LABEL, language)}: ${additionalFactors.rajjuDetails}")
             }
             appendLine()
 
-            appendLine("STREE DEERGHA (${StringResources.get(StringKey.WIFE_PROSPERITY, language)})")
-            appendLine("  ${StringResources.get(StringKey.NAKSHATRA_DIFF, language)}: ${additionalFactors.streeDeerghaDiff}")
-            appendLine("  ${StringResources.get(StringKey.STATUS, language)}: ${if (additionalFactors.streeDeerghaSatisfied) StringResources.get(StringKey.SATISFIED, language) else StringResources.get(StringKey.NOT_SATISFIED, language)}")
+            appendLine("STREE DEERGHA (${StringResources.get(StringKeyMatch.WIFE_PROSPERITY, language)})")
+            appendLine("  ${StringResources.get(StringKeyMatch.NAKSHATRA_DIFF, language)}: ${additionalFactors.streeDeerghaDiff}")
+            appendLine("  ${StringResources.get(StringKeyMatch.STATUS, language)}: ${if (additionalFactors.streeDeerghaSatisfied) StringResources.get(StringKeyMatch.SATISFIED, language) else StringResources.get(StringKeyMatch.NOT_SATISFIED, language)}")
             appendLine()
 
-            appendLine("MAHENDRA (${StringResources.get(StringKey.LONGEVITY_PROSPERITY, language)})")
-            appendLine("  ${StringResources.get(StringKey.STATUS, language)}: ${if (additionalFactors.mahendraSatisfied) StringResources.get(StringKey.FAVORABLE, language) else StringResources.get(StringKey.NOT_APPLICABLE, language)}")
-            appendLine("  ${StringResources.get(StringKey.DETAILS, language)}: ${additionalFactors.mahendraDetails}")
+            appendLine("MAHENDRA (${StringResources.get(StringKeyMatch.LONGEVITY_PROSPERITY, language)})")
+            appendLine("  ${StringResources.get(StringKeyMatch.STATUS, language)}: ${if (additionalFactors.mahendraSatisfied) StringResources.get(StringKeyMatch.FAVORABLE, language) else StringResources.get(StringKeyMatch.NOT_APPLICABLE, language)}")
+            appendLine("  ${StringResources.get(StringKeyMatch.DETAILS, language)}: ${additionalFactors.mahendraDetails}")
             appendLine()
 
             appendLine("═══════════════════════════════════════════════════════════════════")
@@ -648,15 +648,15 @@ object MatchmakingCalculator {
      */
     fun getGunaDescription(gunaName: String, language: Language = Language.ENGLISH): String {
         return when (gunaName) {
-            "Varna" -> StringResources.get(StringKey.GUNA_DESC_VARNA, language)
-            "Vashya" -> StringResources.get(StringKey.GUNA_DESC_VASHYA, language)
-            "Tara" -> StringResources.get(StringKey.GUNA_DESC_TARA, language)
-            "Yoni" -> StringResources.get(StringKey.GUNA_DESC_YONI, language)
-            "Graha Maitri" -> StringResources.get(StringKey.GUNA_DESC_GRAHA_MAITRI, language)
-            "Gana" -> StringResources.get(StringKey.GUNA_DESC_GANA, language)
-            "Bhakoot" -> StringResources.get(StringKey.GUNA_DESC_BHAKOOT, language)
-            "Nadi" -> StringResources.get(StringKey.GUNA_DESC_NADI, language)
-            else -> StringResources.get(StringKey.GUNA_DESC_NOT_AVAILABLE, language)
+            "Varna" -> StringResources.get(StringKeyMatch.GUNA_DESC_VARNA, language)
+            "Vashya" -> StringResources.get(StringKeyMatch.GUNA_DESC_VASHYA, language)
+            "Tara" -> StringResources.get(StringKeyMatch.GUNA_DESC_TARA, language)
+            "Yoni" -> StringResources.get(StringKeyMatch.GUNA_DESC_YONI, language)
+            "Graha Maitri" -> StringResources.get(StringKeyMatch.GUNA_DESC_GRAHA_MAITRI, language)
+            "Gana" -> StringResources.get(StringKeyMatch.GUNA_DESC_GANA, language)
+            "Bhakoot" -> StringResources.get(StringKeyMatch.GUNA_DESC_BHAKOOT, language)
+            "Nadi" -> StringResources.get(StringKeyMatch.GUNA_DESC_NADI, language)
+            else -> StringResources.get(StringKeyMatch.GUNA_DESC_NOT_AVAILABLE, language)
         }
     }
 
@@ -667,15 +667,15 @@ object MatchmakingCalculator {
     fun interpretScore(score: Double, language: Language = Language.ENGLISH): String {
         return when {
             score >= MatchmakingConstants.EXCELLENT_THRESHOLD ->
-                StringResources.get(StringKey.SCORE_EXCELLENT, language)
+                StringResources.get(StringKeyMatch.SCORE_EXCELLENT, language)
             score >= MatchmakingConstants.GOOD_THRESHOLD ->
-                StringResources.get(StringKey.SCORE_GOOD, language)
+                StringResources.get(StringKeyMatch.SCORE_GOOD, language)
             score >= MatchmakingConstants.AVERAGE_THRESHOLD ->
-                StringResources.get(StringKey.SCORE_AVERAGE, language)
+                StringResources.get(StringKeyMatch.SCORE_AVERAGE, language)
             score >= MatchmakingConstants.POOR_THRESHOLD ->
-                StringResources.get(StringKey.SCORE_BELOW_AVERAGE, language)
+                StringResources.get(StringKeyMatch.SCORE_BELOW_AVERAGE, language)
             else ->
-                StringResources.get(StringKey.SCORE_POOR, language)
+                StringResources.get(StringKeyMatch.SCORE_POOR, language)
         }
     }
 

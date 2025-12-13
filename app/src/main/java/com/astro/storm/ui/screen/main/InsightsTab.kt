@@ -38,6 +38,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.astro.storm.data.localization.Language
 import com.astro.storm.data.localization.LocalLanguage
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyMatch
 import com.astro.storm.data.localization.StringResources
 import com.astro.storm.data.localization.getLocalizedName
 import com.astro.storm.data.localization.stringResource
@@ -653,7 +654,7 @@ private fun PeriodSelectorItem(
                 Spacer(modifier = Modifier.width(4.dp))
                 Icon(
                     imageVector = Icons.Outlined.CloudOff,
-                    contentDescription = stringResource(StringKey.MISC_UNAVAILABLE),
+                    contentDescription = stringResource(StringKeyMatch.MISC_UNAVAILABLE),
                     tint = textColor,
                     modifier = Modifier.size(12.dp)
                 )
@@ -1042,7 +1043,7 @@ private fun ExpandIcon(expanded: Boolean) {
 
     Icon(
         imageVector = Icons.Default.ExpandMore,
-        contentDescription = if (expanded) stringResource(StringKey.MISC_COLLAPSE) else stringResource(StringKey.MISC_EXPAND),
+        contentDescription = if (expanded) stringResource(StringKeyMatch.MISC_COLLAPSE) else stringResource(StringKeyMatch.MISC_EXPAND),
         tint = AppTheme.TextMuted,
         modifier = Modifier
             .size(24.dp)
@@ -1963,7 +1964,7 @@ private fun UpcomingPeriodItem(
 
         if (daysUntil > 0) {
             Text(
-                text = stringResource(StringKey.TIME_IN, durationText),
+                text = stringResource(StringKeyMatch.TIME_IN, durationText),
                 style = MaterialTheme.typography.labelSmall,
                 color = if (isFirst) AppTheme.AccentPrimary else AppTheme.TextMuted
             )

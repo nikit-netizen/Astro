@@ -25,6 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyAnalysis
+import com.astro.storm.data.localization.StringKeyMatch
 import com.astro.storm.data.localization.stringResource
 import com.astro.storm.data.model.Nakshatra
 import com.astro.storm.data.model.PlanetPosition
@@ -200,7 +202,7 @@ private fun ChartAnalysisTopBar(
         title = {
             Column {
                 Text(
-                    text = stringResource(StringKey.ANALYSIS_CHART_ANALYSIS),
+                    text = stringResource(StringKeyAnalysis.ANALYSIS_CHART_ANALYSIS),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = AppTheme.TextPrimary
@@ -216,7 +218,7 @@ private fun ChartAnalysisTopBar(
             IconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
-                    contentDescription = stringResource(StringKey.NAV_BACK),
+                    contentDescription = stringResource(StringKeyMatch.NAV_BACK),
                     tint = AppTheme.TextPrimary
                 )
             }
@@ -225,7 +227,7 @@ private fun ChartAnalysisTopBar(
             IconButton(onClick = onExport) {
                 Icon(
                     imageVector = Icons.Outlined.Share,
-                    contentDescription = stringResource(StringKey.ACTION_EXPORT),
+                    contentDescription = stringResource(StringKeyMatch.ACTION_EXPORT),
                     tint = AppTheme.TextPrimary
                 )
             }
@@ -297,13 +299,13 @@ enum class AnalysisTab(
     val stringKey: StringKey,
     val icon: ImageVector
 ) {
-    CHART(StringKey.ANALYSIS_TAB_CHART, Icons.Outlined.GridView),
-    PLANETS(StringKey.ANALYSIS_TAB_PLANETS, Icons.Outlined.Public),
-    YOGAS(StringKey.ANALYSIS_TAB_YOGAS, Icons.Outlined.AutoAwesome),
-    DASHAS(StringKey.ANALYSIS_TAB_DASHAS, Icons.Outlined.Timeline),
-    TRANSITS(StringKey.ANALYSIS_TAB_TRANSITS, Icons.Outlined.Sync),
-    ASHTAKAVARGA(StringKey.ANALYSIS_TAB_ASHTAKAVARGA, Icons.Outlined.BarChart),
-    PANCHANGA(StringKey.ANALYSIS_TAB_PANCHANGA, Icons.Outlined.CalendarMonth)
+    CHART(StringKeyAnalysis.ANALYSIS_TAB_CHART, Icons.Outlined.GridView),
+    PLANETS(StringKeyAnalysis.ANALYSIS_TAB_PLANETS, Icons.Outlined.Public),
+    YOGAS(StringKeyAnalysis.ANALYSIS_TAB_YOGAS, Icons.Outlined.AutoAwesome),
+    DASHAS(StringKeyAnalysis.ANALYSIS_TAB_DASHAS, Icons.Outlined.Timeline),
+    TRANSITS(StringKeyAnalysis.ANALYSIS_TAB_TRANSITS, Icons.Outlined.Sync),
+    ASHTAKAVARGA(StringKeyAnalysis.ANALYSIS_TAB_ASHTAKAVARGA, Icons.Outlined.BarChart),
+    PANCHANGA(StringKeyAnalysis.ANALYSIS_TAB_PANCHANGA, Icons.Outlined.CalendarMonth)
 }
 
 /**

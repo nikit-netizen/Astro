@@ -49,11 +49,10 @@ interface StringKeyInterface {
     val ne: String
 }
 
+
 /**
- * All translatable string keys with their translations
- *
- * Organized by category for maintainability.
- * Nepali translations are authentic and culturally appropriate for Vedic astrology context.
+ * Core UI string keys (navigation, settings, buttons, yoga, profile)
+ * Part 1 of 4 split enums to avoid JVM method size limit
  */
 enum class StringKey(override val en: String, override val ne: String) : StringKeyInterface {
 
@@ -637,8 +636,15 @@ enum class StringKey(override val en: String, override val ne: String) : StringK
     PROFILE_SELECT("Select Profile", "प्रोफाइल छान्नुहोस्"),
     PROFILE_CURRENT_A11Y("Current profile: %s. Tap to switch profiles", "हालको प्रोफाइल: %s। प्रोफाइलहरू बदल्न ट्याप गर्नुहोस्"),
     PROFILE_NO_SELECTED_A11Y("No profile selected. Tap to select a profile", "कुनै प्रोफाइल छानिएको छैन। प्रोफाइल छान्न ट्याप गर्नुहोस्"),
-    PROFILE_BIRTH_CHART("Birth chart", "जन्म कुण्डली"),
+    PROFILE_BIRTH_CHART("Birth chart", "जन्म कुण्डली");
 
+}
+
+/**
+ * Matchmaking and Guna string keys
+ * Part 2 of 4 split enums to avoid JVM method size limit
+ */
+enum class StringKeyMatch(override val en: String, override val ne: String) : StringKeyInterface {
     // ============================================
     // MATCHMAKING
     // ============================================
@@ -1956,7 +1962,14 @@ enum class StringKey(override val en: String, override val ne: String) : StringK
     ACTION_VIEW_DETAILS("View details", "विवरणहरू हेर्नुहोस्"),
     ACTION_VIEW_FULLSCREEN("View fullscreen", "पूर्ण स्क्रिनमा हेर्नुहोस्"),
     ACTION_NEW_QUESTION("New question", "नयाँ प्रश्न"),
-    ACTION_SEARCH("Search", "खोज्नुहोस्"),
+    ACTION_SEARCH("Search", "खोज्नुहोस्");
+}
+
+/**
+ * Transit, Panchanga, Prashna, and Varshaphala string keys
+ * Part 3 of 4 split enums to avoid JVM method size limit
+ */
+enum class StringKeyAnalysis(override val en: String, override val ne: String) : StringKeyInterface {
 
     // ============================================
     // TRANSITS TAB - ADDITIONAL STRINGS
@@ -2193,6 +2206,7 @@ enum class StringKey(override val en: String, override val ne: String) : StringK
     // House Dialog
     DIALOG_HOUSE_INFO("House Information", "भाव जानकारी"),
     DIALOG_SIGNIFICATIONS("Significations & Nature", "करकत्व र प्रकृति"),
+    DIALOG_NATURE("Nature", "प्रकृति"),
     DIALOG_PLANETS_IN_HOUSE("Planets in House", "भावमा ग्रहहरू"),
     DIALOG_DETAILED_INTERPRETATION("Detailed Interpretation", "विस्तृत व्याख्या"),
     DIALOG_CUSP_DEGREE("Cusp Degree", "सन्धि अंश"),
@@ -3246,7 +3260,14 @@ enum class StringKey(override val en: String, override val ne: String) : StringK
 
     // Guna types
     GUNA_RAJAS("Rajas", "रजस्"),
-    GUNA_TAMAS("Tamas", "तमस्"),
+    GUNA_TAMAS("Tamas", "तमस्");
+}
+
+/**
+ * Divisional charts, Shadbala, and Dosha (Sade Sati, Manglik, Pitra) string keys
+ * Part 4 of 4 split enums to avoid JVM method size limit
+ */
+enum class StringKeyDosha(override val en: String, override val ne: String) : StringKeyInterface {
     GUNA_SATTVA("Sattva", "सत्त्व"),
 
     // ============================================
@@ -4106,12 +4127,19 @@ enum class StringKey(override val en: String, override val ne: String) : StringK
     SYNASTRY_MOON("Moon", "चन्द्र"),
     SYNASTRY_VENUS("Venus", "शुक्र"),
     SYNASTRY_HOUSE_IN("in House", "भावमा");
-    companion object {
-        /**
-         * Find key by English value
-         */
-        fun findByEnglish(value: String): StringKeyInterface? {
-            return entries.find { it.en.equals(value, ignoreCase = true) }
-        }
+}
+
+/**
+ * Helper object to find string keys by English value across all enums
+ */
+object StringKeyFinder {
+    /**
+     * Find key by English value across all string key enums
+     */
+    fun findByEnglish(value: String): StringKeyInterface? {
+        return StringKey.entries.find { it.en.equals(value, ignoreCase = true) }
+            ?: StringKeyMatch.entries.find { it.en.equals(value, ignoreCase = true) }
+            ?: StringKeyAnalysis.entries.find { it.en.equals(value, ignoreCase = true) }
+            ?: StringKeyDosha.entries.find { it.en.equals(value, ignoreCase = true) }
     }
 }

@@ -2,6 +2,7 @@ package com.astro.storm.ephemeris
 
 import com.astro.storm.data.localization.Language
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyDosha
 import com.astro.storm.data.localization.StringResources
 import com.astro.storm.data.model.Planet
 import com.astro.storm.data.model.PlanetPosition
@@ -63,15 +64,15 @@ object SadeSatiCalculator {
         SETTING(3);
 
         fun getLocalizedName(language: Language): String = when (this) {
-            RISING -> StringResources.get(StringKey.SADE_SATI_PHASE_RISING, language)
-            PEAK -> StringResources.get(StringKey.SADE_SATI_PHASE_PEAK, language)
-            SETTING -> StringResources.get(StringKey.SADE_SATI_PHASE_SETTING, language)
+            RISING -> StringResources.get(StringKeyDosha.SADE_SATI_PHASE_RISING, language)
+            PEAK -> StringResources.get(StringKeyDosha.SADE_SATI_PHASE_PEAK, language)
+            SETTING -> StringResources.get(StringKeyDosha.SADE_SATI_PHASE_SETTING, language)
         }
 
         fun getDescription(language: Language): String = when (this) {
-            RISING -> StringResources.get(StringKey.SADE_SATI_RISING_DESC, language)
-            PEAK -> StringResources.get(StringKey.SADE_SATI_PEAK_DESC, language)
-            SETTING -> StringResources.get(StringKey.SADE_SATI_SETTING_DESC, language)
+            RISING -> StringResources.get(StringKeyDosha.SADE_SATI_RISING_DESC, language)
+            PEAK -> StringResources.get(StringKeyDosha.SADE_SATI_PEAK_DESC, language)
+            SETTING -> StringResources.get(StringKeyDosha.SADE_SATI_SETTING_DESC, language)
         }
     }
 
@@ -89,10 +90,10 @@ object SadeSatiCalculator {
         INTENSE;
 
         fun getLocalizedName(language: Language): String = when (this) {
-            MILD -> StringResources.get(StringKey.SEVERITY_MILD, language)
-            MODERATE -> StringResources.get(StringKey.SEVERITY_MODERATE, language)
-            SIGNIFICANT -> StringResources.get(StringKey.SEVERITY_SIGNIFICANT, language)
-            INTENSE -> StringResources.get(StringKey.SEVERITY_INTENSE, language)
+            MILD -> StringResources.get(StringKeyDosha.SEVERITY_MILD, language)
+            MODERATE -> StringResources.get(StringKeyDosha.SEVERITY_MODERATE, language)
+            SIGNIFICANT -> StringResources.get(StringKeyDosha.SEVERITY_SIGNIFICANT, language)
+            INTENSE -> StringResources.get(StringKeyDosha.SEVERITY_INTENSE, language)
         }
     }
 
@@ -107,8 +108,8 @@ object SadeSatiCalculator {
         EIGHTH_FROM_MOON;
 
         fun getLocalizedName(language: Language): String = when (this) {
-            FOURTH_FROM_MOON -> StringResources.get(StringKey.SMALL_PANOTI_FOURTH, language)
-            EIGHTH_FROM_MOON -> StringResources.get(StringKey.SMALL_PANOTI_EIGHTH, language)
+            FOURTH_FROM_MOON -> StringResources.get(StringKeyDosha.SMALL_PANOTI_FOURTH, language)
+            EIGHTH_FROM_MOON -> StringResources.get(StringKeyDosha.SMALL_PANOTI_EIGHTH, language)
         }
     }
 
@@ -139,15 +140,15 @@ object SadeSatiCalculator {
             return if (isActive && currentPhase != null) {
                 val phaseName = currentPhase.getLocalizedName(language)
                 val severityName = severity.getLocalizedName(language)
-                StringResources.get(StringKey.SADE_SATI_ACTIVE_SUMMARY, language)
+                StringResources.get(StringKeyDosha.SADE_SATI_ACTIVE_SUMMARY, language)
                     .replace("{phase}", phaseName)
                     .replace("{severity}", severityName)
             } else if (isSmallPanotiActive && smallPanoti != null) {
                 val panotiName = smallPanoti.getLocalizedName(language)
-                StringResources.get(StringKey.SMALL_PANOTI_ACTIVE_SUMMARY, language)
+                StringResources.get(StringKeyDosha.SMALL_PANOTI_ACTIVE_SUMMARY, language)
                     .replace("{type}", panotiName)
             } else {
-                StringResources.get(StringKey.SADE_SATI_NOT_ACTIVE, language)
+                StringResources.get(StringKeyDosha.SADE_SATI_NOT_ACTIVE, language)
             }
         }
     }
@@ -446,24 +447,24 @@ object SadeSatiCalculator {
         // Universal Saturn remedies
         remedies.add(Remedy(
             type = RemedyType.MANTRA,
-            titleKey = StringKey.REMEDY_SHANI_MANTRA_TITLE,
-            descriptionKey = StringKey.REMEDY_SHANI_MANTRA_DESC,
+            titleKey = StringKeyDosha.REMEDY_SHANI_MANTRA_TITLE,
+            descriptionKey = StringKeyDosha.REMEDY_SHANI_MANTRA_DESC,
             timing = "Saturday during Saturn Hora",
             mantra = "ॐ शं शनैश्चराय नमः"
         ))
 
         remedies.add(Remedy(
             type = RemedyType.CHARITY,
-            titleKey = StringKey.REMEDY_SATURDAY_CHARITY_TITLE,
-            descriptionKey = StringKey.REMEDY_SATURDAY_CHARITY_DESC,
+            titleKey = StringKeyDosha.REMEDY_SATURDAY_CHARITY_TITLE,
+            descriptionKey = StringKeyDosha.REMEDY_SATURDAY_CHARITY_DESC,
             timing = "Every Saturday",
             mantra = null
         ))
 
         remedies.add(Remedy(
             type = RemedyType.FASTING,
-            titleKey = StringKey.REMEDY_SATURDAY_FAST_TITLE,
-            descriptionKey = StringKey.REMEDY_SATURDAY_FAST_DESC,
+            titleKey = StringKeyDosha.REMEDY_SATURDAY_FAST_TITLE,
+            descriptionKey = StringKeyDosha.REMEDY_SATURDAY_FAST_DESC,
             timing = "Every Saturday",
             mantra = null
         ))
@@ -471,16 +472,16 @@ object SadeSatiCalculator {
         if (severity == Severity.SIGNIFICANT || severity == Severity.INTENSE) {
             remedies.add(Remedy(
                 type = RemedyType.WORSHIP,
-                titleKey = StringKey.REMEDY_HANUMAN_WORSHIP_TITLE,
-                descriptionKey = StringKey.REMEDY_HANUMAN_WORSHIP_DESC,
+                titleKey = StringKeyDosha.REMEDY_HANUMAN_WORSHIP_TITLE,
+                descriptionKey = StringKeyDosha.REMEDY_HANUMAN_WORSHIP_DESC,
                 timing = "Tuesday and Saturday",
                 mantra = "ॐ हनुमते नमः"
             ))
 
             remedies.add(Remedy(
                 type = RemedyType.GEMSTONE,
-                titleKey = StringKey.REMEDY_BLUE_SAPPHIRE_TITLE,
-                descriptionKey = StringKey.REMEDY_BLUE_SAPPHIRE_DESC,
+                titleKey = StringKeyDosha.REMEDY_BLUE_SAPPHIRE_TITLE,
+                descriptionKey = StringKeyDosha.REMEDY_BLUE_SAPPHIRE_DESC,
                 timing = "Consult astrologer before wearing",
                 mantra = null
             ))

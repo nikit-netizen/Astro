@@ -114,6 +114,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.astro.storm.data.model.VedicChart
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyMatch
+import com.astro.storm.data.localization.StringKeyAnalysis
 import com.astro.storm.data.localization.stringResource
 import com.astro.storm.ephemeris.MuhurtaCalculator
 import com.astro.storm.ui.theme.AppTheme
@@ -204,8 +206,8 @@ fun MuhurtaScreen(
     }
 
     val tabs = listOf(
-        stringResource(StringKey.TAB_TODAY),
-        stringResource(StringKey.TAB_FIND_MUHURTA)
+        stringResource(StringKeyMatch.TAB_TODAY),
+        stringResource(StringKeyMatch.TAB_FIND_MUHURTA)
     )
 
     Scaffold(
@@ -213,7 +215,7 @@ fun MuhurtaScreen(
             TopAppBar(
                 title = {
                     Text(
-                        stringResource(StringKey.MUHURTA_TITLE),
+                        stringResource(StringKeyMatch.MUHURTA_TITLE),
                         fontWeight = FontWeight.SemiBold,
                         color = AppTheme.TextPrimary
                     )
@@ -227,7 +229,7 @@ fun MuhurtaScreen(
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(StringKey.NAV_BACK),
+                            contentDescription = stringResource(StringKeyMatch.NAV_BACK),
                             tint = AppTheme.TextPrimary
                         )
                     }
@@ -478,7 +480,7 @@ private fun DateSelectorBar(
                     )
                     if (isToday) {
                         Text(
-                            text = stringResource(StringKey.MUHURTA_TODAY),
+                            text = stringResource(StringKeyMatch.MUHURTA_TODAY),
                             style = MaterialTheme.typography.labelSmall,
                             color = AppTheme.AccentPrimary
                         )
@@ -526,7 +528,7 @@ private fun LoadingContent() {
             CircularProgressIndicator(color = AppTheme.AccentPrimary, strokeWidth = 3.dp)
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                stringResource(StringKey.MUHURTA_CALCULATING),
+                stringResource(StringKeyMatch.MUHURTA_CALCULATING),
                 style = MaterialTheme.typography.bodyMedium,
                 color = AppTheme.TextMuted
             )
@@ -556,7 +558,7 @@ private fun ErrorContent(
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                stringResource(StringKey.MUHURTA_ERROR),
+                stringResource(StringKeyMatch.MUHURTA_ERROR),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = AppTheme.TextPrimary
@@ -597,12 +599,12 @@ private fun TodayTabList(
         item(key = "choghadiya") { ChoghadiyaCard(choghadiyaList, muhurta.choghadiya) }
         if (muhurta.suitableActivities.isNotEmpty()) {
             item(key = "suitable_activities") {
-                ActivitiesCard(title = stringResource(StringKey.MUHURTA_SUITABLE_ACTIVITIES), activities = muhurta.suitableActivities, isPositive = true)
+                ActivitiesCard(title = stringResource(StringKeyMatch.MUHURTA_SUITABLE_ACTIVITIES), activities = muhurta.suitableActivities, isPositive = true)
             }
         }
         if (muhurta.avoidActivities.isNotEmpty()) {
             item(key = "avoid_activities") {
-                ActivitiesCard(title = stringResource(StringKey.MUHURTA_AVOID_ACTIVITIES), activities = muhurta.avoidActivities, isPositive = false)
+                ActivitiesCard(title = stringResource(StringKeyMatch.MUHURTA_AVOID_ACTIVITIES), activities = muhurta.avoidActivities, isPositive = false)
             }
         }
         if (muhurta.recommendations.isNotEmpty()) {
@@ -652,14 +654,14 @@ private fun CurrentMuhurtaCard(muhurta: MuhurtaCalculator.MuhurtaDetails) {
                             fontWeight = FontWeight.Bold,
                             color = AppTheme.TextPrimary
                         )
-                        Text(stringResource(StringKey.MUHURTA_SCORE), style = MaterialTheme.typography.labelSmall, color = AppTheme.TextMuted)
+                        Text(stringResource(StringKeyMatch.MUHURTA_SCORE), style = MaterialTheme.typography.labelSmall, color = AppTheme.TextMuted)
                     }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = if (muhurta.isAuspicious) stringResource(StringKey.MUHURTA_AUSPICIOUS_TIME) else stringResource(StringKey.MUHURTA_AVERAGE_TIME),
+                    text = if (muhurta.isAuspicious) stringResource(StringKeyMatch.MUHURTA_AUSPICIOUS_TIME) else stringResource(StringKeyMatch.MUHURTA_AVERAGE_TIME),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = if (muhurta.isAuspicious) AppTheme.SuccessColor else AppTheme.WarningColor
@@ -708,7 +710,7 @@ private fun PanchangaCard(muhurta: MuhurtaCalculator.MuhurtaDetails) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    stringResource(StringKey.MUHURTA_PANCHANGA),
+                    stringResource(StringKeyMatch.MUHURTA_PANCHANGA),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = AppTheme.TextPrimary
@@ -719,9 +721,9 @@ private fun PanchangaCard(muhurta: MuhurtaCalculator.MuhurtaDetails) {
 
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    PanchangaItem(label = stringResource(StringKey.MUHURTA_VARA), value = muhurta.vara.displayName, modifier = Modifier.weight(1f))
+                    PanchangaItem(label = stringResource(StringKeyMatch.MUHURTA_VARA), value = muhurta.vara.displayName, modifier = Modifier.weight(1f))
                     PanchangaItem(
-                        label = stringResource(StringKey.MUHURTA_TITHI),
+                        label = stringResource(StringKeyMatch.MUHURTA_TITHI),
                         value = muhurta.tithi.name,
                         isPositive = muhurta.tithi.isAuspicious,
                         modifier = Modifier.weight(1f)
@@ -731,11 +733,11 @@ private fun PanchangaCard(muhurta: MuhurtaCalculator.MuhurtaDetails) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     PanchangaItem(
                         label = stringResource(StringKey.CHART_NAKSHATRA),
-                        value = "${muhurta.nakshatra.nakshatra.displayName} (${stringResource(StringKey.NAKSHATRA_PADA)} ${muhurta.nakshatra.pada})",
+                        value = "${muhurta.nakshatra.nakshatra.displayName} (${stringResource(StringKeyAnalysis.NAKSHATRA_PADA)} ${muhurta.nakshatra.pada})",
                         modifier = Modifier.weight(1f)
                     )
                     PanchangaItem(
-                        label = stringResource(StringKey.MUHURTA_YOGA),
+                        label = stringResource(StringKeyMatch.MUHURTA_YOGA),
                         value = muhurta.yoga.name,
                         isPositive = muhurta.yoga.isAuspicious,
                         modifier = Modifier.weight(1f)
@@ -744,13 +746,13 @@ private fun PanchangaCard(muhurta: MuhurtaCalculator.MuhurtaDetails) {
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     PanchangaItem(
-                        label = stringResource(StringKey.MUHURTA_KARANA),
+                        label = stringResource(StringKeyMatch.MUHURTA_KARANA),
                         value = muhurta.karana.name,
                         isPositive = muhurta.karana.isAuspicious,
                         modifier = Modifier.weight(1f)
                     )
                     PanchangaItem(
-                        label = stringResource(StringKey.MUHURTA_SUNRISE_SUNSET),
+                        label = stringResource(StringKeyMatch.MUHURTA_SUNRISE_SUNSET),
                         value = "${muhurta.sunrise.format(MuhurtaFormatters.timeFormatter)} - ${muhurta.sunset.format(MuhurtaFormatters.timeFormatter)}",
                         modifier = Modifier.weight(1f)
                     )
@@ -806,7 +808,7 @@ private fun InauspiciousPeriodsCard(muhurta: MuhurtaCalculator.MuhurtaDetails) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    stringResource(StringKey.MUHURTA_INAUSPICIOUS_PERIODS),
+                    stringResource(StringKeyMatch.MUHURTA_INAUSPICIOUS_PERIODS),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = AppTheme.TextPrimary
@@ -817,22 +819,22 @@ private fun InauspiciousPeriodsCard(muhurta: MuhurtaCalculator.MuhurtaDetails) {
 
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 InauspiciousPeriodRow(
-                    name = stringResource(StringKey.MUHURTA_RAHUKALA),
-                    description = stringResource(StringKey.MUHURTA_RAHUKALA_DESC),
+                    name = stringResource(StringKeyMatch.MUHURTA_RAHUKALA),
+                    description = stringResource(StringKeyMatch.MUHURTA_RAHUKALA_DESC),
                     startTime = muhurta.inauspiciousPeriods.rahukala.startTime,
                     endTime = muhurta.inauspiciousPeriods.rahukala.endTime,
                     severity = InauspiciousSeverity.HIGH
                 )
                 InauspiciousPeriodRow(
-                    name = stringResource(StringKey.MUHURTA_YAMAGHANTA),
-                    description = stringResource(StringKey.MUHURTA_YAMAGHANTA_DESC),
+                    name = stringResource(StringKeyMatch.MUHURTA_YAMAGHANTA),
+                    description = stringResource(StringKeyMatch.MUHURTA_YAMAGHANTA_DESC),
                     startTime = muhurta.inauspiciousPeriods.yamaghanta.startTime,
                     endTime = muhurta.inauspiciousPeriods.yamaghanta.endTime,
                     severity = InauspiciousSeverity.MEDIUM
                 )
                 InauspiciousPeriodRow(
-                    name = stringResource(StringKey.MUHURTA_GULIKA_KALA),
-                    description = stringResource(StringKey.MUHURTA_GULIKA_KALA_DESC),
+                    name = stringResource(StringKeyMatch.MUHURTA_GULIKA_KALA),
+                    description = stringResource(StringKeyMatch.MUHURTA_GULIKA_KALA_DESC),
                     startTime = muhurta.inauspiciousPeriods.gulikaKala.startTime,
                     endTime = muhurta.inauspiciousPeriods.gulikaKala.endTime,
                     severity = InauspiciousSeverity.MEDIUM
@@ -901,7 +903,7 @@ private fun InauspiciousPeriodRow(
                                 shape = RoundedCornerShape(4.dp)
                             ) {
                                 Text(
-                                    stringResource(StringKey.MUHURTA_ACTIVE),
+                                    stringResource(StringKeyMatch.MUHURTA_ACTIVE),
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White,
@@ -967,14 +969,14 @@ private fun ChoghadiyaCard(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    stringResource(StringKey.MUHURTA_DAY_CHOGHADIYA),
+                    stringResource(StringKeyMatch.MUHURTA_DAY_CHOGHADIYA),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = AppTheme.TextPrimary
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
-                    stringResource(StringKey.MUHURTA_PERIODS, choghadiyaList.size),
+                    stringResource(StringKeyMatch.MUHURTA_PERIODS, choghadiyaList.size),
                     style = MaterialTheme.typography.labelSmall,
                     color = AppTheme.TextMuted
                 )
@@ -1051,7 +1053,7 @@ private fun ChoghadiyaRow(
                                 shape = RoundedCornerShape(4.dp)
                             ) {
                                 Text(
-                                    stringResource(StringKey.MUHURTA_NOW),
+                                    stringResource(StringKeyMatch.MUHURTA_NOW),
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White,
@@ -1185,7 +1187,7 @@ private fun RecommendationsCard(recommendations: List<String>) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    stringResource(StringKey.MUHURTA_RECOMMENDATIONS),
+                    stringResource(StringKeyMatch.MUHURTA_RECOMMENDATIONS),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = AppTheme.TextPrimary
@@ -1328,7 +1330,7 @@ private fun ActivitySelectorCard(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    stringResource(StringKey.MUHURTA_SELECT_ACTIVITY),
+                    stringResource(StringKeyMatch.MUHURTA_SELECT_ACTIVITY),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = AppTheme.TextPrimary
@@ -1463,7 +1465,7 @@ private fun DateRangeCard(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    stringResource(StringKey.MUHURTA_DATE_RANGE_LABEL),
+                    stringResource(StringKeyMatch.MUHURTA_DATE_RANGE_LABEL),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = AppTheme.TextPrimary
@@ -1477,13 +1479,13 @@ private fun DateRangeCard(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 DatePickerButton(
-                    label = stringResource(StringKey.MUHURTA_FROM),
+                    label = stringResource(StringKeyMatch.MUHURTA_FROM),
                     date = startDate,
                     onClick = { showStartPicker = true },
                     modifier = Modifier.weight(1f)
                 )
                 DatePickerButton(
-                    label = stringResource(StringKey.MUHURTA_TO),
+                    label = stringResource(StringKeyMatch.MUHURTA_TO),
                     date = endDate,
                     onClick = { showEndPicker = true },
                     modifier = Modifier.weight(1f)
@@ -1584,7 +1586,7 @@ private fun SearchButton(
                         strokeWidth = 2.dp
                     )
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text(stringResource(StringKey.MUHURTA_SEARCHING), color = AppTheme.ButtonText, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(StringKeyMatch.MUHURTA_SEARCHING), color = AppTheme.ButtonText, fontWeight = FontWeight.SemiBold)
                 } else {
                     Icon(
                         Icons.Filled.Search,
@@ -1593,7 +1595,7 @@ private fun SearchButton(
                         tint = AppTheme.ButtonText
                     )
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text(stringResource(StringKey.MUHURTA_FIND_DATES), color = AppTheme.ButtonText, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(StringKeyMatch.MUHURTA_FIND_DATES), color = AppTheme.ButtonText, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
@@ -1625,14 +1627,14 @@ private fun SearchEmptyState() {
             }
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                stringResource(StringKey.MUHURTA_SEARCH_EMPTY),
+                stringResource(StringKeyMatch.MUHURTA_SEARCH_EMPTY),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = AppTheme.TextSecondary
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                stringResource(StringKey.MUHURTA_SEARCH_HELP),
+                stringResource(StringKeyMatch.MUHURTA_SEARCH_HELP),
                 style = MaterialTheme.typography.bodySmall,
                 color = AppTheme.TextMuted,
                 textAlign = TextAlign.Center
@@ -1653,7 +1655,7 @@ private fun SearchingState() {
             CircularProgressIndicator(color = AppTheme.AccentPrimary, strokeWidth = 3.dp)
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                stringResource(StringKey.MUHURTA_FINDING),
+                stringResource(StringKeyMatch.MUHURTA_FINDING),
                 style = MaterialTheme.typography.bodyMedium,
                 color = AppTheme.TextMuted
             )
@@ -1678,14 +1680,14 @@ private fun NoResultsState() {
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                stringResource(StringKey.MUHURTA_NO_RESULTS),
+                stringResource(StringKeyMatch.MUHURTA_NO_RESULTS),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = AppTheme.TextSecondary
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                stringResource(StringKey.MUHURTA_NO_RESULTS_HELP),
+                stringResource(StringKeyMatch.MUHURTA_NO_RESULTS_HELP),
                 style = MaterialTheme.typography.bodySmall,
                 color = AppTheme.TextMuted
             )
@@ -1713,7 +1715,7 @@ private fun SearchErrorState(message: String) {
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                stringResource(StringKey.MUHURTA_SEARCH_ERROR),
+                stringResource(StringKeyMatch.MUHURTA_SEARCH_ERROR),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = AppTheme.TextSecondary
@@ -1739,7 +1741,7 @@ private fun ResultsHeader(count: Int) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            stringResource(StringKey.MUHURTA_RESULTS_TITLE),
+            stringResource(StringKeyMatch.MUHURTA_RESULTS_TITLE),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.SemiBold,
             color = AppTheme.TextPrimary
@@ -1749,7 +1751,7 @@ private fun ResultsHeader(count: Int) {
             shape = RoundedCornerShape(12.dp)
         ) {
             Text(
-                stringResource(StringKey.MUHURTA_RESULTS_COUNT, count),
+                stringResource(StringKeyMatch.MUHURTA_RESULTS_COUNT, count),
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Medium,
                 color = AppTheme.SuccessColor,
@@ -1817,7 +1819,7 @@ private fun SearchResultCard(result: MuhurtaCalculator.MuhurtaSearchResult) {
                             color = scoreColor
                         )
                         Text(
-                            stringResource(StringKey.MUHURTA_SCORE),
+                            stringResource(StringKeyMatch.MUHURTA_SCORE),
                             style = MaterialTheme.typography.labelSmall,
                             color = scoreColor.copy(alpha = 0.8f)
                         )
@@ -1832,7 +1834,7 @@ private fun SearchResultCard(result: MuhurtaCalculator.MuhurtaSearchResult) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 ResultDetailChip(
-                    label = stringResource(StringKey.MUHURTA_DETAIL_DAY),
+                    label = stringResource(StringKeyMatch.MUHURTA_DETAIL_DAY),
                     value = result.vara.displayName,
                     modifier = Modifier.weight(1f)
                 )
@@ -1842,7 +1844,7 @@ private fun SearchResultCard(result: MuhurtaCalculator.MuhurtaSearchResult) {
                     modifier = Modifier.weight(1f)
                 )
                 ResultDetailChip(
-                    label = stringResource(StringKey.MUHURTA_DETAIL_CHOGHADIYA),
+                    label = stringResource(StringKeyMatch.MUHURTA_DETAIL_CHOGHADIYA),
                     value = result.choghadiya.displayName,
                     modifier = Modifier.weight(1f)
                 )

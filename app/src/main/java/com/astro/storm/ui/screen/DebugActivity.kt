@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.astro.storm.MainActivity
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyAnalysis
 import com.astro.storm.data.localization.stringResource
 import com.astro.storm.ui.theme.AstroStormTheme
 import com.astro.storm.ui.theme.AppTheme
@@ -69,7 +70,7 @@ fun DebugScreen(
         containerColor = AppTheme.ScreenBackground,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(StringKey.DEBUG_UNHANDLED_EXCEPTION), color = AppTheme.TextPrimary) },
+                title = { Text(stringResource(StringKeyAnalysis.DEBUG_UNHANDLED_EXCEPTION), color = AppTheme.TextPrimary) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = AppTheme.CardBackground)
             )
         }
@@ -82,7 +83,7 @@ fun DebugScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = stringResource(StringKey.DEBUG_ERROR_OCCURRED),
+                text = stringResource(StringKeyAnalysis.DEBUG_ERROR_OCCURRED),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = AppTheme.TextPrimary
@@ -115,14 +116,14 @@ fun DebugScreen(
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = AppTheme.AccentPrimary)
                 ) {
-                    Text(stringResource(StringKey.DEBUG_COPY_LOG))
+                    Text(stringResource(StringKeyAnalysis.DEBUG_COPY_LOG))
                 }
                 Button(
                     onClick = onRestart,
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = AppTheme.AccentSecondary)
                 ) {
-                    Text(stringResource(StringKey.DEBUG_RESTART_APP))
+                    Text(stringResource(StringKeyAnalysis.DEBUG_RESTART_APP))
                 }
             }
         }

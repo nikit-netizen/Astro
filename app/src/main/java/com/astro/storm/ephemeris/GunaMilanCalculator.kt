@@ -2,6 +2,7 @@ package com.astro.storm.ephemeris
 
 import com.astro.storm.data.localization.Language
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyMatch
 import com.astro.storm.data.localization.StringResources
 import com.astro.storm.data.model.*
 import kotlin.math.abs
@@ -67,11 +68,11 @@ object GunaMilanCalculator {
         val points = if (groomVarna.value >= brideVarna.value) MatchmakingConstants.MAX_VARNA else 0.0
 
         val analysis = if (points > 0) {
-            StringResources.get(StringKey.VARNA_COMPATIBLE, language)
+            StringResources.get(StringKeyMatch.VARNA_COMPATIBLE, language)
                 .replace("{groom}", groomVarna.getLocalizedName(language))
                 .replace("{bride}", brideVarna.getLocalizedName(language))
         } else {
-            StringResources.get(StringKey.VARNA_INCOMPATIBLE, language)
+            StringResources.get(StringKeyMatch.VARNA_INCOMPATIBLE, language)
                 .replace("{bride}", brideVarna.getLocalizedName(language))
                 .replace("{groom}", groomVarna.getLocalizedName(language))
         }
@@ -80,7 +81,7 @@ object GunaMilanCalculator {
             name = "Varna",
             maxPoints = MatchmakingConstants.MAX_VARNA,
             obtainedPoints = points,
-            description = StringResources.get(StringKey.VARNA_DESC, language),
+            description = StringResources.get(StringKeyMatch.VARNA_DESC, language),
             brideValue = brideVarna.getLocalizedName(language),
             groomValue = groomVarna.getLocalizedName(language),
             analysis = analysis,
@@ -103,18 +104,18 @@ object GunaMilanCalculator {
         val points = calculateVashyaPoints(brideVashya, groomVashya, brideSign, groomSign)
 
         val analysisKey = when {
-            points >= 2.0 -> StringKey.VASHYA_EXCELLENT
-            points >= 1.5 -> StringKey.VASHYA_VERY_GOOD
-            points >= 1.0 -> StringKey.VASHYA_GOOD
-            points >= 0.5 -> StringKey.VASHYA_PARTIAL
-            else -> StringKey.VASHYA_INCOMPATIBLE
+            points >= 2.0 -> StringKeyMatch.VASHYA_EXCELLENT
+            points >= 1.5 -> StringKeyMatch.VASHYA_VERY_GOOD
+            points >= 1.0 -> StringKeyMatch.VASHYA_GOOD
+            points >= 0.5 -> StringKeyMatch.VASHYA_PARTIAL
+            else -> StringKeyMatch.VASHYA_INCOMPATIBLE
         }
 
         return GunaAnalysis(
             name = "Vashya",
             maxPoints = MatchmakingConstants.MAX_VASHYA,
             obtainedPoints = points,
-            description = StringResources.get(StringKey.VASHYA_DESC, language),
+            description = StringResources.get(StringKeyMatch.VASHYA_DESC, language),
             brideValue = "${brideVashya.getLocalizedName(language)} (${brideSign.getLocalizedName(language)})",
             groomValue = "${groomVashya.getLocalizedName(language)} (${groomSign.getLocalizedName(language)})",
             analysis = StringResources.get(analysisKey, language),
@@ -167,16 +168,16 @@ object GunaMilanCalculator {
         }
 
         val analysisKey = when {
-            points >= 3.0 -> StringKey.TARA_EXCELLENT
-            points >= 1.5 -> StringKey.TARA_MODERATE
-            else -> StringKey.TARA_INAUSPICIOUS
+            points >= 3.0 -> StringKeyMatch.TARA_EXCELLENT
+            points >= 1.5 -> StringKeyMatch.TARA_MODERATE
+            else -> StringKeyMatch.TARA_INAUSPICIOUS
         }
 
         return GunaAnalysis(
             name = "Tara",
             maxPoints = MatchmakingConstants.MAX_TARA,
             obtainedPoints = points,
-            description = StringResources.get(StringKey.TARA_DESC, language),
+            description = StringResources.get(StringKeyMatch.TARA_DESC, language),
             brideValue = "${brideNakshatra.getLocalizedName(language)} → $brideTara",
             groomValue = "${groomNakshatra.getLocalizedName(language)} → $groomTara",
             analysis = StringResources.get(analysisKey, language),
@@ -190,15 +191,15 @@ object GunaMilanCalculator {
     }
 
     private fun getTaraName(taraNumber: Int, language: Language): String = when (taraNumber) {
-        1 -> StringResources.get(StringKey.TARA_JANMA, language)
-        2 -> StringResources.get(StringKey.TARA_SAMPAT, language)
-        3 -> StringResources.get(StringKey.TARA_VIPAT, language)
-        4 -> StringResources.get(StringKey.TARA_KSHEMA, language)
-        5 -> StringResources.get(StringKey.TARA_PRATYARI, language)
-        6 -> StringResources.get(StringKey.TARA_SADHANA, language)
-        7 -> StringResources.get(StringKey.TARA_VADHA, language)
-        8 -> StringResources.get(StringKey.TARA_MITRA, language)
-        9 -> StringResources.get(StringKey.TARA_PARAMA_MITRA, language)
+        1 -> StringResources.get(StringKeyMatch.TARA_JANMA, language)
+        2 -> StringResources.get(StringKeyMatch.TARA_SAMPAT, language)
+        3 -> StringResources.get(StringKeyMatch.TARA_VIPAT, language)
+        4 -> StringResources.get(StringKeyMatch.TARA_KSHEMA, language)
+        5 -> StringResources.get(StringKeyMatch.TARA_PRATYARI, language)
+        6 -> StringResources.get(StringKeyMatch.TARA_SADHANA, language)
+        7 -> StringResources.get(StringKeyMatch.TARA_VADHA, language)
+        8 -> StringResources.get(StringKeyMatch.TARA_MITRA, language)
+        9 -> StringResources.get(StringKeyMatch.TARA_PARAMA_MITRA, language)
         else -> "Unknown"
     }
 
@@ -219,18 +220,18 @@ object GunaMilanCalculator {
         val points = calculateYoniPoints(brideYoni, groomYoni)
 
         val analysisKey = when {
-            points >= 4.0 -> StringKey.YONI_SAME
-            points >= 3.0 -> StringKey.YONI_FRIENDLY
-            points >= 2.0 -> StringKey.YONI_NEUTRAL
-            points >= 1.0 -> StringKey.YONI_UNFRIENDLY
-            else -> StringKey.YONI_ENEMY
+            points >= 4.0 -> StringKeyMatch.YONI_SAME
+            points >= 3.0 -> StringKeyMatch.YONI_FRIENDLY
+            points >= 2.0 -> StringKeyMatch.YONI_NEUTRAL
+            points >= 1.0 -> StringKeyMatch.YONI_UNFRIENDLY
+            else -> StringKeyMatch.YONI_ENEMY
         }
 
         return GunaAnalysis(
             name = "Yoni",
             maxPoints = MatchmakingConstants.MAX_YONI,
             obtainedPoints = points,
-            description = StringResources.get(StringKey.YONI_DESC, language),
+            description = StringResources.get(StringKeyMatch.YONI_DESC, language),
             brideValue = "${brideYoni.animal} (${brideYoni.gender})",
             groomValue = "${groomYoni.animal} (${groomYoni.gender})",
             analysis = StringResources.get(analysisKey, language),
@@ -269,18 +270,18 @@ object GunaMilanCalculator {
         val points = calculateGrahaMaitriPoints(brideLord, groomLord)
 
         val analysisKey = when {
-            points >= 5.0 -> StringKey.GRAHA_MAITRI_EXCELLENT
-            points >= 4.0 -> StringKey.GRAHA_MAITRI_VERY_GOOD
-            points >= 2.5 -> StringKey.GRAHA_MAITRI_AVERAGE
-            points >= 1.0 -> StringKey.GRAHA_MAITRI_FRICTION
-            else -> StringKey.GRAHA_MAITRI_INCOMPATIBLE
+            points >= 5.0 -> StringKeyMatch.GRAHA_MAITRI_EXCELLENT
+            points >= 4.0 -> StringKeyMatch.GRAHA_MAITRI_VERY_GOOD
+            points >= 2.5 -> StringKeyMatch.GRAHA_MAITRI_AVERAGE
+            points >= 1.0 -> StringKeyMatch.GRAHA_MAITRI_FRICTION
+            else -> StringKeyMatch.GRAHA_MAITRI_INCOMPATIBLE
         }
 
         return GunaAnalysis(
             name = "Graha Maitri",
             maxPoints = MatchmakingConstants.MAX_GRAHA_MAITRI,
             obtainedPoints = points,
-            description = StringResources.get(StringKey.GRAHA_MAITRI_DESC, language),
+            description = StringResources.get(StringKeyMatch.GRAHA_MAITRI_DESC, language),
             brideValue = "${brideSign.getLocalizedName(language)} (${brideLord.getLocalizedName(language)})",
             groomValue = "${groomSign.getLocalizedName(language)} (${groomLord.getLocalizedName(language)})",
             analysis = StringResources.get(analysisKey, language),
@@ -322,18 +323,18 @@ object GunaMilanCalculator {
         val points = calculateGanaPoints(brideGana, groomGana)
 
         val analysisKey = when {
-            points >= 6.0 -> StringKey.GANA_SAME
-            points >= 5.0 -> StringKey.GANA_COMPATIBLE
-            points >= 3.0 -> StringKey.GANA_PARTIAL
-            points >= 1.0 -> StringKey.GANA_DIFFERENT
-            else -> StringKey.GANA_OPPOSITE
+            points >= 6.0 -> StringKeyMatch.GANA_SAME
+            points >= 5.0 -> StringKeyMatch.GANA_COMPATIBLE
+            points >= 3.0 -> StringKeyMatch.GANA_PARTIAL
+            points >= 1.0 -> StringKeyMatch.GANA_DIFFERENT
+            else -> StringKeyMatch.GANA_OPPOSITE
         }
 
         return GunaAnalysis(
             name = "Gana",
             maxPoints = MatchmakingConstants.MAX_GANA,
             obtainedPoints = points,
-            description = StringResources.get(StringKey.GANA_DESC, language),
+            description = StringResources.get(StringKeyMatch.GANA_DESC, language),
             brideValue = "${brideGana.getLocalizedName(language)} (${brideGana.getLocalizedDescription(language)})",
             groomValue = "${groomGana.getLocalizedName(language)} (${groomGana.getLocalizedDescription(language)})",
             analysis = StringResources.get(analysisKey, language),
@@ -368,8 +369,8 @@ object GunaMilanCalculator {
         )
 
         val analysis = when (doshaType) {
-            "None" -> StringResources.get(StringKey.BHAKOOT_NO_DOSHA, language)
-            "Cancelled" -> "${StringResources.get(StringKey.BHAKOOT_CANCELLED, language)} - $doshaDescription"
+            "None" -> StringResources.get(StringKeyMatch.BHAKOOT_NO_DOSHA, language)
+            "Cancelled" -> "${StringResources.get(StringKeyMatch.BHAKOOT_CANCELLED, language)} - $doshaDescription"
             "2-12" -> "${StringResources.get(StringKey.BHAKOOT_2_12, language)} $doshaDescription"
             "6-8" -> "${StringResources.get(StringKey.BHAKOOT_6_8, language)} $doshaDescription"
             "5-9" -> "${StringResources.get(StringKey.BHAKOOT_5_9, language)} $doshaDescription"
@@ -380,7 +381,7 @@ object GunaMilanCalculator {
             name = "Bhakoot",
             maxPoints = MatchmakingConstants.MAX_BHAKOOT,
             obtainedPoints = points,
-            description = StringResources.get(StringKey.BHAKOOT_DESC, language),
+            description = StringResources.get(StringKeyMatch.BHAKOOT_DESC, language),
             brideValue = brideSign.getLocalizedName(language),
             groomValue = groomSign.getLocalizedName(language),
             analysis = analysis,
@@ -424,7 +425,7 @@ object GunaMilanCalculator {
             return Triple(7.0, "5-9", StringResources.get(StringKey.BHAKOOT_5_9_DESC, language))
         }
 
-        return Triple(7.0, "None", StringResources.get(StringKey.BHAKOOT_FAVORABLE, language))
+        return Triple(7.0, "None", StringResources.get(StringKeyMatch.BHAKOOT_FAVORABLE, language))
     }
 
     private fun checkBhakootDoshaCancellation(
@@ -437,7 +438,7 @@ object GunaMilanCalculator {
     ): String? {
         // Same lord cancels dosha
         if (brideLord == groomLord) {
-            return StringResources.get(StringKey.BHAKOOT_CANCEL_SAME_LORD, language)
+            return StringResources.get(StringKeyMatch.BHAKOOT_CANCEL_SAME_LORD, language)
                 .replace("{lord}", brideLord.getLocalizedName(language))
         }
 
@@ -445,7 +446,7 @@ object GunaMilanCalculator {
         val rel1 = PlanetaryFriendship.getRelationship(brideLord, groomLord)
         val rel2 = PlanetaryFriendship.getRelationship(groomLord, brideLord)
         if (rel1 == "Friend" && rel2 == "Friend") {
-            return StringResources.get(StringKey.BHAKOOT_CANCEL_MUTUAL_FRIENDS, language)
+            return StringResources.get(StringKeyMatch.BHAKOOT_CANCEL_MUTUAL_FRIENDS, language)
                 .replace("{lord1}", brideLord.getLocalizedName(language))
                 .replace("{lord2}", groomLord.getLocalizedName(language))
         }
@@ -454,19 +455,19 @@ object GunaMilanCalculator {
         val brideLordExaltSign = getExaltationSign(brideLord)
         val groomLordExaltSign = getExaltationSign(groomLord)
         if (brideLordExaltSign == groomSign || groomLordExaltSign == brideSign) {
-            return StringResources.get(StringKey.BHAKOOT_CANCEL_EXALTATION, language)
+            return StringResources.get(StringKeyMatch.BHAKOOT_CANCEL_EXALTATION, language)
         }
 
         // Friendly disposition (partial)
         if ((rel1 == "Friend" && rel2 == "Neutral") || (rel1 == "Neutral" && rel2 == "Friend")) {
-            return StringResources.get(StringKey.BHAKOOT_CANCEL_FRIENDLY, language)
+            return StringResources.get(StringKeyMatch.BHAKOOT_CANCEL_FRIENDLY, language)
         }
 
         // Same element cancellation
         val brideElement = getSignElement(brideSign)
         val groomElement = getSignElement(groomSign)
         if (brideElement == groomElement) {
-            return StringResources.get(StringKey.BHAKOOT_CANCEL_ELEMENT, language).replace("{element}", brideElement)
+            return StringResources.get(StringKeyMatch.BHAKOOT_CANCEL_ELEMENT, language).replace("{element}", brideElement)
         }
 
         return null
@@ -522,10 +523,10 @@ object GunaMilanCalculator {
         }
 
         val analysis = when {
-            hasDosha -> StringResources.get(StringKey.NADI_DOSHA_PRESENT, language)
+            hasDosha -> StringResources.get(StringKeyMatch.NADI_DOSHA_PRESENT, language)
                 .replace("{nadi}", brideNadi.getLocalizedName(language))
-            cancellationReason != null -> "${StringResources.get(StringKey.NADI_DOSHA_CANCELLED, language)} $cancellationReason"
-            else -> StringResources.get(StringKey.NADI_DIFFERENT, language)
+            cancellationReason != null -> "${StringResources.get(StringKeyMatch.NADI_DOSHA_CANCELLED, language)} $cancellationReason"
+            else -> StringResources.get(StringKeyMatch.NADI_DIFFERENT, language)
                 .replace("{nadi1}", brideNadi.getLocalizedName(language))
                 .replace("{nadi2}", groomNadi.getLocalizedName(language))
         }
@@ -534,7 +535,7 @@ object GunaMilanCalculator {
             name = "Nadi",
             maxPoints = MatchmakingConstants.MAX_NADI,
             obtainedPoints = points,
-            description = StringResources.get(StringKey.NADI_DESC, language),
+            description = StringResources.get(StringKeyMatch.NADI_DESC, language),
             brideValue = brideNadi.getLocalizedName(language),
             groomValue = groomNadi.getLocalizedName(language),
             analysis = analysis,
@@ -553,19 +554,19 @@ object GunaMilanCalculator {
     ): String? {
         // Same Nakshatra with different Rashi - strongest cancellation
         if (brideNakshatra == groomNakshatra && brideMoonSign != groomMoonSign) {
-            return StringResources.get(StringKey.NADI_CANCEL_SAME_NAK_DIFF_RASHI, language)
+            return StringResources.get(StringKeyMatch.NADI_CANCEL_SAME_NAK_DIFF_RASHI, language)
                 .replace("{nakshatra}", brideNakshatra.getLocalizedName(language))
         }
 
         // Same Rashi with different Nakshatra
         if (brideMoonSign == groomMoonSign && brideNakshatra != groomNakshatra) {
-            return StringResources.get(StringKey.NADI_CANCEL_SAME_RASHI_DIFF_NAK, language)
+            return StringResources.get(StringKeyMatch.NADI_CANCEL_SAME_RASHI_DIFF_NAK, language)
                 .replace("{rashi}", brideMoonSign.getLocalizedName(language))
         }
 
         // Same Nakshatra, same Rashi but different Pada
         if (brideNakshatra == groomNakshatra && brideMoonSign == groomMoonSign && bridePada != groomPada) {
-            return StringResources.get(StringKey.NADI_CANCEL_DIFF_PADA, language)
+            return StringResources.get(StringKeyMatch.NADI_CANCEL_DIFF_PADA, language)
                 .replace("{pada1}", bridePada.toString())
                 .replace("{pada2}", groomPada.toString())
         }
@@ -573,7 +574,7 @@ object GunaMilanCalculator {
         // Special Nakshatra pairs that cancel
         for (pair in Nadi.cancellingPairs) {
             if (pair.contains(brideNakshatra) && pair.contains(groomNakshatra)) {
-                return StringResources.get(StringKey.NADI_CANCEL_SPECIAL_PAIR, language)
+                return StringResources.get(StringKeyMatch.NADI_CANCEL_SPECIAL_PAIR, language)
                     .replace("{nak1}", brideNakshatra.getLocalizedName(language))
                     .replace("{nak2}", groomNakshatra.getLocalizedName(language))
             }
@@ -586,7 +587,7 @@ object GunaMilanCalculator {
             val rel1 = PlanetaryFriendship.getRelationship(brideLord, groomLord)
             val rel2 = PlanetaryFriendship.getRelationship(groomLord, brideLord)
             if (rel1 == "Friend" && rel2 == "Friend") {
-                return StringResources.get(StringKey.NADI_CANCEL_LORDS_FRIENDS, language)
+                return StringResources.get(StringKeyMatch.NADI_CANCEL_LORDS_FRIENDS, language)
                     .replace("{lord1}", brideLord.getLocalizedName(language))
                     .replace("{lord2}", groomLord.getLocalizedName(language))
             }
@@ -594,7 +595,7 @@ object GunaMilanCalculator {
 
         // Same Nakshatra ruler
         if (brideNakshatra.ruler == groomNakshatra.ruler) {
-            return StringResources.get(StringKey.NADI_CANCEL_SAME_NAK_LORD, language)
+            return StringResources.get(StringKeyMatch.NADI_CANCEL_SAME_NAK_LORD, language)
                 .replace("{lord}", brideNakshatra.ruler.getLocalizedName(language))
         }
 

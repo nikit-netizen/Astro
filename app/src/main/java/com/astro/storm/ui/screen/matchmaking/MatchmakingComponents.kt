@@ -36,6 +36,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyMatch
 import com.astro.storm.data.localization.stringResource
 import com.astro.storm.data.model.CompatibilityRating
 import com.astro.storm.data.model.GunaAnalysis
@@ -192,7 +193,7 @@ fun ProfileCard(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                chart?.birthData?.name ?: stringResource(StringKey.MATCH_TAP_TO_SELECT),
+                chart?.birthData?.name ?: stringResource(StringKeyMatch.MATCH_TAP_TO_SELECT),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = if (chart != null) FontWeight.SemiBold else FontWeight.Normal,
                 color = if (chart != null) AppTheme.TextPrimary else AppTheme.TextSubtle,
@@ -236,7 +237,7 @@ fun ConnectionIndicator(
         if (isConnected) {
             Icon(
                 Icons.Filled.Favorite,
-                contentDescription = stringResource(StringKey.MATCH_CONNECTED),
+                contentDescription = stringResource(StringKeyMatch.MATCH_CONNECTED),
                 tint = AppTheme.LifeAreaLove,
                 modifier = Modifier
                     .size(28.dp)
@@ -245,7 +246,7 @@ fun ConnectionIndicator(
         } else {
             Icon(
                 Icons.Outlined.FavoriteBorder,
-                contentDescription = stringResource(StringKey.MATCH_NOT_CONNECTED),
+                contentDescription = stringResource(StringKeyMatch.MATCH_NOT_CONNECTED),
                 tint = AppTheme.TextSubtle,
                 modifier = Modifier.size(24.dp)
             )
@@ -317,7 +318,7 @@ fun CompatibilityScoreCard(
                             color = AppTheme.TextPrimary
                         )
                         Text(
-                            text = stringResource(StringKey.MATCH_OUT_OF, result.maxPoints.toInt()),
+                            text = stringResource(StringKeyMatch.MATCH_OUT_OF, result.maxPoints.toInt()),
                             style = MaterialTheme.typography.bodySmall,
                             color = AppTheme.TextMuted
                         )
@@ -362,7 +363,7 @@ fun CompatibilityScoreCard(
                         )) {
                             append(String.format("%.1f%%", result.percentage))
                         }
-                        append(" ${stringResource(StringKey.MATCH_COMPATIBILITY)}")
+                        append(" ${stringResource(StringKeyMatch.MATCH_COMPATIBILITY)}")
                     },
                     style = MaterialTheme.typography.bodyLarge,
                     color = AppTheme.TextSecondary
@@ -631,14 +632,14 @@ fun CalculatingState() {
             }
             Spacer(modifier = Modifier.height(20.dp))
             Text(
-                stringResource(StringKey.MATCH_ANALYZING_COMPATIBILITY),
+                stringResource(StringKeyMatch.MATCH_ANALYZING_COMPATIBILITY),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 color = AppTheme.TextPrimary
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                stringResource(StringKey.MATCH_CALCULATING_DOSHAS),
+                stringResource(StringKeyMatch.MATCH_CALCULATING_DOSHAS),
                 style = MaterialTheme.typography.bodySmall,
                 color = AppTheme.TextMuted
             )
@@ -676,7 +677,7 @@ fun ErrorCard(
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    stringResource(StringKey.MATCH_CALCULATION_ERROR),
+                    stringResource(StringKeyMatch.MATCH_CALCULATION_ERROR),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
                     color = AppTheme.ErrorColor
@@ -729,7 +730,7 @@ fun ManglikPersonCard(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            if (label == stringResource(StringKey.MATCH_BRIDE)) Icons.Filled.Female else Icons.Filled.Male,
+                            if (label == stringResource(StringKeyMatch.MATCH_BRIDE)) Icons.Filled.Female else Icons.Filled.Male,
                             contentDescription = null,
                             tint = accentColor,
                             modifier = Modifier.size(22.dp)
@@ -745,7 +746,7 @@ fun ManglikPersonCard(
                         )
                         if (analysis.marsHouse > 0) {
                             Text(
-                                stringResource(StringKey.MATCH_MARS_IN_HOUSE, analysis.marsHouse),
+                                stringResource(StringKeyMatch.MATCH_MARS_IN_HOUSE, analysis.marsHouse),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = AppTheme.TextMuted
                             )
@@ -777,7 +778,7 @@ fun ManglikPersonCard(
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(
-                            stringResource(StringKey.MATCH_CONTRIBUTING_FACTORS),
+                            stringResource(StringKeyMatch.MATCH_CONTRIBUTING_FACTORS),
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.SemiBold,
                             color = AppTheme.WarningColor
@@ -804,7 +805,7 @@ fun ManglikPersonCard(
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(
-                            stringResource(StringKey.MATCH_CANCELLATION_FACTORS),
+                            stringResource(StringKeyMatch.MATCH_CANCELLATION_FACTORS),
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.SemiBold,
                             color = AppTheme.SuccessColor

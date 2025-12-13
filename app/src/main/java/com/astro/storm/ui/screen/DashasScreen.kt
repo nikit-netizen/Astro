@@ -55,6 +55,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.astro.storm.data.localization.Language
 import com.astro.storm.data.localization.LocalLanguage
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyMatch
 import com.astro.storm.data.localization.getLocalizedName
 import com.astro.storm.data.localization.stringResource
 import com.astro.storm.data.model.VedicChart
@@ -89,7 +90,7 @@ fun DashasScreen(
         containerColor = AppTheme.ScreenBackground,
         topBar = {
             DashasTopBar(
-                chartName = chart?.birthData?.name ?: stringResource(StringKey.MISC_UNKNOWN),
+                chartName = chart?.birthData?.name ?: stringResource(StringKeyMatch.MISC_UNKNOWN),
                 currentPeriodInfo = currentPeriodInfo,
                 onBack = onBack,
                 showJumpToToday = uiState is DashaUiState.Success,

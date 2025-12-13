@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyMatch
 import com.astro.storm.data.localization.stringResource
 import com.astro.storm.ui.theme.AppTheme
 
@@ -176,7 +177,7 @@ fun InfoCard(
  */
 @Composable
 fun LoadingState(
-    message: String = stringResource(StringKey.MISC_LOADING),
+    message: String = stringResource(StringKeyMatch.MISC_LOADING),
     modifier: Modifier = Modifier
 ) {
     Box(

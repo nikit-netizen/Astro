@@ -118,6 +118,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.astro.storm.data.model.VedicChart
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyMatch
 import com.astro.storm.data.localization.stringResource
 import com.astro.storm.ephemeris.PrashnaCalculator
 import com.astro.storm.ui.theme.AppTheme
@@ -219,7 +220,7 @@ fun PrashnaScreen(
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(StringKey.NAV_BACK),
+                            contentDescription = stringResource(StringKeyMatch.NAV_BACK),
                             tint = AppTheme.TextPrimary
                         )
                     }
@@ -739,7 +740,7 @@ private fun PrashnaInstructionsCard() {
                 }
                 Icon(
                     Icons.Filled.ExpandMore,
-                    contentDescription = if (isExpanded) stringResource(StringKey.MISC_COLLAPSE) else stringResource(StringKey.MISC_EXPAND),
+                    contentDescription = if (isExpanded) stringResource(StringKeyMatch.MISC_COLLAPSE) else stringResource(StringKeyMatch.MISC_EXPAND),
                     tint = AppTheme.TextMuted,
                     modifier = Modifier
                         .size(24.dp)

@@ -3,6 +3,7 @@ package com.astro.storm.ephemeris
 import android.content.Context
 import com.astro.storm.data.localization.Language
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyAnalysis
 import com.astro.storm.data.localization.StringResources
 import com.astro.storm.data.model.*
 import swisseph.SweConst
@@ -233,32 +234,32 @@ class VarshaphalaCalculator(context: Context) {
         val descriptionKey: StringKey,
         val isPositive: Boolean
     ) {
-        ITHASALA(StringKey.TAJIKA_ITHASALA, StringKey.TAJIKA_ITHASALA_DESC, true),
-        EASARAPHA(StringKey.TAJIKA_EASARAPHA, StringKey.TAJIKA_EASARAPHA_DESC, false),
-        NAKTA(StringKey.TAJIKA_NAKTA, StringKey.TAJIKA_NAKTA_DESC, true),
-        YAMAYA(StringKey.TAJIKA_YAMAYA, StringKey.TAJIKA_YAMAYA_DESC, true),
-        MANAU(StringKey.TAJIKA_MANAU, StringKey.TAJIKA_MANAU_DESC, false),
-        KAMBOOLA(StringKey.TAJIKA_KAMBOOLA, StringKey.TAJIKA_KAMBOOLA_DESC, true),
-        GAIRI_KAMBOOLA(StringKey.TAJIKA_GAIRI_KAMBOOLA, StringKey.TAJIKA_GAIRI_KAMBOOLA_DESC, true),
-        KHALASARA(StringKey.TAJIKA_KHALASARA, StringKey.TAJIKA_KHALASARA_DESC, false),
-        RADDA(StringKey.TAJIKA_RADDA, StringKey.TAJIKA_RADDA_DESC, false),
-        DUHPHALI_KUTTHA(StringKey.TAJIKA_DUHPHALI_KUTTHA, StringKey.TAJIKA_DUHPHALI_KUTTHA_DESC, false),
-        TAMBIRA(StringKey.TAJIKA_TAMBIRA, StringKey.TAJIKA_TAMBIRA_DESC, true),
-        KUTTHA(StringKey.TAJIKA_KUTTHA, StringKey.TAJIKA_KUTTHA_DESC, false),
-        DURAPHA(StringKey.TAJIKA_DURAPHA, StringKey.TAJIKA_DURAPHA_DESC, false),
-        MUTHASHILA(StringKey.TAJIKA_MUTHASHILA, StringKey.TAJIKA_MUTHASHILA_DESC, true),
-        IKKABALA(StringKey.TAJIKA_IKKABALA, StringKey.TAJIKA_IKKABALA_DESC, true);
+        ITHASALA(StringKeyAnalysis.TAJIKA_ITHASALA, StringKeyAnalysis.TAJIKA_ITHASALA_DESC, true),
+        EASARAPHA(StringKeyAnalysis.TAJIKA_EASARAPHA, StringKeyAnalysis.TAJIKA_EASARAPHA_DESC, false),
+        NAKTA(StringKeyAnalysis.TAJIKA_NAKTA, StringKeyAnalysis.TAJIKA_NAKTA_DESC, true),
+        YAMAYA(StringKeyAnalysis.TAJIKA_YAMAYA, StringKeyAnalysis.TAJIKA_YAMAYA_DESC, true),
+        MANAU(StringKeyAnalysis.TAJIKA_MANAU, StringKeyAnalysis.TAJIKA_MANAU_DESC, false),
+        KAMBOOLA(StringKeyAnalysis.TAJIKA_KAMBOOLA, StringKeyAnalysis.TAJIKA_KAMBOOLA_DESC, true),
+        GAIRI_KAMBOOLA(StringKeyAnalysis.TAJIKA_GAIRI_KAMBOOLA, StringKeyAnalysis.TAJIKA_GAIRI_KAMBOOLA_DESC, true),
+        KHALASARA(StringKeyAnalysis.TAJIKA_KHALASARA, StringKeyAnalysis.TAJIKA_KHALASARA_DESC, false),
+        RADDA(StringKeyAnalysis.TAJIKA_RADDA, StringKeyAnalysis.TAJIKA_RADDA_DESC, false),
+        DUHPHALI_KUTTHA(StringKeyAnalysis.TAJIKA_DUHPHALI_KUTTHA, StringKeyAnalysis.TAJIKA_DUHPHALI_KUTTHA_DESC, false),
+        TAMBIRA(StringKeyAnalysis.TAJIKA_TAMBIRA, StringKeyAnalysis.TAJIKA_TAMBIRA_DESC, true),
+        KUTTHA(StringKeyAnalysis.TAJIKA_KUTTHA, StringKeyAnalysis.TAJIKA_KUTTHA_DESC, false),
+        DURAPHA(StringKeyAnalysis.TAJIKA_DURAPHA, StringKeyAnalysis.TAJIKA_DURAPHA_DESC, false),
+        MUTHASHILA(StringKeyAnalysis.TAJIKA_MUTHASHILA, StringKeyAnalysis.TAJIKA_MUTHASHILA_DESC, true),
+        IKKABALA(StringKeyAnalysis.TAJIKA_IKKABALA, StringKeyAnalysis.TAJIKA_IKKABALA_DESC, true);
 
         fun getDisplayName(language: Language): String = StringResources.get(displayNameKey, language)
         fun getDescription(language: Language): String = StringResources.get(descriptionKey, language)
     }
 
     enum class AspectStrength(val displayNameKey: StringKey, val weight: Double) {
-        VERY_STRONG(StringKey.ASPECT_VERY_STRONG, 1.0),
-        STRONG(StringKey.ASPECT_STRONG, 0.8),
-        MODERATE(StringKey.ASPECT_MODERATE, 0.6),
-        WEAK(StringKey.ASPECT_WEAK, 0.4),
-        VERY_WEAK(StringKey.ASPECT_VERY_WEAK, 0.2);
+        VERY_STRONG(StringKeyAnalysis.ASPECT_VERY_STRONG, 1.0),
+        STRONG(StringKeyAnalysis.ASPECT_STRONG, 0.8),
+        MODERATE(StringKeyAnalysis.ASPECT_MODERATE, 0.6),
+        WEAK(StringKeyAnalysis.ASPECT_WEAK, 0.4),
+        VERY_WEAK(StringKeyAnalysis.ASPECT_VERY_WEAK, 0.2);
 
         fun getDisplayName(language: Language): String = StringResources.get(displayNameKey, language)
     }
@@ -268,26 +269,26 @@ class VarshaphalaCalculator(context: Context) {
         val sanskritNameKey: StringKey,
         val descriptionKey: StringKey
     ) {
-        PUNYA(StringKey.SAHAM_PUNYA, StringKey.SAHAM_PUNYA_SANSKRIT, StringKey.SAHAM_PUNYA_DESC),
-        VIDYA(StringKey.SAHAM_VIDYA, StringKey.SAHAM_VIDYA_SANSKRIT, StringKey.SAHAM_VIDYA_DESC),
-        YASHAS(StringKey.SAHAM_YASHAS, StringKey.SAHAM_YASHAS_SANSKRIT, StringKey.SAHAM_YASHAS_DESC),
-        MITRA(StringKey.SAHAM_MITRA, StringKey.SAHAM_MITRA_SANSKRIT, StringKey.SAHAM_MITRA_DESC),
-        MAHATMYA(StringKey.SAHAM_MAHATMYA, StringKey.SAHAM_MAHATMYA_SANSKRIT, StringKey.SAHAM_MAHATMYA_DESC),
-        ASHA(StringKey.SAHAM_ASHA, StringKey.SAHAM_ASHA_SANSKRIT, StringKey.SAHAM_ASHA_DESC),
-        SAMARTHA(StringKey.SAHAM_SAMARTHA, StringKey.SAHAM_SAMARTHA_SANSKRIT, StringKey.SAHAM_SAMARTHA_DESC),
-        BHRATRI(StringKey.SAHAM_BHRATRI, StringKey.SAHAM_BHRATRI_SANSKRIT, StringKey.SAHAM_BHRATRI_DESC),
-        PITRI(StringKey.SAHAM_PITRI, StringKey.SAHAM_PITRI_SANSKRIT, StringKey.SAHAM_PITRI_DESC),
-        MATRI(StringKey.SAHAM_MATRI, StringKey.SAHAM_MATRI_SANSKRIT, StringKey.SAHAM_MATRI_DESC),
-        PUTRA(StringKey.SAHAM_PUTRA, StringKey.SAHAM_PUTRA_SANSKRIT, StringKey.SAHAM_PUTRA_DESC),
-        VIVAHA(StringKey.SAHAM_VIVAHA, StringKey.SAHAM_VIVAHA_SANSKRIT, StringKey.SAHAM_VIVAHA_DESC),
-        KARMA(StringKey.SAHAM_KARMA, StringKey.SAHAM_KARMA_SANSKRIT, StringKey.SAHAM_KARMA_DESC),
-        ROGA(StringKey.SAHAM_ROGA, StringKey.SAHAM_ROGA_SANSKRIT, StringKey.SAHAM_ROGA_DESC),
-        MRITYU(StringKey.SAHAM_MRITYU, StringKey.SAHAM_MRITYU_SANSKRIT, StringKey.SAHAM_MRITYU_DESC),
-        PARADESA(StringKey.SAHAM_PARADESA, StringKey.SAHAM_PARADESA_SANSKRIT, StringKey.SAHAM_PARADESA_DESC),
-        DHANA(StringKey.SAHAM_DHANA, StringKey.SAHAM_DHANA_SANSKRIT, StringKey.SAHAM_DHANA_DESC),
-        RAJA(StringKey.SAHAM_RAJA, StringKey.SAHAM_RAJA_SANSKRIT, StringKey.SAHAM_RAJA_DESC),
-        BANDHANA(StringKey.SAHAM_BANDHANA, StringKey.SAHAM_BANDHANA_SANSKRIT, StringKey.SAHAM_BANDHANA_DESC),
-        KARYASIDDHI(StringKey.SAHAM_KARYASIDDHI_TYPE, StringKey.SAHAM_KARYASIDDHI_TYPE_SANSKRIT, StringKey.SAHAM_KARYASIDDHI_TYPE_DESC);
+        PUNYA(StringKeyAnalysis.SAHAM_PUNYA, StringKeyAnalysis.SAHAM_PUNYA_SANSKRIT, StringKeyAnalysis.SAHAM_PUNYA_DESC),
+        VIDYA(StringKeyAnalysis.SAHAM_VIDYA, StringKeyAnalysis.SAHAM_VIDYA_SANSKRIT, StringKeyAnalysis.SAHAM_VIDYA_DESC),
+        YASHAS(StringKeyAnalysis.SAHAM_YASHAS, StringKeyAnalysis.SAHAM_YASHAS_SANSKRIT, StringKeyAnalysis.SAHAM_YASHAS_DESC),
+        MITRA(StringKeyAnalysis.SAHAM_MITRA, StringKeyAnalysis.SAHAM_MITRA_SANSKRIT, StringKeyAnalysis.SAHAM_MITRA_DESC),
+        MAHATMYA(StringKeyAnalysis.SAHAM_MAHATMYA, StringKeyAnalysis.SAHAM_MAHATMYA_SANSKRIT, StringKeyAnalysis.SAHAM_MAHATMYA_DESC),
+        ASHA(StringKeyAnalysis.SAHAM_ASHA, StringKeyAnalysis.SAHAM_ASHA_SANSKRIT, StringKeyAnalysis.SAHAM_ASHA_DESC),
+        SAMARTHA(StringKeyAnalysis.SAHAM_SAMARTHA, StringKeyAnalysis.SAHAM_SAMARTHA_SANSKRIT, StringKeyAnalysis.SAHAM_SAMARTHA_DESC),
+        BHRATRI(StringKeyAnalysis.SAHAM_BHRATRI, StringKeyAnalysis.SAHAM_BHRATRI_SANSKRIT, StringKeyAnalysis.SAHAM_BHRATRI_DESC),
+        PITRI(StringKeyAnalysis.SAHAM_PITRI, StringKeyAnalysis.SAHAM_PITRI_SANSKRIT, StringKeyAnalysis.SAHAM_PITRI_DESC),
+        MATRI(StringKeyAnalysis.SAHAM_MATRI, StringKeyAnalysis.SAHAM_MATRI_SANSKRIT, StringKeyAnalysis.SAHAM_MATRI_DESC),
+        PUTRA(StringKeyAnalysis.SAHAM_PUTRA, StringKeyAnalysis.SAHAM_PUTRA_SANSKRIT, StringKeyAnalysis.SAHAM_PUTRA_DESC),
+        VIVAHA(StringKeyAnalysis.SAHAM_VIVAHA, StringKeyAnalysis.SAHAM_VIVAHA_SANSKRIT, StringKeyAnalysis.SAHAM_VIVAHA_DESC),
+        KARMA(StringKeyAnalysis.SAHAM_KARMA, StringKeyAnalysis.SAHAM_KARMA_SANSKRIT, StringKeyAnalysis.SAHAM_KARMA_DESC),
+        ROGA(StringKeyAnalysis.SAHAM_ROGA, StringKeyAnalysis.SAHAM_ROGA_SANSKRIT, StringKeyAnalysis.SAHAM_ROGA_DESC),
+        MRITYU(StringKeyAnalysis.SAHAM_MRITYU, StringKeyAnalysis.SAHAM_MRITYU_SANSKRIT, StringKeyAnalysis.SAHAM_MRITYU_DESC),
+        PARADESA(StringKeyAnalysis.SAHAM_PARADESA, StringKeyAnalysis.SAHAM_PARADESA_SANSKRIT, StringKeyAnalysis.SAHAM_PARADESA_DESC),
+        DHANA(StringKeyAnalysis.SAHAM_DHANA, StringKeyAnalysis.SAHAM_DHANA_SANSKRIT, StringKeyAnalysis.SAHAM_DHANA_DESC),
+        RAJA(StringKeyAnalysis.SAHAM_RAJA, StringKeyAnalysis.SAHAM_RAJA_SANSKRIT, StringKeyAnalysis.SAHAM_RAJA_DESC),
+        BANDHANA(StringKeyAnalysis.SAHAM_BANDHANA, StringKeyAnalysis.SAHAM_BANDHANA_SANSKRIT, StringKeyAnalysis.SAHAM_BANDHANA_DESC),
+        KARYASIDDHI(StringKeyAnalysis.SAHAM_KARYASIDDHI_TYPE, StringKeyAnalysis.SAHAM_KARYASIDDHI_TYPE_SANSKRIT, StringKeyAnalysis.SAHAM_KARYASIDDHI_TYPE_DESC);
 
         fun getDisplayName(language: Language): String = StringResources.get(displayNameKey, language)
         fun getSanskritName(language: Language): String = StringResources.get(sanskritNameKey, language)
@@ -295,10 +296,10 @@ class VarshaphalaCalculator(context: Context) {
     }
 
     enum class KeyDateType(val displayNameKey: StringKey) {
-        FAVORABLE(StringKey.KEY_DATE_FAVORABLE),
-        CHALLENGING(StringKey.KEY_DATE_CHALLENGING),
-        IMPORTANT(StringKey.KEY_DATE_IMPORTANT),
-        TRANSIT(StringKey.KEY_DATE_TRANSIT);
+        FAVORABLE(StringKeyAnalysis.KEY_DATE_FAVORABLE),
+        CHALLENGING(StringKeyAnalysis.KEY_DATE_CHALLENGING),
+        IMPORTANT(StringKeyAnalysis.KEY_DATE_IMPORTANT),
+        TRANSIT(StringKeyAnalysis.KEY_DATE_TRANSIT);
 
         fun getDisplayName(language: Language): String = StringResources.get(displayNameKey, language)
     }
@@ -466,37 +467,37 @@ class VarshaphalaCalculator(context: Context) {
         val timestamp: Long = System.currentTimeMillis()
     ) {
         fun toPlainText(language: Language = Language.ENGLISH): String = buildString {
-            val reportTitle = StringResources.get(StringKey.VARSHA_REPORT_TITLE, language)
-            val yearLordSection = StringResources.get(StringKey.VARSHA_REPORT_SECTION_YEARLORD, language)
-            val munthaSection = StringResources.get(StringKey.VARSHA_REPORT_SECTION_MUNTHA, language)
-            val themesSection = StringResources.get(StringKey.VARSHA_REPORT_SECTION_THEMES, language)
-            val muddaDashaSection = StringResources.get(StringKey.VARSHA_REPORT_SECTION_MUDDA, language)
-            val predictionSection = StringResources.get(StringKey.VARSHA_REPORT_SECTION_PREDICTION, language)
-            val currentMarker = StringResources.get(StringKey.VARSHA_REPORT_CURRENT_MARKER, language)
-            val footer = StringResources.get(StringKey.VARSHA_REPORT_FOOTER, language)
+            val reportTitle = StringResources.get(StringKeyAnalysis.VARSHA_REPORT_TITLE, language)
+            val yearLordSection = StringResources.get(StringKeyAnalysis.VARSHA_REPORT_SECTION_YEARLORD, language)
+            val munthaSection = StringResources.get(StringKeyAnalysis.VARSHA_REPORT_SECTION_MUNTHA, language)
+            val themesSection = StringResources.get(StringKeyAnalysis.VARSHA_REPORT_SECTION_THEMES, language)
+            val muddaDashaSection = StringResources.get(StringKeyAnalysis.VARSHA_REPORT_SECTION_MUDDA, language)
+            val predictionSection = StringResources.get(StringKeyAnalysis.VARSHA_REPORT_SECTION_PREDICTION, language)
+            val currentMarker = StringResources.get(StringKeyAnalysis.VARSHA_REPORT_CURRENT_MARKER, language)
+            val footer = StringResources.get(StringKeyAnalysis.VARSHA_REPORT_FOOTER, language)
 
             appendLine("═══════════════════════════════════════════════════════════")
             appendLine("            $reportTitle")
             appendLine("═══════════════════════════════════════════════════════════")
             appendLine()
-            appendLine(StringResources.get(StringKey.VARSHA_REPORT_NAME, language, natalChart.birthData.name))
-            appendLine(StringResources.get(StringKey.VARSHA_REPORT_YEAR, language, year, age))
-            appendLine(StringResources.get(StringKey.VARSHA_REPORT_SOLAR_RETURN, language, solarReturnChart.solarReturnTime.toString()))
-            appendLine(StringResources.get(StringKey.VARSHA_REPORT_YEAR_RATING, language, String.format("%.1f", yearRating)))
+            appendLine(StringResources.get(StringKeyAnalysis.VARSHA_REPORT_NAME, language, natalChart.birthData.name))
+            appendLine(StringResources.get(StringKeyAnalysis.VARSHA_REPORT_YEAR, language, year, age))
+            appendLine(StringResources.get(StringKeyAnalysis.VARSHA_REPORT_SOLAR_RETURN, language, solarReturnChart.solarReturnTime.toString()))
+            appendLine(StringResources.get(StringKeyAnalysis.VARSHA_REPORT_YEAR_RATING, language, String.format("%.1f", yearRating)))
             appendLine()
             appendLine("─────────────────────────────────────────────────────────")
             appendLine("                      $yearLordSection")
             appendLine("─────────────────────────────────────────────────────────")
-            appendLine(StringResources.get(StringKey.VARSHA_REPORT_YEARLORD_LINE, language, yearLord.getLocalizedName(language), yearLordStrength))
-            appendLine(StringResources.get(StringKey.VARSHA_REPORT_POSITION, language, yearLordHouse))
+            appendLine(StringResources.get(StringKeyAnalysis.VARSHA_REPORT_YEARLORD_LINE, language, yearLord.getLocalizedName(language), yearLordStrength))
+            appendLine(StringResources.get(StringKeyAnalysis.VARSHA_REPORT_POSITION, language, yearLordHouse))
             appendLine(yearLordDignity)
             appendLine()
             appendLine("─────────────────────────────────────────────────────────")
             appendLine("                       $munthaSection")
             appendLine("─────────────────────────────────────────────────────────")
-            appendLine(StringResources.get(StringKey.VARSHA_REPORT_MUNTHA_POSITION, language, String.format("%.2f", muntha.degree), muntha.sign.getLocalizedName(language)))
-            appendLine(StringResources.get(StringKey.VARSHA_REPORT_MUNTHA_HOUSE, language, muntha.house))
-            appendLine(StringResources.get(StringKey.VARSHA_REPORT_MUNTHA_LORD, language, muntha.lord.getLocalizedName(language), muntha.lordHouse))
+            appendLine(StringResources.get(StringKeyAnalysis.VARSHA_REPORT_MUNTHA_POSITION, language, String.format("%.2f", muntha.degree), muntha.sign.getLocalizedName(language)))
+            appendLine(StringResources.get(StringKeyAnalysis.VARSHA_REPORT_MUNTHA_HOUSE, language, muntha.house))
+            appendLine(StringResources.get(StringKeyAnalysis.VARSHA_REPORT_MUNTHA_LORD, language, muntha.lord.getLocalizedName(language), muntha.lordHouse))
             appendLine(muntha.interpretation)
             appendLine()
             appendLine("─────────────────────────────────────────────────────────")
@@ -509,7 +510,7 @@ class VarshaphalaCalculator(context: Context) {
             appendLine("─────────────────────────────────────────────────────────")
             muddaDasha.forEach { period ->
                 val marker = if (period.isCurrent) currentMarker else ""
-                appendLine(StringResources.get(StringKey.VARSHA_REPORT_DASHA_LINE, language,
+                appendLine(StringResources.get(StringKeyAnalysis.VARSHA_REPORT_DASHA_LINE, language,
                     period.planet.getLocalizedName(language),
                     period.startDate.toString(),
                     period.endDate.toString(),
@@ -518,8 +519,8 @@ class VarshaphalaCalculator(context: Context) {
             }
             appendLine()
             appendLine("─────────────────────────────────────────────────────────")
-            appendLine(StringResources.get(StringKey.VARSHA_REPORT_FAVORABLE_MONTHS, language, favorableMonths.joinToString()))
-            appendLine(StringResources.get(StringKey.VARSHA_REPORT_CHALLENGING_MONTHS, language, challengingMonths.joinToString()))
+            appendLine(StringResources.get(StringKeyAnalysis.VARSHA_REPORT_FAVORABLE_MONTHS, language, favorableMonths.joinToString()))
+            appendLine(StringResources.get(StringKeyAnalysis.VARSHA_REPORT_CHALLENGING_MONTHS, language, challengingMonths.joinToString()))
             appendLine("─────────────────────────────────────────────────────────")
             appendLine()
             appendLine("                   $predictionSection")

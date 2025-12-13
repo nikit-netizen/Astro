@@ -33,6 +33,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.astro.storm.data.localization.Language
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyDosha
+import com.astro.storm.data.localization.StringKeyAnalysis
+import com.astro.storm.data.localization.StringKeyMatch
 import com.astro.storm.data.localization.StringResources
 import com.astro.storm.data.localization.currentLanguage
 import com.astro.storm.data.localization.stringResource
@@ -61,7 +64,7 @@ fun NakshatraScreen(
 ) {
     if (chart == null) {
         EmptyChartScreen(
-            title = stringResource(StringKey.NAKSHATRA_TITLE),
+            title = stringResource(StringKeyDosha.NAKSHATRA_TITLE),
             message = stringResource(StringKey.NO_PROFILE_MESSAGE),
             onBack = onBack
         )
@@ -75,10 +78,10 @@ fun NakshatraScreen(
     var expandedPlanet by remember { mutableStateOf<Planet?>(null) }
 
     val tabs = listOf(
-        stringResource(StringKey.NAKSHATRA_OVERVIEW),
-        stringResource(StringKey.NAKSHATRA_DETAILS),
-        stringResource(StringKey.NAKSHATRA_COMPATIBILITY),
-        stringResource(StringKey.NAKSHATRA_REMEDIES)
+        stringResource(StringKeyDosha.NAKSHATRA_OVERVIEW),
+        stringResource(StringKeyDosha.NAKSHATRA_DETAILS),
+        stringResource(StringKeyDosha.NAKSHATRA_COMPATIBILITY),
+        stringResource(StringKeyDosha.NAKSHATRA_REMEDIES)
     )
 
     // Calculate nakshatra analysis
@@ -97,7 +100,7 @@ fun NakshatraScreen(
                 title = {
                     Column {
                         Text(
-                            stringResource(StringKey.NAKSHATRA_TITLE),
+                            stringResource(StringKeyDosha.NAKSHATRA_TITLE),
                             fontWeight = FontWeight.SemiBold,
                             color = AppTheme.TextPrimary,
                             fontSize = 18.sp
@@ -122,7 +125,7 @@ fun NakshatraScreen(
                     IconButton(onClick = { showInfoDialog = true }) {
                         Icon(
                             Icons.Outlined.Info,
-                            contentDescription = stringResource(StringKey.NAKSHATRA_INFO_TITLE),
+                            contentDescription = stringResource(StringKeyDosha.NAKSHATRA_INFO_TITLE),
                             tint = AppTheme.TextPrimary
                         )
                     }
@@ -809,7 +812,7 @@ private fun NakshatraOverviewTab(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    stringResource(StringKey.NAKSHATRA_BIRTH_STAR),
+                    stringResource(StringKeyDosha.NAKSHATRA_BIRTH_STAR),
                     style = MaterialTheme.typography.titleSmall,
                     color = AppTheme.TextMuted
                 )
@@ -824,7 +827,7 @@ private fun NakshatraOverviewTab(
                 )
 
                 Text(
-                    "${stringResource(StringKey.NAKSHATRA_PADA)} ${analysis.birthNakshatra.pada}",
+                    "${stringResource(StringKeyAnalysis.NAKSHATRA_PADA)} ${analysis.birthNakshatra.pada}",
                     style = MaterialTheme.typography.bodyLarge,
                     color = AppTheme.AccentPrimary
                 )
@@ -840,17 +843,17 @@ private fun NakshatraOverviewTab(
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     NakshatraInfoChip(
-                        label = stringResource(StringKey.NAKSHATRA_RULER),
+                        label = stringResource(StringKeyDosha.NAKSHATRA_RULER),
                         value = analysis.birthNakshatra.nakshatra.ruler.getLocalizedName(language),
                         icon = Icons.Filled.Star
                     )
                     NakshatraInfoChip(
-                        label = stringResource(StringKey.NAKSHATRA_GANA),
+                        label = stringResource(StringKeyAnalysis.NAKSHATRA_GANA),
                         value = analysis.birthNakshatra.gana.getLocalizedName(language),
                         icon = Icons.Filled.Groups
                     )
                     NakshatraInfoChip(
-                        label = stringResource(StringKey.NAKSHATRA_ELEMENT),
+                        label = stringResource(StringKeyDosha.NAKSHATRA_ELEMENT),
                         value = analysis.birthNakshatra.element.getLocalizedName(language),
                         icon = Icons.Filled.Public
                     )
@@ -868,22 +871,22 @@ private fun NakshatraOverviewTab(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 NakshatraDetailRow(
-                    label = stringResource(StringKey.NAKSHATRA_DEITY),
+                    label = stringResource(StringKeyAnalysis.NAKSHATRA_DEITY),
                     value = analysis.birthNakshatra.deity
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 NakshatraDetailRow(
-                    label = stringResource(StringKey.NAKSHATRA_SYMBOL),
+                    label = stringResource(StringKeyAnalysis.NAKSHATRA_SYMBOL),
                     value = analysis.birthNakshatra.symbol
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 NakshatraDetailRow(
-                    label = stringResource(StringKey.NAKSHATRA_NATURE),
+                    label = stringResource(StringKeyAnalysis.NAKSHATRA_NATURE),
                     value = analysis.birthNakshatra.nature.getLocalizedName(language)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 NakshatraDetailRow(
-                    label = stringResource(StringKey.NAKSHATRA_ANIMAL),
+                    label = stringResource(StringKeyAnalysis.NAKSHATRA_ANIMAL),
                     value = analysis.birthNakshatra.animal
                 )
             }
@@ -899,7 +902,7 @@ private fun NakshatraOverviewTab(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    stringResource(StringKey.NAKSHATRA_CHARACTERISTICS),
+                    stringResource(StringKeyDosha.NAKSHATRA_CHARACTERISTICS),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = AppTheme.TextPrimary
@@ -996,7 +999,7 @@ private fun NakshatraDetailsTab(
 ) {
     Column(modifier = Modifier.padding(16.dp)) {
         Text(
-            stringResource(StringKey.NAKSHATRA_ALL_PLANETS),
+            stringResource(StringKeyDosha.NAKSHATRA_ALL_PLANETS),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             color = AppTheme.TextPrimary,
@@ -1091,17 +1094,17 @@ private fun PlanetaryNakshatraCard(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     NakshatraDetailRow(
-                        label = stringResource(StringKey.NAKSHATRA_DEITY),
+                        label = stringResource(StringKeyAnalysis.NAKSHATRA_DEITY),
                         value = planetary.details.deity
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     NakshatraDetailRow(
-                        label = stringResource(StringKey.NAKSHATRA_DASHA_LORD),
+                        label = stringResource(StringKeyDosha.NAKSHATRA_DASHA_LORD),
                         value = planetary.details.nakshatra.ruler.getLocalizedName(language)
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     NakshatraDetailRow(
-                        label = stringResource(StringKey.NAKSHATRA_DEGREE_IN),
+                        label = stringResource(StringKeyDosha.NAKSHATRA_DEGREE_IN),
                         value = String.format("%.2f°", planetary.details.degreeInNakshatra)
                     )
                 }
@@ -1124,7 +1127,7 @@ private fun NakshatraCompatibilityTab(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    stringResource(StringKey.NAKSHATRA_TARABALA),
+                    stringResource(StringKeyDosha.NAKSHATRA_TARABALA),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = AppTheme.TextPrimary
@@ -1138,12 +1141,12 @@ private fun NakshatraCompatibilityTab(
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     TarabalaSummaryChip(
-                        label = stringResource(StringKey.NAKSHATRA_COMPATIBLE_WITH),
+                        label = stringResource(StringKeyDosha.NAKSHATRA_COMPATIBLE_WITH),
                         count = analysis.compatibility.favorableNakshatras.size,
                         color = AppTheme.SuccessColor
                     )
                     TarabalaSummaryChip(
-                        label = stringResource(StringKey.NAKSHATRA_INCOMPATIBLE_WITH),
+                        label = stringResource(StringKeyDosha.NAKSHATRA_INCOMPATIBLE_WITH),
                         count = analysis.compatibility.unfavorableNakshatras.size,
                         color = AppTheme.WarningColor
                     )
@@ -1161,7 +1164,7 @@ private fun NakshatraCompatibilityTab(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    stringResource(StringKey.NAKSHATRA_RAJJU_TYPE),
+                    stringResource(StringKeyDosha.NAKSHATRA_RAJJU_TYPE),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = AppTheme.TextPrimary
@@ -1220,7 +1223,7 @@ private fun NakshatraCompatibilityTab(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            stringResource(StringKey.NAKSHATRA_VEDHA_PAIRS),
+                            stringResource(StringKeyDosha.NAKSHATRA_VEDHA_PAIRS),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold,
                             color = AppTheme.TextPrimary
@@ -1289,7 +1292,7 @@ private fun NakshatraRemediesTab(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        stringResource(StringKey.NAKSHATRA_MANTRA),
+                        stringResource(StringKeyDosha.NAKSHATRA_MANTRA),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
                         color = AppTheme.TextPrimary
@@ -1300,7 +1303,7 @@ private fun NakshatraRemediesTab(
                     ) {
                         Icon(
                             Icons.Filled.ContentCopy,
-                            contentDescription = stringResource(StringKey.REMEDIES_COPY_MANTRA),
+                            contentDescription = stringResource(StringKeyMatch.REMEDIES_COPY_MANTRA),
                             tint = AppTheme.AccentGold,
                             modifier = Modifier.size(18.dp)
                         )
@@ -1359,7 +1362,7 @@ private fun NakshatraRemediesTab(
                     Spacer(modifier = Modifier.width(14.dp))
                     Column {
                         Text(
-                            stringResource(StringKey.NAKSHATRA_LUCKY_STONES),
+                            stringResource(StringKeyDosha.NAKSHATRA_LUCKY_STONES),
                             style = MaterialTheme.typography.bodySmall,
                             color = AppTheme.TextMuted
                         )
@@ -1385,7 +1388,7 @@ private fun NakshatraRemediesTab(
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
                     Text(
-                        stringResource(StringKey.NAKSHATRA_LUCKY_NUMBERS),
+                        stringResource(StringKeyDosha.NAKSHATRA_LUCKY_NUMBERS),
                         style = MaterialTheme.typography.labelMedium,
                         color = AppTheme.TextMuted
                     )
@@ -1408,7 +1411,7 @@ private fun NakshatraRemediesTab(
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
                     Text(
-                        stringResource(StringKey.NAKSHATRA_LUCKY_COLORS),
+                        stringResource(StringKeyDosha.NAKSHATRA_LUCKY_COLORS),
                         style = MaterialTheme.typography.labelMedium,
                         color = AppTheme.TextMuted
                     )
@@ -1433,7 +1436,7 @@ private fun NakshatraRemediesTab(
         ) {
             Column(modifier = Modifier.padding(14.dp)) {
                 Text(
-                    stringResource(StringKey.NAKSHATRA_FAVORABLE_DAYS),
+                    stringResource(StringKeyDosha.NAKSHATRA_FAVORABLE_DAYS),
                     style = MaterialTheme.typography.labelMedium,
                     color = AppTheme.TextMuted
                 )
@@ -1455,14 +1458,14 @@ private fun NakshatraInfoDialog(onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         title = {
             Text(
-                stringResource(StringKey.NAKSHATRA_INFO_TITLE),
+                stringResource(StringKeyDosha.NAKSHATRA_INFO_TITLE),
                 fontWeight = FontWeight.Bold,
                 color = AppTheme.TextPrimary
             )
         },
         text = {
             Text(
-                stringResource(StringKey.NAKSHATRA_INFO_DESC),
+                stringResource(StringKeyDosha.NAKSHATRA_INFO_DESC),
                 style = MaterialTheme.typography.bodyMedium,
                 color = AppTheme.TextSecondary
             )

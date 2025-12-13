@@ -7,6 +7,7 @@ import com.astro.storm.data.model.Nakshatra
 import com.astro.storm.data.model.ZodiacSign
 import com.astro.storm.data.localization.Language
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyMatch
 import com.astro.storm.data.localization.StringResources
 import kotlin.math.abs
 import kotlin.math.min
@@ -51,14 +52,14 @@ object YogaCalculator {
          */
         fun getLocalizedName(language: Language): String {
             val key = when (this) {
-                RAJA_YOGA -> StringKey.YOGA_CAT_RAJA
-                DHANA_YOGA -> StringKey.YOGA_CAT_DHANA
-                MAHAPURUSHA_YOGA -> StringKey.YOGA_CAT_PANCHA_MAHAPURUSHA
-                NABHASA_YOGA -> StringKey.YOGA_CAT_NABHASA
-                CHANDRA_YOGA -> StringKey.YOGA_CAT_CHANDRA
-                SOLAR_YOGA -> StringKey.YOGA_CAT_SOLAR
-                NEGATIVE_YOGA -> StringKey.YOGA_CAT_NEGATIVE
-                SPECIAL_YOGA -> StringKey.YOGA_CAT_SPECIAL
+                RAJA_YOGA -> StringKeyMatch.YOGA_CAT_RAJA
+                DHANA_YOGA -> StringKeyMatch.YOGA_CAT_DHANA
+                MAHAPURUSHA_YOGA -> StringKeyMatch.YOGA_CAT_PANCHA_MAHAPURUSHA
+                NABHASA_YOGA -> StringKeyMatch.YOGA_CAT_NABHASA
+                CHANDRA_YOGA -> StringKeyMatch.YOGA_CAT_CHANDRA
+                SOLAR_YOGA -> StringKeyMatch.YOGA_CAT_SOLAR
+                NEGATIVE_YOGA -> StringKeyMatch.YOGA_CAT_NEGATIVE
+                SPECIAL_YOGA -> StringKeyMatch.YOGA_CAT_SPECIAL
             }
             return StringResources.get(key, language)
         }
@@ -68,14 +69,14 @@ object YogaCalculator {
          */
         fun getLocalizedDescription(language: Language): String {
             val key = when (this) {
-                RAJA_YOGA -> StringKey.YOGA_CAT_RAJA_DESC
-                DHANA_YOGA -> StringKey.YOGA_CAT_DHANA_DESC
-                MAHAPURUSHA_YOGA -> StringKey.YOGA_CAT_PANCHA_MAHAPURUSHA_DESC
-                NABHASA_YOGA -> StringKey.YOGA_CAT_NABHASA_DESC
-                CHANDRA_YOGA -> StringKey.YOGA_CAT_CHANDRA_DESC
-                SOLAR_YOGA -> StringKey.YOGA_CAT_SOLAR_DESC
-                NEGATIVE_YOGA -> StringKey.YOGA_CAT_NEGATIVE_DESC
-                SPECIAL_YOGA -> StringKey.YOGA_CAT_SPECIAL_DESC
+                RAJA_YOGA -> StringKeyMatch.YOGA_CAT_RAJA_DESC
+                DHANA_YOGA -> StringKeyMatch.YOGA_CAT_DHANA_DESC
+                MAHAPURUSHA_YOGA -> StringKeyMatch.YOGA_CAT_PANCHA_MAHAPURUSHA_DESC
+                NABHASA_YOGA -> StringKeyMatch.YOGA_CAT_NABHASA_DESC
+                CHANDRA_YOGA -> StringKeyMatch.YOGA_CAT_CHANDRA_DESC
+                SOLAR_YOGA -> StringKeyMatch.YOGA_CAT_SOLAR_DESC
+                NEGATIVE_YOGA -> StringKeyMatch.YOGA_CAT_NEGATIVE_DESC
+                SPECIAL_YOGA -> StringKeyMatch.YOGA_CAT_SPECIAL_DESC
             }
             return StringResources.get(key, language)
         }
@@ -96,11 +97,11 @@ object YogaCalculator {
          */
         fun getLocalizedName(language: Language): String {
             val key = when (this) {
-                EXTREMELY_STRONG -> StringKey.YOGA_STRENGTH_EXTREMELY_STRONG
-                STRONG -> StringKey.YOGA_STRENGTH_STRONG
-                MODERATE -> StringKey.YOGA_STRENGTH_MODERATE
-                WEAK -> StringKey.YOGA_STRENGTH_WEAK
-                VERY_WEAK -> StringKey.YOGA_STRENGTH_VERY_WEAK
+                EXTREMELY_STRONG -> StringKeyMatch.YOGA_STRENGTH_EXTREMELY_STRONG
+                STRONG -> StringKeyMatch.YOGA_STRENGTH_STRONG
+                MODERATE -> StringKeyMatch.YOGA_STRENGTH_MODERATE
+                WEAK -> StringKeyMatch.YOGA_STRENGTH_WEAK
+                VERY_WEAK -> StringKeyMatch.YOGA_STRENGTH_VERY_WEAK
             }
             return StringResources.get(key, language)
         }
@@ -143,19 +144,19 @@ object YogaCalculator {
         val timestamp: Long = System.currentTimeMillis()
     ) {
         fun toPlainText(language: Language = Language.ENGLISH): String = buildString {
-            val reportTitle = StringResources.get(StringKey.REPORT_YOGA_ANALYSIS, language)
-            val totalYogasLabel = StringResources.get(StringKey.REPORT_TOTAL_YOGAS, language)
-            val overallStrengthLabel = StringResources.get(StringKey.REPORT_OVERALL_STRENGTH, language)
-            val dominantCategoryLabel = StringResources.get(StringKey.REPORT_DOMINANT_CATEGORY, language)
-            val planetsLabel = StringResources.get(StringKey.REPORT_PLANETS, language)
-            val housesLabel = StringResources.get(StringKey.REPORT_HOUSES, language)
-            val strengthLabel = StringResources.get(StringKey.TAB_STRENGTH, language)
-            val effectsLabel = StringResources.get(StringKey.REPORT_EFFECTS, language)
-            val activationLabel = StringResources.get(StringKey.REPORT_ACTIVATION, language)
-            val patternLabel = StringResources.get(StringKey.REPORT_PATTERN, language)
-            val cancellationLabel = StringResources.get(StringKey.REPORT_CANCELLATION_FACTORS, language)
-            val auspiciousText = StringResources.get(StringKey.REPORT_AUSPICIOUS, language)
-            val inauspiciousText = StringResources.get(StringKey.REPORT_INAUSPICIOUS, language)
+            val reportTitle = StringResources.get(StringKeyMatch.REPORT_YOGA_ANALYSIS, language)
+            val totalYogasLabel = StringResources.get(StringKeyMatch.REPORT_TOTAL_YOGAS, language)
+            val overallStrengthLabel = StringResources.get(StringKeyMatch.REPORT_OVERALL_STRENGTH, language)
+            val dominantCategoryLabel = StringResources.get(StringKeyMatch.REPORT_DOMINANT_CATEGORY, language)
+            val planetsLabel = StringResources.get(StringKeyMatch.REPORT_PLANETS, language)
+            val housesLabel = StringResources.get(StringKeyMatch.REPORT_HOUSES, language)
+            val strengthLabel = StringResources.get(StringKeyMatch.TAB_STRENGTH, language)
+            val effectsLabel = StringResources.get(StringKeyMatch.REPORT_EFFECTS, language)
+            val activationLabel = StringResources.get(StringKeyMatch.REPORT_ACTIVATION, language)
+            val patternLabel = StringResources.get(StringKeyMatch.REPORT_PATTERN, language)
+            val cancellationLabel = StringResources.get(StringKeyMatch.REPORT_CANCELLATION_FACTORS, language)
+            val auspiciousText = StringResources.get(StringKeyMatch.REPORT_AUSPICIOUS, language)
+            val inauspiciousText = StringResources.get(StringKeyMatch.REPORT_INAUSPICIOUS, language)
 
             appendLine("═══════════════════════════════════════════════════════════")
             appendLine("                    $reportTitle")
@@ -2803,7 +2804,7 @@ object YogaCalculator {
             10 -> StringKey.HOUSE_10_SIGNIFICATION
             11 -> StringKey.HOUSE_11_SIGNIFICATION
             12 -> StringKey.HOUSE_12_SIGNIFICATION
-            else -> return StringResources.get(StringKey.VARIOUS_ACTIVITIES, language)
+            else -> return StringResources.get(StringKeyMatch.VARIOUS_ACTIVITIES, language)
         }
         return StringResources.get(key, language)
     }
@@ -2813,64 +2814,64 @@ object YogaCalculator {
      */
     fun getLocalizedYogaName(englishName: String, language: Language): String {
         val key = when {
-            englishName.contains("Kendra-Trikona Raja") -> StringKey.YOGA_KENDRA_TRIKONA
-            englishName.contains("Parivartana Raja") -> StringKey.YOGA_PARIVARTANA
-            englishName.contains("Viparita Raja") -> StringKey.YOGA_VIPARITA
-            englishName.contains("Neecha Bhanga Raja") -> StringKey.YOGA_NEECHA_BHANGA
-            englishName.contains("Maha Raja") -> StringKey.YOGA_MAHA_RAJA
-            englishName.contains("Lakshmi") -> StringKey.YOGA_LAKSHMI
-            englishName.contains("Kubera") -> StringKey.YOGA_KUBERA
-            englishName.contains("Chandra-Mangala") -> StringKey.YOGA_CHANDRA_MANGALA
-            englishName.contains("Labha") -> StringKey.YOGA_LABHA
-            englishName.contains("Ruchaka") -> StringKey.YOGA_RUCHAKA
-            englishName.contains("Bhadra") -> StringKey.YOGA_BHADRA
-            englishName.contains("Hamsa") -> StringKey.YOGA_HAMSA
-            englishName.contains("Malavya") -> StringKey.YOGA_MALAVYA
-            englishName.contains("Sasa") -> StringKey.YOGA_SASA
-            englishName.contains("Yava") -> StringKey.YOGA_YAVA
-            englishName.contains("Shringataka") -> StringKey.YOGA_SHRINGATAKA
-            englishName.contains("Gada") -> StringKey.YOGA_GADA
-            englishName.contains("Shakata") -> StringKey.YOGA_SHAKATA
-            englishName.contains("Rajju") -> StringKey.YOGA_RAJJU
-            englishName.contains("Musala") -> StringKey.YOGA_MUSALA
-            englishName.contains("Nala") -> StringKey.YOGA_NALA
-            englishName.contains("Kedara") -> StringKey.YOGA_KEDARA
-            englishName.contains("Shoola") -> StringKey.YOGA_SHOOLA
-            englishName.contains("Yuga") -> StringKey.YOGA_YUGA
-            englishName.contains("Gola") -> StringKey.YOGA_GOLA
-            englishName.contains("Veena") -> StringKey.YOGA_VEENA
-            englishName.contains("Sunafa") -> StringKey.YOGA_SUNAFA
-            englishName.contains("Anafa") -> StringKey.YOGA_ANAFA
-            englishName.contains("Durudhara") -> StringKey.YOGA_DURUDHARA
-            englishName.contains("Gaja-Kesari") -> StringKey.YOGA_GAJA_KESARI
-            englishName.contains("Adhi") -> StringKey.YOGA_ADHI
-            englishName.contains("Vesi") -> StringKey.YOGA_VESI
-            englishName.contains("Vosi") -> StringKey.YOGA_VOSI
-            englishName.contains("Ubhayachari") -> StringKey.YOGA_UBHAYACHARI
-            englishName.contains("Kemadruma") -> StringKey.YOGA_KEMADRUMA
-            englishName.contains("Daridra") -> StringKey.YOGA_DARIDRA
-            englishName.contains("Guru-Chandal") -> StringKey.YOGA_GURU_CHANDAL
-            englishName.contains("Dasa-Mula") -> StringKey.YOGA_DASA_MULA
-            englishName.contains("Vargottama") -> StringKey.YOGA_VARGOTTAMA_STRENGTH
-            englishName.contains("Budha-Aditya") -> StringKey.YOGA_BUDHA_ADITYA
-            englishName.contains("Amala") -> StringKey.YOGA_AMALA
-            englishName.contains("Saraswati") -> StringKey.YOGA_SARASWATI
-            englishName.contains("Parvata") -> StringKey.YOGA_PARVATA
-            englishName.contains("Kahala") -> StringKey.YOGA_KAHALA
-            englishName.contains("Dhana") -> StringKey.YOGA_CAT_DHANA
+            englishName.contains("Kendra-Trikona Raja") -> StringKeyMatch.YOGA_KENDRA_TRIKONA
+            englishName.contains("Parivartana Raja") -> StringKeyMatch.YOGA_PARIVARTANA
+            englishName.contains("Viparita Raja") -> StringKeyMatch.YOGA_VIPARITA
+            englishName.contains("Neecha Bhanga Raja") -> StringKeyMatch.YOGA_NEECHA_BHANGA
+            englishName.contains("Maha Raja") -> StringKeyMatch.YOGA_MAHA_RAJA
+            englishName.contains("Lakshmi") -> StringKeyMatch.YOGA_LAKSHMI
+            englishName.contains("Kubera") -> StringKeyMatch.YOGA_KUBERA
+            englishName.contains("Chandra-Mangala") -> StringKeyMatch.YOGA_CHANDRA_MANGALA
+            englishName.contains("Labha") -> StringKeyMatch.YOGA_LABHA
+            englishName.contains("Ruchaka") -> StringKeyMatch.YOGA_RUCHAKA
+            englishName.contains("Bhadra") -> StringKeyMatch.YOGA_BHADRA
+            englishName.contains("Hamsa") -> StringKeyMatch.YOGA_HAMSA
+            englishName.contains("Malavya") -> StringKeyMatch.YOGA_MALAVYA
+            englishName.contains("Sasa") -> StringKeyMatch.YOGA_SASA
+            englishName.contains("Yava") -> StringKeyMatch.YOGA_YAVA
+            englishName.contains("Shringataka") -> StringKeyMatch.YOGA_SHRINGATAKA
+            englishName.contains("Gada") -> StringKeyMatch.YOGA_GADA
+            englishName.contains("Shakata") -> StringKeyMatch.YOGA_SHAKATA
+            englishName.contains("Rajju") -> StringKeyMatch.YOGA_RAJJU
+            englishName.contains("Musala") -> StringKeyMatch.YOGA_MUSALA
+            englishName.contains("Nala") -> StringKeyMatch.YOGA_NALA
+            englishName.contains("Kedara") -> StringKeyMatch.YOGA_KEDARA
+            englishName.contains("Shoola") -> StringKeyMatch.YOGA_SHOOLA
+            englishName.contains("Yuga") -> StringKeyMatch.YOGA_YUGA
+            englishName.contains("Gola") -> StringKeyMatch.YOGA_GOLA
+            englishName.contains("Veena") -> StringKeyMatch.YOGA_VEENA
+            englishName.contains("Sunafa") -> StringKeyMatch.YOGA_SUNAFA
+            englishName.contains("Anafa") -> StringKeyMatch.YOGA_ANAFA
+            englishName.contains("Durudhara") -> StringKeyMatch.YOGA_DURUDHARA
+            englishName.contains("Gaja-Kesari") -> StringKeyMatch.YOGA_GAJA_KESARI
+            englishName.contains("Adhi") -> StringKeyMatch.YOGA_ADHI
+            englishName.contains("Vesi") -> StringKeyMatch.YOGA_VESI
+            englishName.contains("Vosi") -> StringKeyMatch.YOGA_VOSI
+            englishName.contains("Ubhayachari") -> StringKeyMatch.YOGA_UBHAYACHARI
+            englishName.contains("Kemadruma") -> StringKeyMatch.YOGA_KEMADRUMA
+            englishName.contains("Daridra") -> StringKeyMatch.YOGA_DARIDRA
+            englishName.contains("Guru-Chandal") -> StringKeyMatch.YOGA_GURU_CHANDAL
+            englishName.contains("Dasa-Mula") -> StringKeyMatch.YOGA_DASA_MULA
+            englishName.contains("Vargottama") -> StringKeyMatch.YOGA_VARGOTTAMA_STRENGTH
+            englishName.contains("Budha-Aditya") -> StringKeyMatch.YOGA_BUDHA_ADITYA
+            englishName.contains("Amala") -> StringKeyMatch.YOGA_AMALA
+            englishName.contains("Saraswati") -> StringKeyMatch.YOGA_SARASWATI
+            englishName.contains("Parvata") -> StringKeyMatch.YOGA_PARVATA
+            englishName.contains("Kahala") -> StringKeyMatch.YOGA_KAHALA
+            englishName.contains("Dhana") -> StringKeyMatch.YOGA_CAT_DHANA
             // New yogas
-            englishName.contains("Surya Grahan") && !englishName.contains("Ketu") -> StringKey.YOGA_SURYA_GRAHAN
-            englishName.contains("Surya-Ketu Grahan") -> StringKey.YOGA_SURYA_KETU_GRAHAN
-            englishName.contains("Chandra Grahan") -> StringKey.YOGA_CHANDRA_GRAHAN
-            englishName.contains("Chandra-Ketu") -> StringKey.YOGA_CHANDRA_KETU
-            englishName.contains("Angarak") -> StringKey.YOGA_ANGARAK
-            englishName.contains("Shrapit") -> StringKey.YOGA_SHRAPIT
-            englishName.contains("Kala Sarpa") -> StringKey.YOGA_KALA_SARPA
-            englishName.contains("Papakartari") -> StringKey.YOGA_PAPAKARTARI
-            englishName.contains("Shubhakartari") -> StringKey.YOGA_SHUBHAKARTARI
-            englishName.contains("Sanyasa") -> StringKey.YOGA_SANYASA
-            englishName.contains("Chamara") -> StringKey.YOGA_CHAMARA
-            englishName.contains("Dharma-Karmadhipati") -> StringKey.YOGA_DHARMA_KARMADHIPATI
+            englishName.contains("Surya Grahan") && !englishName.contains("Ketu") -> StringKeyMatch.YOGA_SURYA_GRAHAN
+            englishName.contains("Surya-Ketu Grahan") -> StringKeyMatch.YOGA_SURYA_KETU_GRAHAN
+            englishName.contains("Chandra Grahan") -> StringKeyMatch.YOGA_CHANDRA_GRAHAN
+            englishName.contains("Chandra-Ketu") -> StringKeyMatch.YOGA_CHANDRA_KETU
+            englishName.contains("Angarak") -> StringKeyMatch.YOGA_ANGARAK
+            englishName.contains("Shrapit") -> StringKeyMatch.YOGA_SHRAPIT
+            englishName.contains("Kala Sarpa") -> StringKeyMatch.YOGA_KALA_SARPA
+            englishName.contains("Papakartari") -> StringKeyMatch.YOGA_PAPAKARTARI
+            englishName.contains("Shubhakartari") -> StringKeyMatch.YOGA_SHUBHAKARTARI
+            englishName.contains("Sanyasa") -> StringKeyMatch.YOGA_SANYASA
+            englishName.contains("Chamara") -> StringKeyMatch.YOGA_CHAMARA
+            englishName.contains("Dharma-Karmadhipati") -> StringKeyMatch.YOGA_DHARMA_KARMADHIPATI
             else -> return englishName // Fallback to English name
         }
         return StringResources.get(key, language)
@@ -2881,61 +2882,61 @@ object YogaCalculator {
      */
     fun getLocalizedYogaEffects(yogaName: String, language: Language): String {
         val key = when {
-            yogaName.contains("Ruchaka") -> StringKey.YOGA_EFFECT_RUCHAKA
-            yogaName.contains("Bhadra") -> StringKey.YOGA_EFFECT_BHADRA
-            yogaName.contains("Hamsa") -> StringKey.YOGA_EFFECT_HAMSA
-            yogaName.contains("Malavya") -> StringKey.YOGA_EFFECT_MALAVYA
-            yogaName.contains("Sasa") -> StringKey.YOGA_EFFECT_SASA
-            yogaName.contains("Gaja-Kesari") -> StringKey.YOGA_EFFECT_GAJA_KESARI
-            yogaName.contains("Sunafa") -> StringKey.YOGA_EFFECT_SUNAFA
-            yogaName.contains("Anafa") -> StringKey.YOGA_EFFECT_ANAFA
-            yogaName.contains("Durudhara") -> StringKey.YOGA_EFFECT_DURUDHARA
-            yogaName.contains("Adhi") -> StringKey.YOGA_EFFECT_ADHI
-            yogaName.contains("Budha-Aditya") -> StringKey.YOGA_EFFECT_BUDHA_ADITYA
-            yogaName.contains("Saraswati") -> StringKey.YOGA_EFFECT_SARASWATI
-            yogaName.contains("Parvata") -> StringKey.YOGA_EFFECT_PARVATA
-            yogaName.contains("Lakshmi") -> StringKey.YOGA_EFFECT_LAKSHMI
-            yogaName.contains("Maha Raja") -> StringKey.YOGA_EFFECT_MAHA_RAJA
-            yogaName.contains("Kendra-Trikona") -> StringKey.YOGA_EFFECT_KENDRA_TRIKONA
-            yogaName.contains("Parivartana") -> StringKey.YOGA_EFFECT_PARIVARTANA
-            yogaName.contains("Viparita") -> StringKey.YOGA_EFFECT_VIPARITA
-            yogaName.contains("Neecha Bhanga") -> StringKey.YOGA_EFFECT_NEECHA_BHANGA
-            yogaName.contains("Kemadruma") -> StringKey.YOGA_EFFECT_KEMADRUMA
-            yogaName.contains("Daridra") -> StringKey.YOGA_EFFECT_DARIDRA
-            yogaName.contains("Shakata") -> StringKey.YOGA_EFFECT_SHAKATA
-            yogaName.contains("Guru-Chandal") -> StringKey.YOGA_EFFECT_GURU_CHANDAL
-            yogaName.contains("Vesi") -> StringKey.YOGA_EFFECT_VESI
-            yogaName.contains("Vosi") -> StringKey.YOGA_EFFECT_VOSI
-            yogaName.contains("Ubhayachari") -> StringKey.YOGA_EFFECT_UBHAYACHARI
-            yogaName.contains("Labha") -> StringKey.YOGA_EFFECT_LABHA
-            yogaName.contains("Kubera") -> StringKey.YOGA_EFFECT_KUBERA
-            yogaName.contains("Chandra-Mangala") -> StringKey.YOGA_EFFECT_CHANDRA_MANGALA
-            yogaName.contains("Dasa-Mula") -> StringKey.YOGA_EFFECT_DASA_MULA
-            yogaName.contains("Kahala") -> StringKey.YOGA_EFFECT_KAHALA
-            yogaName.contains("Yava") -> StringKey.YOGA_EFFECT_YAVA
-            yogaName.contains("Shringataka") -> StringKey.YOGA_EFFECT_SHRINGATAKA
-            yogaName.contains("Gada") -> StringKey.YOGA_EFFECT_GADA
-            yogaName.contains("Rajju") -> StringKey.YOGA_EFFECT_RAJJU
-            yogaName.contains("Musala") -> StringKey.YOGA_EFFECT_MUSALA
-            yogaName.contains("Nala") -> StringKey.YOGA_EFFECT_NALA
-            yogaName.contains("Kedara") -> StringKey.YOGA_EFFECT_KEDARA
-            yogaName.contains("Shoola") -> StringKey.YOGA_EFFECT_SHOOLA
-            yogaName.contains("Yuga") -> StringKey.YOGA_EFFECT_YUGA
-            yogaName.contains("Gola") -> StringKey.YOGA_EFFECT_GOLA
-            yogaName.contains("Veena") -> StringKey.YOGA_EFFECT_VEENA
+            yogaName.contains("Ruchaka") -> StringKeyMatch.YOGA_EFFECT_RUCHAKA
+            yogaName.contains("Bhadra") -> StringKeyMatch.YOGA_EFFECT_BHADRA
+            yogaName.contains("Hamsa") -> StringKeyMatch.YOGA_EFFECT_HAMSA
+            yogaName.contains("Malavya") -> StringKeyMatch.YOGA_EFFECT_MALAVYA
+            yogaName.contains("Sasa") -> StringKeyMatch.YOGA_EFFECT_SASA
+            yogaName.contains("Gaja-Kesari") -> StringKeyMatch.YOGA_EFFECT_GAJA_KESARI
+            yogaName.contains("Sunafa") -> StringKeyMatch.YOGA_EFFECT_SUNAFA
+            yogaName.contains("Anafa") -> StringKeyMatch.YOGA_EFFECT_ANAFA
+            yogaName.contains("Durudhara") -> StringKeyMatch.YOGA_EFFECT_DURUDHARA
+            yogaName.contains("Adhi") -> StringKeyMatch.YOGA_EFFECT_ADHI
+            yogaName.contains("Budha-Aditya") -> StringKeyMatch.YOGA_EFFECT_BUDHA_ADITYA
+            yogaName.contains("Saraswati") -> StringKeyMatch.YOGA_EFFECT_SARASWATI
+            yogaName.contains("Parvata") -> StringKeyMatch.YOGA_EFFECT_PARVATA
+            yogaName.contains("Lakshmi") -> StringKeyMatch.YOGA_EFFECT_LAKSHMI
+            yogaName.contains("Maha Raja") -> StringKeyMatch.YOGA_EFFECT_MAHA_RAJA
+            yogaName.contains("Kendra-Trikona") -> StringKeyMatch.YOGA_EFFECT_KENDRA_TRIKONA
+            yogaName.contains("Parivartana") -> StringKeyMatch.YOGA_EFFECT_PARIVARTANA
+            yogaName.contains("Viparita") -> StringKeyMatch.YOGA_EFFECT_VIPARITA
+            yogaName.contains("Neecha Bhanga") -> StringKeyMatch.YOGA_EFFECT_NEECHA_BHANGA
+            yogaName.contains("Kemadruma") -> StringKeyMatch.YOGA_EFFECT_KEMADRUMA
+            yogaName.contains("Daridra") -> StringKeyMatch.YOGA_EFFECT_DARIDRA
+            yogaName.contains("Shakata") -> StringKeyMatch.YOGA_EFFECT_SHAKATA
+            yogaName.contains("Guru-Chandal") -> StringKeyMatch.YOGA_EFFECT_GURU_CHANDAL
+            yogaName.contains("Vesi") -> StringKeyMatch.YOGA_EFFECT_VESI
+            yogaName.contains("Vosi") -> StringKeyMatch.YOGA_EFFECT_VOSI
+            yogaName.contains("Ubhayachari") -> StringKeyMatch.YOGA_EFFECT_UBHAYACHARI
+            yogaName.contains("Labha") -> StringKeyMatch.YOGA_EFFECT_LABHA
+            yogaName.contains("Kubera") -> StringKeyMatch.YOGA_EFFECT_KUBERA
+            yogaName.contains("Chandra-Mangala") -> StringKeyMatch.YOGA_EFFECT_CHANDRA_MANGALA
+            yogaName.contains("Dasa-Mula") -> StringKeyMatch.YOGA_EFFECT_DASA_MULA
+            yogaName.contains("Kahala") -> StringKeyMatch.YOGA_EFFECT_KAHALA
+            yogaName.contains("Yava") -> StringKeyMatch.YOGA_EFFECT_YAVA
+            yogaName.contains("Shringataka") -> StringKeyMatch.YOGA_EFFECT_SHRINGATAKA
+            yogaName.contains("Gada") -> StringKeyMatch.YOGA_EFFECT_GADA
+            yogaName.contains("Rajju") -> StringKeyMatch.YOGA_EFFECT_RAJJU
+            yogaName.contains("Musala") -> StringKeyMatch.YOGA_EFFECT_MUSALA
+            yogaName.contains("Nala") -> StringKeyMatch.YOGA_EFFECT_NALA
+            yogaName.contains("Kedara") -> StringKeyMatch.YOGA_EFFECT_KEDARA
+            yogaName.contains("Shoola") -> StringKeyMatch.YOGA_EFFECT_SHOOLA
+            yogaName.contains("Yuga") -> StringKeyMatch.YOGA_EFFECT_YUGA
+            yogaName.contains("Gola") -> StringKeyMatch.YOGA_EFFECT_GOLA
+            yogaName.contains("Veena") -> StringKeyMatch.YOGA_EFFECT_VEENA
             // New yogas - Grahan and Nodal Combinations
-            yogaName.contains("Surya Grahan") && !yogaName.contains("Ketu") -> StringKey.YOGA_EFFECT_SURYA_GRAHAN
-            yogaName.contains("Surya-Ketu Grahan") -> StringKey.YOGA_EFFECT_SURYA_KETU_GRAHAN
-            yogaName.contains("Chandra Grahan") -> StringKey.YOGA_EFFECT_CHANDRA_GRAHAN
-            yogaName.contains("Chandra-Ketu") -> StringKey.YOGA_EFFECT_CHANDRA_KETU
-            yogaName.contains("Angarak") -> StringKey.YOGA_EFFECT_ANGARAK
-            yogaName.contains("Shrapit") -> StringKey.YOGA_EFFECT_SHRAPIT
-            yogaName.contains("Kala Sarpa") -> StringKey.YOGA_EFFECT_KALA_SARPA
-            yogaName.contains("Papakartari") -> StringKey.YOGA_EFFECT_PAPAKARTARI
-            yogaName.contains("Shubhakartari") -> StringKey.YOGA_EFFECT_SHUBHAKARTARI
-            yogaName.contains("Sanyasa") -> StringKey.YOGA_EFFECT_SANYASA
-            yogaName.contains("Chamara") -> StringKey.YOGA_EFFECT_CHAMARA
-            yogaName.contains("Dharma-Karmadhipati") -> StringKey.YOGA_EFFECT_DHARMA_KARMADHIPATI
+            yogaName.contains("Surya Grahan") && !yogaName.contains("Ketu") -> StringKeyMatch.YOGA_EFFECT_SURYA_GRAHAN
+            yogaName.contains("Surya-Ketu Grahan") -> StringKeyMatch.YOGA_EFFECT_SURYA_KETU_GRAHAN
+            yogaName.contains("Chandra Grahan") -> StringKeyMatch.YOGA_EFFECT_CHANDRA_GRAHAN
+            yogaName.contains("Chandra-Ketu") -> StringKeyMatch.YOGA_EFFECT_CHANDRA_KETU
+            yogaName.contains("Angarak") -> StringKeyMatch.YOGA_EFFECT_ANGARAK
+            yogaName.contains("Shrapit") -> StringKeyMatch.YOGA_EFFECT_SHRAPIT
+            yogaName.contains("Kala Sarpa") -> StringKeyMatch.YOGA_EFFECT_KALA_SARPA
+            yogaName.contains("Papakartari") -> StringKeyMatch.YOGA_EFFECT_PAPAKARTARI
+            yogaName.contains("Shubhakartari") -> StringKeyMatch.YOGA_EFFECT_SHUBHAKARTARI
+            yogaName.contains("Sanyasa") -> StringKeyMatch.YOGA_EFFECT_SANYASA
+            yogaName.contains("Chamara") -> StringKeyMatch.YOGA_EFFECT_CHAMARA
+            yogaName.contains("Dharma-Karmadhipati") -> StringKeyMatch.YOGA_EFFECT_DHARMA_KARMADHIPATI
             else -> return "" // Return empty for unknown yogas, caller should use original
         }
         return StringResources.get(key, language)

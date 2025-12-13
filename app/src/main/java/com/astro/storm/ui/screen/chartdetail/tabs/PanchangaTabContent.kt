@@ -62,6 +62,8 @@ import androidx.compose.ui.unit.sp
 import com.astro.storm.data.localization.Language
 import com.astro.storm.data.localization.LocalLanguage
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyAnalysis
+import com.astro.storm.data.localization.StringKeyMatch
 import com.astro.storm.data.localization.getLocalizedName
 import com.astro.storm.data.localization.stringResource
 import com.astro.storm.data.model.Nakshatra
@@ -183,13 +185,13 @@ private fun PanchangaSummaryCard(panchanga: PanchangaData) {
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
-                        text = stringResource(StringKey.PANCHANGA_AT_BIRTH),
+                        text = stringResource(StringKeyAnalysis.PANCHANGA_AT_BIRTH),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = ChartDetailColors.TextPrimary
                     )
                     Text(
-                        text = stringResource(StringKey.PANCHANGA_SANSKRIT),
+                        text = stringResource(StringKeyAnalysis.PANCHANGA_SANSKRIT),
                         fontSize = 12.sp,
                         color = ChartDetailColors.TextMuted
                     )
@@ -201,20 +203,20 @@ private fun PanchangaSummaryCard(panchanga: PanchangaData) {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 PanchangaElement(
-                    label = stringResource(StringKey.PANCHANGA_TITHI),
-                    sanskrit = stringResource(StringKey.PANCHANGA_LUNAR_DAY_SANSKRIT),
+                    label = stringResource(StringKeyMatch.PANCHANGA_TITHI),
+                    sanskrit = stringResource(StringKeyAnalysis.PANCHANGA_LUNAR_DAY_SANSKRIT),
                     value = panchanga.tithi.tithi.getLocalizedName(language),
                     color = ChartDetailColors.AccentTeal
                 )
                 PanchangaElement(
-                    label = stringResource(StringKey.PANCHANGA_NAKSHATRA_LABEL),
-                    sanskrit = stringResource(StringKey.PANCHANGA_LUNAR_MANSION_SANSKRIT),
+                    label = stringResource(StringKeyMatch.PANCHANGA_NAKSHATRA_LABEL),
+                    sanskrit = stringResource(StringKeyAnalysis.PANCHANGA_LUNAR_MANSION_SANSKRIT),
                     value = panchanga.nakshatra.nakshatra.getLocalizedName(language),
                     color = ChartDetailColors.AccentPurple
                 )
                 PanchangaElement(
-                    label = stringResource(StringKey.PANCHANGA_YOGA),
-                    sanskrit = stringResource(StringKey.PANCHANGA_LUNISOLAR_SANSKRIT),
+                    label = stringResource(StringKeyMatch.PANCHANGA_YOGA),
+                    sanskrit = stringResource(StringKeyAnalysis.PANCHANGA_LUNISOLAR_SANSKRIT),
                     value = panchanga.yoga.yoga.getLocalizedName(language),
                     color = ChartDetailColors.AccentGold
                 )
@@ -227,14 +229,14 @@ private fun PanchangaSummaryCard(panchanga: PanchangaData) {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 PanchangaElement(
-                    label = stringResource(StringKey.PANCHANGA_KARANA),
-                    sanskrit = stringResource(StringKey.PANCHANGA_HALF_LUNAR_DAY_SANSKRIT),
+                    label = stringResource(StringKeyMatch.PANCHANGA_KARANA),
+                    sanskrit = stringResource(StringKeyAnalysis.PANCHANGA_HALF_LUNAR_DAY_SANSKRIT),
                     value = panchanga.karana.karana.getLocalizedName(language),
                     color = ChartDetailColors.AccentBlue
                 )
                 PanchangaElement(
-                    label = stringResource(StringKey.PANCHANGA_VARA),
-                    sanskrit = stringResource(StringKey.PANCHANGA_WEEKDAY_SANSKRIT),
+                    label = stringResource(StringKeyMatch.PANCHANGA_VARA),
+                    sanskrit = stringResource(StringKeyAnalysis.PANCHANGA_WEEKDAY_SANSKRIT),
                     value = panchanga.vara.getLocalizedName(language),
                     color = ChartDetailColors.AccentOrange
                 )
@@ -251,7 +253,7 @@ private fun PanchangaSummaryCard(panchanga: PanchangaData) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 SunTimeIndicator(
-                    label = stringResource(StringKey.PANCHANGA_SUNRISE),
+                    label = stringResource(StringKeyMatch.PANCHANGA_SUNRISE),
                     time = panchanga.sunrise,
                     icon = Icons.Outlined.WbSunny,
                     color = ChartDetailColors.AccentGold
@@ -261,7 +263,7 @@ private fun PanchangaSummaryCard(panchanga: PanchangaData) {
                     paksha = panchanga.paksha.getLocalizedName(language)
                 )
                 SunTimeIndicator(
-                    label = stringResource(StringKey.PANCHANGA_SUNSET),
+                    label = stringResource(StringKeyMatch.PANCHANGA_SUNSET),
                     time = panchanga.sunset,
                     icon = Icons.Outlined.WbTwilight,
                     color = ChartDetailColors.AccentOrange
@@ -412,8 +414,8 @@ private fun TithiCard(
     val tithiData = getTithiData(panchanga.tithi.tithi.number)
 
     ExpandableDetailCard(
-        title = stringResource(StringKey.PANCHANGA_TITHI),
-        subtitle = stringResource(StringKey.PANCHANGA_TITHI_SUBTITLE),
+        title = stringResource(StringKeyMatch.PANCHANGA_TITHI),
+        subtitle = stringResource(StringKeyAnalysis.PANCHANGA_TITHI_SUBTITLE),
         value = panchanga.tithi.tithi.getLocalizedName(language),
         isExpanded = isExpanded,
         onToggleExpand = onToggleExpand,
@@ -422,16 +424,16 @@ private fun TithiCard(
         qualityIndicator = tithiData.quality
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            DetailRow(stringResource(StringKey.PANCHANGA_SANSKRIT_LABEL), panchanga.tithi.tithi.sanskrit, ChartDetailColors.TextSecondary)
-            DetailRow(stringResource(StringKey.PANCHANGA_NUMBER), "${panchanga.tithi.number} of 30", ChartDetailColors.TextPrimary)
-            DetailRow(stringResource(StringKey.PANCHANGA_PAKSHA), panchanga.paksha.getLocalizedName(language), ChartDetailColors.TextSecondary)
-            DetailRow(stringResource(StringKey.PANCHANGA_DEITY), tithiData.deity, ChartDetailColors.AccentPurple)
-            DetailRow(stringResource(StringKey.PANCHANGA_LORD), panchanga.tithi.lord.getLocalizedName(language), ChartDetailColors.AccentTeal)
-            DetailRow(stringResource(StringKey.PANCHANGA_NATURE), tithiData.nature, getQualityColor(tithiData.quality))
-            ProgressRow(stringResource(StringKey.PANCHANGA_PROGRESS), panchanga.tithi.progress, ChartDetailColors.AccentGold)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_SANSKRIT_LABEL), panchanga.tithi.tithi.sanskrit, ChartDetailColors.TextSecondary)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_NUMBER), "${panchanga.tithi.number} of 30", ChartDetailColors.TextPrimary)
+            DetailRow(stringResource(StringKeyMatch.PANCHANGA_PAKSHA), panchanga.paksha.getLocalizedName(language), ChartDetailColors.TextSecondary)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_DEITY), tithiData.deity, ChartDetailColors.AccentPurple)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_LORD), panchanga.tithi.lord.getLocalizedName(language), ChartDetailColors.AccentTeal)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_NATURE), tithiData.nature, getQualityColor(tithiData.quality))
+            ProgressRow(stringResource(StringKeyAnalysis.PANCHANGA_PROGRESS), panchanga.tithi.progress, ChartDetailColors.AccentGold)
 
             DescriptionSection(
-                title = stringResource(StringKey.PANCHANGA_SIGNIFICANCE),
+                title = stringResource(StringKeyAnalysis.PANCHANGA_SIGNIFICANCE),
                 description = tithiData.description
             )
 
@@ -455,8 +457,8 @@ private fun NakshatraCard(
     val nakshatraData = getNakshatraData(panchanga.nakshatra.nakshatra)
 
     ExpandableDetailCard(
-        title = stringResource(StringKey.PANCHANGA_NAKSHATRA_LABEL),
-        subtitle = stringResource(StringKey.PANCHANGA_NAKSHATRA_SUBTITLE),
+        title = stringResource(StringKeyMatch.PANCHANGA_NAKSHATRA_LABEL),
+        subtitle = stringResource(StringKeyAnalysis.PANCHANGA_NAKSHATRA_SUBTITLE),
         value = panchanga.nakshatra.nakshatra.getLocalizedName(language),
         isExpanded = isExpanded,
         onToggleExpand = onToggleExpand,
@@ -465,19 +467,19 @@ private fun NakshatraCard(
         qualityIndicator = nakshatraData.quality
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            DetailRow(stringResource(StringKey.PANCHANGA_SANSKRIT_LABEL), nakshatraData.sanskrit, ChartDetailColors.TextSecondary)
-            DetailRow(stringResource(StringKey.PANCHANGA_NUMBER), "${panchanga.nakshatra.number} of 27", ChartDetailColors.TextPrimary)
-            DetailRow(stringResource(StringKey.PANCHANGA_PADA), "${panchanga.nakshatra.pada} of 4", ChartDetailColors.AccentTeal)
-            DetailRow(stringResource(StringKey.PANCHANGA_RULER), panchanga.nakshatra.lord.getLocalizedName(language), ChartDetailColors.AccentGold)
-            DetailRow(stringResource(StringKey.PANCHANGA_DEITY), nakshatraData.deity, ChartDetailColors.AccentPurple)
-            DetailRow(stringResource(StringKey.PANCHANGA_SYMBOL), nakshatraData.symbol, ChartDetailColors.TextSecondary)
-            DetailRow(stringResource(StringKey.PANCHANGA_GANA), nakshatraData.gana, getGanaColor(nakshatraData.gana))
-            DetailRow(stringResource(StringKey.PANCHANGA_GUNA), nakshatraData.guna, ChartDetailColors.TextSecondary)
-            DetailRow(stringResource(StringKey.PANCHANGA_ANIMAL), nakshatraData.animal, ChartDetailColors.TextSecondary)
-            ProgressRow(stringResource(StringKey.PANCHANGA_PROGRESS), panchanga.nakshatra.progress, ChartDetailColors.AccentGold)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_SANSKRIT_LABEL), nakshatraData.sanskrit, ChartDetailColors.TextSecondary)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_NUMBER), "${panchanga.nakshatra.number} of 27", ChartDetailColors.TextPrimary)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_PADA), "${panchanga.nakshatra.pada} of 4", ChartDetailColors.AccentTeal)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_RULER), panchanga.nakshatra.lord.getLocalizedName(language), ChartDetailColors.AccentGold)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_DEITY), nakshatraData.deity, ChartDetailColors.AccentPurple)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_SYMBOL), nakshatraData.symbol, ChartDetailColors.TextSecondary)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_GANA), nakshatraData.gana, getGanaColor(nakshatraData.gana))
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_GUNA), nakshatraData.guna, ChartDetailColors.TextSecondary)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_ANIMAL), nakshatraData.animal, ChartDetailColors.TextSecondary)
+            ProgressRow(stringResource(StringKeyAnalysis.PANCHANGA_PROGRESS), panchanga.nakshatra.progress, ChartDetailColors.AccentGold)
 
             DescriptionSection(
-                title = stringResource(StringKey.PANCHANGA_CHARACTERISTICS),
+                title = stringResource(StringKeyAnalysis.PANCHANGA_CHARACTERISTICS),
                 description = nakshatraData.description
             )
         }
@@ -494,8 +496,8 @@ private fun YogaCard(
     val yogaData = getYogaData(panchanga.yoga.yoga)
 
     ExpandableDetailCard(
-        title = stringResource(StringKey.PANCHANGA_YOGA),
-        subtitle = stringResource(StringKey.PANCHANGA_YOGA_SUBTITLE),
+        title = stringResource(StringKeyMatch.PANCHANGA_YOGA),
+        subtitle = stringResource(StringKeyAnalysis.PANCHANGA_YOGA_SUBTITLE),
         value = panchanga.yoga.yoga.getLocalizedName(language),
         isExpanded = isExpanded,
         onToggleExpand = onToggleExpand,
@@ -504,14 +506,14 @@ private fun YogaCard(
         qualityIndicator = yogaData.quality
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            DetailRow(stringResource(StringKey.PANCHANGA_SANSKRIT_LABEL), yogaData.sanskrit, ChartDetailColors.TextSecondary)
-            DetailRow(stringResource(StringKey.PANCHANGA_NUMBER), "${panchanga.yoga.number} of 27", ChartDetailColors.TextPrimary)
-            DetailRow(stringResource(StringKey.PANCHANGA_MEANING), yogaData.meaning, ChartDetailColors.TextSecondary)
-            DetailRow(stringResource(StringKey.PANCHANGA_NATURE), panchanga.yoga.yoga.nature.getLocalizedName(language), getQualityColor(yogaData.quality))
-            ProgressRow(stringResource(StringKey.PANCHANGA_PROGRESS), panchanga.yoga.progress, ChartDetailColors.AccentTeal)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_SANSKRIT_LABEL), yogaData.sanskrit, ChartDetailColors.TextSecondary)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_NUMBER), "${panchanga.yoga.number} of 27", ChartDetailColors.TextPrimary)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_MEANING), yogaData.meaning, ChartDetailColors.TextSecondary)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_NATURE), panchanga.yoga.yoga.nature.getLocalizedName(language), getQualityColor(yogaData.quality))
+            ProgressRow(stringResource(StringKeyAnalysis.PANCHANGA_PROGRESS), panchanga.yoga.progress, ChartDetailColors.AccentTeal)
 
             DescriptionSection(
-                title = stringResource(StringKey.PANCHANGA_EFFECTS),
+                title = stringResource(StringKeyAnalysis.PANCHANGA_EFFECTS),
                 description = yogaData.description
             )
         }
@@ -528,8 +530,8 @@ private fun KaranaCard(
     val karanaData = getKaranaData(panchanga.karana.karana)
 
     ExpandableDetailCard(
-        title = stringResource(StringKey.PANCHANGA_KARANA),
-        subtitle = stringResource(StringKey.PANCHANGA_KARANA_SUBTITLE),
+        title = stringResource(StringKeyMatch.PANCHANGA_KARANA),
+        subtitle = stringResource(StringKeyAnalysis.PANCHANGA_KARANA_SUBTITLE),
         value = panchanga.karana.karana.getLocalizedName(language),
         isExpanded = isExpanded,
         onToggleExpand = onToggleExpand,
@@ -538,14 +540,14 @@ private fun KaranaCard(
         qualityIndicator = karanaData.quality
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            DetailRow(stringResource(StringKey.PANCHANGA_SANSKRIT_LABEL), karanaData.sanskrit, ChartDetailColors.TextSecondary)
-            DetailRow(stringResource(StringKey.PANCHANGA_NUMBER), "${panchanga.karana.number} of 60", ChartDetailColors.TextPrimary)
-            DetailRow(stringResource(StringKey.PANCHANGA_TYPE), karanaData.type, ChartDetailColors.TextSecondary)
-            DetailRow(stringResource(StringKey.PANCHANGA_NATURE), panchanga.karana.karana.type.getLocalizedName(language), getQualityColor(karanaData.quality))
-            ProgressRow(stringResource(StringKey.PANCHANGA_PROGRESS), panchanga.karana.progress, ChartDetailColors.AccentGold)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_SANSKRIT_LABEL), karanaData.sanskrit, ChartDetailColors.TextSecondary)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_NUMBER), "${panchanga.karana.number} of 60", ChartDetailColors.TextPrimary)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_TYPE), karanaData.type, ChartDetailColors.TextSecondary)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_NATURE), panchanga.karana.karana.type.getLocalizedName(language), getQualityColor(karanaData.quality))
+            ProgressRow(stringResource(StringKeyAnalysis.PANCHANGA_PROGRESS), panchanga.karana.progress, ChartDetailColors.AccentGold)
 
             DescriptionSection(
-                title = stringResource(StringKey.PANCHANGA_SIGNIFICANCE),
+                title = stringResource(StringKeyAnalysis.PANCHANGA_SIGNIFICANCE),
                 description = karanaData.description
             )
         }
@@ -562,8 +564,8 @@ private fun VaraCard(
     val varaData = getVaraData(panchanga.vara)
 
     ExpandableDetailCard(
-        title = stringResource(StringKey.PANCHANGA_VARA),
-        subtitle = stringResource(StringKey.PANCHANGA_VARA_SUBTITLE),
+        title = stringResource(StringKeyMatch.PANCHANGA_VARA),
+        subtitle = stringResource(StringKeyAnalysis.PANCHANGA_VARA_SUBTITLE),
         value = panchanga.vara.getLocalizedName(language),
         isExpanded = isExpanded,
         onToggleExpand = onToggleExpand,
@@ -572,13 +574,13 @@ private fun VaraCard(
         qualityIndicator = null
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            DetailRow(stringResource(StringKey.PANCHANGA_SANSKRIT_LABEL), varaData.sanskrit, ChartDetailColors.TextSecondary)
-            DetailRow(stringResource(StringKey.PANCHANGA_RULING_PLANET), panchanga.vara.lord.getLocalizedName(language), ChartDetailColors.getPlanetColor(panchanga.vara.lord))
-            DetailRow(stringResource(StringKey.PANCHANGA_ELEMENT), varaData.element, ChartDetailColors.TextSecondary)
-            DetailRow(stringResource(StringKey.PANCHANGA_DIRECTION), varaData.direction, ChartDetailColors.TextSecondary)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_SANSKRIT_LABEL), varaData.sanskrit, ChartDetailColors.TextSecondary)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_RULING_PLANET), panchanga.vara.lord.getLocalizedName(language), ChartDetailColors.getPlanetColor(panchanga.vara.lord))
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_ELEMENT), varaData.element, ChartDetailColors.TextSecondary)
+            DetailRow(stringResource(StringKeyAnalysis.PANCHANGA_DIRECTION), varaData.direction, ChartDetailColors.TextSecondary)
 
             DescriptionSection(
-                title = stringResource(StringKey.PANCHANGA_SIGNIFICANCE),
+                title = stringResource(StringKeyAnalysis.PANCHANGA_SIGNIFICANCE),
                 description = varaData.description
             )
 
@@ -705,11 +707,11 @@ private fun ExpandableDetailCard(
 @Composable
 private fun QualityBadge(quality: Quality) {
     val (color, text) = when (quality) {
-        Quality.EXCELLENT -> ChartDetailColors.SuccessColor to stringResource(StringKey.QUALITY_EXCELLENT)
-        Quality.GOOD -> ChartDetailColors.AccentTeal to stringResource(StringKey.QUALITY_GOOD)
-        Quality.NEUTRAL -> ChartDetailColors.TextMuted to stringResource(StringKey.QUALITY_NEUTRAL)
-        Quality.CHALLENGING -> ChartDetailColors.WarningColor to stringResource(StringKey.QUALITY_CHALLENGING)
-        Quality.INAUSPICIOUS -> ChartDetailColors.ErrorColor to stringResource(StringKey.QUALITY_INAUSPICIOUS)
+        Quality.EXCELLENT -> ChartDetailColors.SuccessColor to stringResource(StringKeyAnalysis.QUALITY_EXCELLENT)
+        Quality.GOOD -> ChartDetailColors.AccentTeal to stringResource(StringKeyAnalysis.QUALITY_GOOD)
+        Quality.NEUTRAL -> ChartDetailColors.TextMuted to stringResource(StringKeyAnalysis.QUALITY_NEUTRAL)
+        Quality.CHALLENGING -> ChartDetailColors.WarningColor to stringResource(StringKeyAnalysis.QUALITY_CHALLENGING)
+        Quality.INAUSPICIOUS -> ChartDetailColors.ErrorColor to stringResource(StringKeyAnalysis.QUALITY_INAUSPICIOUS)
     }
 
     Surface(
@@ -835,7 +837,7 @@ private fun ActivitiesSection(
     Column(modifier = Modifier.padding(top = 12.dp)) {
         if (favorable.isNotEmpty()) {
             Text(
-                text = stringResource(StringKey.PANCHANGA_FAVORABLE_ACTIVITIES),
+                text = stringResource(StringKeyAnalysis.PANCHANGA_FAVORABLE_ACTIVITIES),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = ChartDetailColors.SuccessColor
@@ -852,7 +854,7 @@ private fun ActivitiesSection(
         if (unfavorable.isNotEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = stringResource(StringKey.PANCHANGA_AVOID),
+                text = stringResource(StringKeyAnalysis.PANCHANGA_AVOID),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = ChartDetailColors.WarningColor
@@ -907,13 +909,13 @@ private fun PanchangaInfoCard(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = stringResource(StringKey.PANCHANGA_ABOUT),
+                            text = stringResource(StringKeyAnalysis.PANCHANGA_ABOUT),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = ChartDetailColors.TextPrimary
                         )
                         Text(
-                            text = stringResource(StringKey.PANCHANGA_ABOUT_SUBTITLE),
+                            text = stringResource(StringKeyAnalysis.PANCHANGA_ABOUT_SUBTITLE),
                             fontSize = 11.sp,
                             color = ChartDetailColors.TextMuted
                         )
@@ -941,7 +943,7 @@ private fun PanchangaInfoCard(
                     )
 
                     Text(
-                        text = stringResource(StringKey.PANCHANGA_ABOUT_DESCRIPTION),
+                        text = stringResource(StringKeyAnalysis.PANCHANGA_ABOUT_DESCRIPTION),
                         fontSize = 13.sp,
                         color = ChartDetailColors.TextSecondary,
                         lineHeight = 20.sp
@@ -950,11 +952,11 @@ private fun PanchangaInfoCard(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     val elements = listOf(
-                        Triple(stringResource(StringKey.PANCHANGA_INFO_TITHI_TITLE), stringResource(StringKey.PANCHANGA_INFO_TITHI_LABEL), stringResource(StringKey.PANCHANGA_TITHI_DESC)),
-                        Triple(stringResource(StringKey.PANCHANGA_INFO_NAKSHATRA_TITLE), stringResource(StringKey.PANCHANGA_INFO_NAKSHATRA_LABEL), stringResource(StringKey.PANCHANGA_NAKSHATRA_DESC)),
-                        Triple(stringResource(StringKey.PANCHANGA_INFO_YOGA_TITLE), stringResource(StringKey.PANCHANGA_INFO_YOGA_LABEL), stringResource(StringKey.PANCHANGA_YOGA_DESC)),
-                        Triple(stringResource(StringKey.PANCHANGA_INFO_KARANA_TITLE), stringResource(StringKey.PANCHANGA_INFO_KARANA_LABEL), stringResource(StringKey.PANCHANGA_KARANA_DESC)),
-                        Triple(stringResource(StringKey.PANCHANGA_INFO_VARA_TITLE), stringResource(StringKey.PANCHANGA_INFO_VARA_LABEL), stringResource(StringKey.PANCHANGA_VARA_DESC))
+                        Triple(stringResource(StringKeyAnalysis.PANCHANGA_INFO_TITHI_TITLE), stringResource(StringKeyAnalysis.PANCHANGA_INFO_TITHI_LABEL), stringResource(StringKeyAnalysis.PANCHANGA_TITHI_DESC)),
+                        Triple(stringResource(StringKeyAnalysis.PANCHANGA_INFO_NAKSHATRA_TITLE), stringResource(StringKeyAnalysis.PANCHANGA_INFO_NAKSHATRA_LABEL), stringResource(StringKeyAnalysis.PANCHANGA_NAKSHATRA_DESC)),
+                        Triple(stringResource(StringKeyAnalysis.PANCHANGA_INFO_YOGA_TITLE), stringResource(StringKeyAnalysis.PANCHANGA_INFO_YOGA_LABEL), stringResource(StringKeyAnalysis.PANCHANGA_YOGA_DESC)),
+                        Triple(stringResource(StringKeyAnalysis.PANCHANGA_INFO_KARANA_TITLE), stringResource(StringKeyAnalysis.PANCHANGA_INFO_KARANA_LABEL), stringResource(StringKeyAnalysis.PANCHANGA_KARANA_DESC)),
+                        Triple(stringResource(StringKeyAnalysis.PANCHANGA_INFO_VARA_TITLE), stringResource(StringKeyAnalysis.PANCHANGA_INFO_VARA_LABEL), stringResource(StringKeyAnalysis.PANCHANGA_VARA_DESC))
                     )
 
                     elements.forEach { (name, subtitle, description) ->
@@ -998,7 +1000,7 @@ private fun PanchangaInfoCard(
                         color = ChartDetailColors.AccentGold.copy(alpha = 0.1f)
                     ) {
                         Text(
-                            text = stringResource(StringKey.PANCHANGA_BIRTH_INSIGHT),
+                            text = stringResource(StringKeyAnalysis.PANCHANGA_BIRTH_INSIGHT),
                             fontSize = 12.sp,
                             color = ChartDetailColors.TextSecondary,
                             lineHeight = 18.sp,

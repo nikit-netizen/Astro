@@ -2,6 +2,8 @@ package com.astro.storm.ephemeris
 
 import com.astro.storm.data.localization.Language
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyMatch
+import com.astro.storm.data.localization.StringKeyDosha
 import com.astro.storm.data.localization.StringResources
 import com.astro.storm.data.model.Planet
 import com.astro.storm.data.model.PlanetPosition
@@ -71,11 +73,11 @@ object ManglikDoshaCalculator {
         SEVERE;
 
         fun getLocalizedName(language: Language): String = when (this) {
-            NONE -> StringResources.get(StringKey.MANGLIK_NONE, language)
-            MILD -> StringResources.get(StringKey.MANGLIK_MILD, language)
-            PARTIAL -> StringResources.get(StringKey.MANGLIK_PARTIAL, language)
-            FULL -> StringResources.get(StringKey.MANGLIK_FULL, language)
-            SEVERE -> StringResources.get(StringKey.MANGLIK_SEVERE, language)
+            NONE -> StringResources.get(StringKeyMatch.MANGLIK_NONE, language)
+            MILD -> StringResources.get(StringKeyDosha.MANGLIK_MILD, language)
+            PARTIAL -> StringResources.get(StringKeyMatch.MANGLIK_PARTIAL, language)
+            FULL -> StringResources.get(StringKeyMatch.MANGLIK_FULL, language)
+            SEVERE -> StringResources.get(StringKeyDosha.MANGLIK_SEVERE, language)
         }
     }
 
@@ -133,11 +135,11 @@ object ManglikDoshaCalculator {
         fun getSummary(language: Language): String {
             return if (isManglik) {
                 val levelName = effectiveLevel.getLocalizedName(language)
-                StringResources.get(StringKey.MANGLIK_SUMMARY_PRESENT, language)
+                StringResources.get(StringKeyDosha.MANGLIK_SUMMARY_PRESENT, language)
                     .replace("{level}", levelName)
                     .replace("{intensity}", "%.1f".format(remainingIntensityAfterCancellations))
             } else {
-                StringResources.get(StringKey.MANGLIK_SUMMARY_ABSENT, language)
+                StringResources.get(StringKeyDosha.MANGLIK_SUMMARY_ABSENT, language)
             }
         }
     }
@@ -343,8 +345,8 @@ object ManglikDoshaCalculator {
         // 1. Mars in own sign (Aries or Scorpio)
         if (marsPosition.sign == ZodiacSign.ARIES || marsPosition.sign == ZodiacSign.SCORPIO) {
             factors.add(CancellationFactor(
-                titleKey = StringKey.MANGLIK_CANCEL_OWN_SIGN_TITLE,
-                descriptionKey = StringKey.MANGLIK_CANCEL_OWN_SIGN_DESC,
+                titleKey = StringKeyDosha.MANGLIK_CANCEL_OWN_SIGN_TITLE,
+                descriptionKey = StringKeyDosha.MANGLIK_CANCEL_OWN_SIGN_DESC,
                 strength = CancellationStrength.STRONG
             ))
         }
@@ -352,8 +354,8 @@ object ManglikDoshaCalculator {
         // 2. Mars in exaltation (Capricorn)
         if (marsPosition.sign == ZodiacSign.CAPRICORN) {
             factors.add(CancellationFactor(
-                titleKey = StringKey.MANGLIK_CANCEL_EXALTED_TITLE,
-                descriptionKey = StringKey.MANGLIK_CANCEL_EXALTED_DESC,
+                titleKey = StringKeyDosha.MANGLIK_CANCEL_EXALTED_TITLE,
+                descriptionKey = StringKeyDosha.MANGLIK_CANCEL_EXALTED_DESC,
                 strength = CancellationStrength.FULL
             ))
         }
@@ -364,16 +366,16 @@ object ManglikDoshaCalculator {
 
         if (jupiter != null && jupiter.house == marsPosition.house) {
             factors.add(CancellationFactor(
-                titleKey = StringKey.MANGLIK_CANCEL_JUPITER_CONJUNCT_TITLE,
-                descriptionKey = StringKey.MANGLIK_CANCEL_JUPITER_CONJUNCT_DESC,
+                titleKey = StringKeyDosha.MANGLIK_CANCEL_JUPITER_CONJUNCT_TITLE,
+                descriptionKey = StringKeyDosha.MANGLIK_CANCEL_JUPITER_CONJUNCT_DESC,
                 strength = CancellationStrength.FULL
             ))
         }
 
         if (venus != null && venus.house == marsPosition.house) {
             factors.add(CancellationFactor(
-                titleKey = StringKey.MANGLIK_CANCEL_VENUS_CONJUNCT_TITLE,
-                descriptionKey = StringKey.MANGLIK_CANCEL_VENUS_CONJUNCT_DESC,
+                titleKey = StringKeyDosha.MANGLIK_CANCEL_VENUS_CONJUNCT_TITLE,
+                descriptionKey = StringKeyDosha.MANGLIK_CANCEL_VENUS_CONJUNCT_DESC,
                 strength = CancellationStrength.STRONG
             ))
         }
@@ -383,8 +385,8 @@ object ManglikDoshaCalculator {
             val jupiterAspects = VedicAstrologyUtils.getAspectedHouses(Planet.JUPITER, jupiter.house)
             if (marsPosition.house in jupiterAspects) {
                 factors.add(CancellationFactor(
-                    titleKey = StringKey.MANGLIK_CANCEL_JUPITER_ASPECT_TITLE,
-                    descriptionKey = StringKey.MANGLIK_CANCEL_JUPITER_ASPECT_DESC,
+                    titleKey = StringKeyDosha.MANGLIK_CANCEL_JUPITER_ASPECT_TITLE,
+                    descriptionKey = StringKeyDosha.MANGLIK_CANCEL_JUPITER_ASPECT_DESC,
                     strength = CancellationStrength.STRONG
                 ))
             }
@@ -394,8 +396,8 @@ object ManglikDoshaCalculator {
         if (analysisFromLagna.marsHouse == 2 &&
             (marsPosition.sign == ZodiacSign.GEMINI || marsPosition.sign == ZodiacSign.VIRGO)) {
             factors.add(CancellationFactor(
-                titleKey = StringKey.MANGLIK_CANCEL_SECOND_MERCURY_TITLE,
-                descriptionKey = StringKey.MANGLIK_CANCEL_SECOND_MERCURY_DESC,
+                titleKey = StringKeyDosha.MANGLIK_CANCEL_SECOND_MERCURY_TITLE,
+                descriptionKey = StringKeyDosha.MANGLIK_CANCEL_SECOND_MERCURY_DESC,
                 strength = CancellationStrength.FULL
             ))
         }
@@ -404,8 +406,8 @@ object ManglikDoshaCalculator {
         if (analysisFromLagna.marsHouse == 4 &&
             (marsPosition.sign == ZodiacSign.ARIES || marsPosition.sign == ZodiacSign.SCORPIO)) {
             factors.add(CancellationFactor(
-                titleKey = StringKey.MANGLIK_CANCEL_FOURTH_OWN_TITLE,
-                descriptionKey = StringKey.MANGLIK_CANCEL_FOURTH_OWN_DESC,
+                titleKey = StringKeyDosha.MANGLIK_CANCEL_FOURTH_OWN_TITLE,
+                descriptionKey = StringKeyDosha.MANGLIK_CANCEL_FOURTH_OWN_DESC,
                 strength = CancellationStrength.FULL
             ))
         }
@@ -414,8 +416,8 @@ object ManglikDoshaCalculator {
         if (analysisFromLagna.marsHouse == 7 &&
             (marsPosition.sign == ZodiacSign.CANCER || marsPosition.sign == ZodiacSign.CAPRICORN)) {
             factors.add(CancellationFactor(
-                titleKey = StringKey.MANGLIK_CANCEL_SEVENTH_SPECIAL_TITLE,
-                descriptionKey = StringKey.MANGLIK_CANCEL_SEVENTH_SPECIAL_DESC,
+                titleKey = StringKeyDosha.MANGLIK_CANCEL_SEVENTH_SPECIAL_TITLE,
+                descriptionKey = StringKeyDosha.MANGLIK_CANCEL_SEVENTH_SPECIAL_DESC,
                 strength = CancellationStrength.STRONG
             ))
         }
@@ -424,8 +426,8 @@ object ManglikDoshaCalculator {
         if (analysisFromLagna.marsHouse == 8 &&
             (marsPosition.sign == ZodiacSign.SAGITTARIUS || marsPosition.sign == ZodiacSign.PISCES)) {
             factors.add(CancellationFactor(
-                titleKey = StringKey.MANGLIK_CANCEL_EIGHTH_JUPITER_TITLE,
-                descriptionKey = StringKey.MANGLIK_CANCEL_EIGHTH_JUPITER_DESC,
+                titleKey = StringKeyDosha.MANGLIK_CANCEL_EIGHTH_JUPITER_TITLE,
+                descriptionKey = StringKeyDosha.MANGLIK_CANCEL_EIGHTH_JUPITER_DESC,
                 strength = CancellationStrength.STRONG
             ))
         }
@@ -434,8 +436,8 @@ object ManglikDoshaCalculator {
         if (analysisFromLagna.marsHouse == 12 &&
             (marsPosition.sign == ZodiacSign.TAURUS || marsPosition.sign == ZodiacSign.LIBRA)) {
             factors.add(CancellationFactor(
-                titleKey = StringKey.MANGLIK_CANCEL_TWELFTH_VENUS_TITLE,
-                descriptionKey = StringKey.MANGLIK_CANCEL_TWELFTH_VENUS_DESC,
+                titleKey = StringKeyDosha.MANGLIK_CANCEL_TWELFTH_VENUS_TITLE,
+                descriptionKey = StringKeyDosha.MANGLIK_CANCEL_TWELFTH_VENUS_DESC,
                 strength = CancellationStrength.FULL
             ))
         }
@@ -444,8 +446,8 @@ object ManglikDoshaCalculator {
         // For Aries, Cancer, Leo, and Scorpio ascendants, Mars is a benefic
         if (ascendantSign in listOf(ZodiacSign.ARIES, ZodiacSign.CANCER, ZodiacSign.LEO, ZodiacSign.SCORPIO)) {
             factors.add(CancellationFactor(
-                titleKey = StringKey.MANGLIK_CANCEL_BENEFIC_ASC_TITLE,
-                descriptionKey = StringKey.MANGLIK_CANCEL_BENEFIC_ASC_DESC,
+                titleKey = StringKeyDosha.MANGLIK_CANCEL_BENEFIC_ASC_TITLE,
+                descriptionKey = StringKeyDosha.MANGLIK_CANCEL_BENEFIC_ASC_DESC,
                 strength = CancellationStrength.PARTIAL
             ))
         }
@@ -483,24 +485,24 @@ object ManglikDoshaCalculator {
         // Kumbh Vivah - ceremonial marriage to a pot before actual marriage
         remedies.add(ManglikRemedy(
             type = RemedyType.MARRIAGE_REMEDY,
-            titleKey = StringKey.REMEDY_KUMBH_VIVAH_TITLE,
-            descriptionKey = StringKey.REMEDY_KUMBH_VIVAH_DESC,
+            titleKey = StringKeyDosha.REMEDY_KUMBH_VIVAH_TITLE,
+            descriptionKey = StringKeyDosha.REMEDY_KUMBH_VIVAH_DESC,
             effectiveness = "Traditional remedy - highly effective"
         ))
 
         // Mangal Shanti Puja
         remedies.add(ManglikRemedy(
             type = RemedyType.RITUAL,
-            titleKey = StringKey.REMEDY_MANGAL_SHANTI_TITLE,
-            descriptionKey = StringKey.REMEDY_MANGAL_SHANTI_DESC,
+            titleKey = StringKeyDosha.REMEDY_MANGAL_SHANTI_TITLE,
+            descriptionKey = StringKeyDosha.REMEDY_MANGAL_SHANTI_DESC,
             effectiveness = "Recommended for all Manglik levels"
         ))
 
         // Mars Mantra
         remedies.add(ManglikRemedy(
             type = RemedyType.MANTRA,
-            titleKey = StringKey.REMEDY_MARS_MANTRA_TITLE,
-            descriptionKey = StringKey.REMEDY_MARS_MANTRA_DESC,
+            titleKey = StringKeyDosha.REMEDY_MARS_MANTRA_TITLE,
+            descriptionKey = StringKeyDosha.REMEDY_MARS_MANTRA_DESC,
             effectiveness = "Daily recitation on Tuesdays"
         ))
 
@@ -508,8 +510,8 @@ object ManglikDoshaCalculator {
         if (level == ManglikLevel.FULL || level == ManglikLevel.SEVERE) {
             remedies.add(ManglikRemedy(
                 type = RemedyType.GEMSTONE,
-                titleKey = StringKey.REMEDY_CORAL_TITLE,
-                descriptionKey = StringKey.REMEDY_CORAL_DESC,
+                titleKey = StringKeyDosha.REMEDY_CORAL_TITLE,
+                descriptionKey = StringKeyDosha.REMEDY_CORAL_DESC,
                 effectiveness = "Consult astrologer before wearing"
             ))
         }
@@ -517,8 +519,8 @@ object ManglikDoshaCalculator {
         // Charity
         remedies.add(ManglikRemedy(
             type = RemedyType.CHARITY,
-            titleKey = StringKey.REMEDY_TUESDAY_CHARITY_TITLE,
-            descriptionKey = StringKey.REMEDY_TUESDAY_CHARITY_DESC,
+            titleKey = StringKeyDosha.REMEDY_TUESDAY_CHARITY_TITLE,
+            descriptionKey = StringKeyDosha.REMEDY_TUESDAY_CHARITY_DESC,
             effectiveness = "Every Tuesday"
         ))
 

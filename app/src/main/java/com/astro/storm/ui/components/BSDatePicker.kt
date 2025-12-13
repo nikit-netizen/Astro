@@ -87,6 +87,7 @@ import com.astro.storm.data.localization.BikramSambatConverter.BSWeekday
 import com.astro.storm.data.localization.Language
 import com.astro.storm.data.localization.LocalLanguage
 import com.astro.storm.data.localization.StringKey
+import com.astro.storm.data.localization.StringKeyMatch
 import com.astro.storm.data.localization.stringResource
 import com.astro.storm.ui.theme.AppTheme
 import java.time.LocalDate
@@ -333,7 +334,7 @@ private fun BSDatePickerHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = stringResource(StringKey.BS_DATE_PICKER_TITLE),
+            text = stringResource(StringKeyMatch.BS_DATE_PICKER_TITLE),
             fontWeight = FontWeight.SemiBold,
             fontSize = 18.sp
         )
@@ -677,7 +678,7 @@ private fun YearSelector(
 
     Column(modifier = modifier) {
         Text(
-            text = stringResource(StringKey.BS_YEAR),
+            text = stringResource(StringKeyMatch.BS_YEAR),
             style = MaterialTheme.typography.labelMedium,
             color = colors.textMuted,
             modifier = Modifier.padding(bottom = 4.dp)
@@ -742,7 +743,7 @@ private fun MonthSelector(
 
     Column(modifier = modifier) {
         Text(
-            text = stringResource(StringKey.BS_MONTH),
+            text = stringResource(StringKeyMatch.BS_MONTH),
             style = MaterialTheme.typography.labelMedium,
             color = colors.textMuted,
             modifier = Modifier.padding(bottom = 4.dp)
@@ -909,7 +910,7 @@ private fun CalendarGrid(
 
     Column {
         Text(
-            text = stringResource(StringKey.BS_DAY),
+            text = stringResource(StringKeyMatch.BS_DAY),
             style = MaterialTheme.typography.labelMedium,
             color = colors.textMuted,
             modifier = Modifier.padding(bottom = 8.dp)
