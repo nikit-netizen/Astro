@@ -596,6 +596,7 @@ object BhriguBinduCalculator {
                 FactorInfluence.HIGHLY_POSITIVE -> 2.0
                 FactorInfluence.POSITIVE -> 1.5
                 FactorInfluence.NEUTRAL -> 1.0
+                FactorInfluence.CHALLENGING -> 0.75
                 FactorInfluence.NEGATIVE -> 0.5
                 FactorInfluence.HIGHLY_NEGATIVE -> 0.0
             } +
