@@ -71,7 +71,7 @@ import com.astro.storm.ui.screen.chartdetail.components.StyledDivider
 import java.text.DecimalFormat
 
 @Immutable
-enum class DignityStatus(val stringKey: StringKey, val displayName: String) {
+enum class DignityStatus(val stringKey: com.astro.storm.data.localization.StringKeyInterface, val displayName: String) {
     EXALTED(StringKeyAnalysis.DIGNITY_EXALTED_STATUS, "Exalted"),
     DEBILITATED(StringKeyAnalysis.DIGNITY_DEBILITATED_STATUS, "Debilitated"),
     OWN_SIGN(StringKeyAnalysis.DIGNITY_OWN_SIGN_STATUS, "Own Sign"),

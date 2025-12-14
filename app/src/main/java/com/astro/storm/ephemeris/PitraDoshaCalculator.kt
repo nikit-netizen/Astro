@@ -127,8 +127,8 @@ object PitraDoshaCalculator {
      * Pitra Dosha remedy
      */
     data class PitraRemedy(
-        val titleKey: StringKey,
-        val descriptionKey: StringKey,
+        val titleKey: com.astro.storm.data.localization.StringKeyInterface,
+        val descriptionKey: com.astro.storm.data.localization.StringKeyInterface,
         val type: RemedyType,
         val timing: String?,
         val mantra: String?

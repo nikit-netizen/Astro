@@ -1,7 +1,6 @@
 package com.astro.storm.ephemeris
 
 import com.astro.storm.data.localization.Language
-import com.astro.storm.data.localization.StringKey
 import com.astro.storm.data.localization.StringKeyMatch
 import com.astro.storm.data.localization.StringResources
 import com.astro.storm.data.model.*
@@ -371,9 +370,9 @@ object GunaMilanCalculator {
         val analysis = when (doshaType) {
             "None" -> StringResources.get(StringKeyMatch.BHAKOOT_NO_DOSHA, language)
             "Cancelled" -> "${StringResources.get(StringKeyMatch.BHAKOOT_CANCELLED, language)} - $doshaDescription"
-            "2-12" -> "${StringResources.get(StringKey.BHAKOOT_2_12, language)} $doshaDescription"
-            "6-8" -> "${StringResources.get(StringKey.BHAKOOT_6_8, language)} $doshaDescription"
-            "5-9" -> "${StringResources.get(StringKey.BHAKOOT_5_9, language)} $doshaDescription"
+            "2-12" -> "${StringResources.get(StringKeyMatch.BHAKOOT_2_12, language)} $doshaDescription"
+            "6-8" -> "${StringResources.get(StringKeyMatch.BHAKOOT_6_8, language)} $doshaDescription"
+            "5-9" -> "${StringResources.get(StringKeyMatch.BHAKOOT_5_9, language)} $doshaDescription"
             else -> doshaDescription
         }
 
@@ -412,9 +411,9 @@ object GunaMilanCalculator {
                 Triple(7.0, "Cancelled", cancellation)
             } else {
                 val description = if (is2_12) {
-                    StringResources.get(StringKey.BHAKOOT_2_12_DESC, language)
+                    StringResources.get(StringKeyMatch.BHAKOOT_2_12_DESC, language)
                 } else {
-                    StringResources.get(StringKey.BHAKOOT_6_8_DESC, language)
+                    StringResources.get(StringKeyMatch.BHAKOOT_6_8_DESC, language)
                 }
                 Triple(0.0, if (is2_12) "2-12" else "6-8", description)
             }
@@ -422,7 +421,7 @@ object GunaMilanCalculator {
 
         // 5-9 pattern (Trine - generally beneficial)
         if (diff == 4 || diff == 8) {
-            return Triple(7.0, "5-9", StringResources.get(StringKey.BHAKOOT_5_9_DESC, language))
+            return Triple(7.0, "5-9", StringResources.get(StringKeyMatch.BHAKOOT_5_9_DESC, language))
         }
 
         return Triple(7.0, "None", StringResources.get(StringKeyMatch.BHAKOOT_FAVORABLE, language))

@@ -501,18 +501,18 @@ fun getYoniLocalizedAnimalName(yoni: Yoni, language: Language): String {
  */
 fun getHouseSignification(house: Int, language: Language): String {
     return when (house) {
-        1 -> StringResources.get(StringKey.HOUSE_1_SIGNIFICATION, language)
-        2 -> StringResources.get(StringKey.HOUSE_2_SIGNIFICATION, language)
-        3 -> StringResources.get(StringKey.HOUSE_3_SIGNIFICATION, language)
-        4 -> StringResources.get(StringKey.HOUSE_4_SIGNIFICATION, language)
-        5 -> StringResources.get(StringKey.HOUSE_5_SIGNIFICATION, language)
-        6 -> StringResources.get(StringKey.HOUSE_6_SIGNIFICATION, language)
-        7 -> StringResources.get(StringKey.HOUSE_7_SIGNIFICATION, language)
-        8 -> StringResources.get(StringKey.HOUSE_8_SIGNIFICATION, language)
-        9 -> StringResources.get(StringKey.HOUSE_9_SIGNIFICATION, language)
-        10 -> StringResources.get(StringKey.HOUSE_10_SIGNIFICATION, language)
-        11 -> StringResources.get(StringKey.HOUSE_11_SIGNIFICATION, language)
-        12 -> StringResources.get(StringKey.HOUSE_12_SIGNIFICATION, language)
+        1 -> StringResources.get(StringKeyMatch.HOUSE_1_SIGNIFICATION, language)
+        2 -> StringResources.get(StringKeyMatch.HOUSE_2_SIGNIFICATION, language)
+        3 -> StringResources.get(StringKeyMatch.HOUSE_3_SIGNIFICATION, language)
+        4 -> StringResources.get(StringKeyMatch.HOUSE_4_SIGNIFICATION, language)
+        5 -> StringResources.get(StringKeyMatch.HOUSE_5_SIGNIFICATION, language)
+        6 -> StringResources.get(StringKeyMatch.HOUSE_6_SIGNIFICATION, language)
+        7 -> StringResources.get(StringKeyMatch.HOUSE_7_SIGNIFICATION, language)
+        8 -> StringResources.get(StringKeyMatch.HOUSE_8_SIGNIFICATION, language)
+        9 -> StringResources.get(StringKeyMatch.HOUSE_9_SIGNIFICATION, language)
+        10 -> StringResources.get(StringKeyMatch.HOUSE_10_SIGNIFICATION, language)
+        11 -> StringResources.get(StringKeyMatch.HOUSE_11_SIGNIFICATION, language)
+        12 -> StringResources.get(StringKeyMatch.HOUSE_12_SIGNIFICATION, language)
         else -> ""
     }
 }

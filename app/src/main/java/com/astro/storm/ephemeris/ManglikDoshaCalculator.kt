@@ -85,8 +85,8 @@ object ManglikDoshaCalculator {
      * Cancellation reason for Manglik Dosha
      */
     data class CancellationFactor(
-        val titleKey: StringKey,
-        val descriptionKey: StringKey,
+        val titleKey: com.astro.storm.data.localization.StringKeyInterface,
+        val descriptionKey: com.astro.storm.data.localization.StringKeyInterface,
         val strength: CancellationStrength
     ) {
         fun getTitle(language: Language): String = StringResources.get(titleKey, language)

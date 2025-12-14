@@ -51,7 +51,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.astro.storm.data.localization.StringKey
 import com.astro.storm.data.localization.StringKeyAnalysis
 import com.astro.storm.data.localization.stringResource
 import com.astro.storm.data.model.Planet
@@ -697,9 +696,9 @@ private fun InterpretationGuideCard(isExpanded: Boolean, onToggleExpand: (Boolea
                     GuideSection(
                         title = stringResource(StringKeyAnalysis.ASHTAK_SAV_TITLE),
                         points = listOf(
-                            stringResource(StringKey.ASHTAK_GUIDE_SAV_30),
-                            stringResource(StringKey.ASHTAK_GUIDE_SAV_28),
-                            stringResource(StringKey.ASHTAK_GUIDE_SAV_25),
+                            stringResource(StringKeyAnalysis.ASHTAK_GUIDE_SAV_30),
+                            stringResource(StringKeyAnalysis.ASHTAK_GUIDE_SAV_28),
+                            stringResource(StringKeyAnalysis.ASHTAK_GUIDE_SAV_25),
                             stringResource(StringKeyAnalysis.ASHTAK_GUIDE_SAV_BELOW)
                         )
                     )
@@ -709,10 +708,10 @@ private fun InterpretationGuideCard(isExpanded: Boolean, onToggleExpand: (Boolea
                     GuideSection(
                         title = stringResource(StringKeyAnalysis.ASHTAK_BAV_TITLE),
                         points = listOf(
-                            stringResource(StringKey.ASHTAK_GUIDE_BAV_5),
-                            stringResource(StringKey.ASHTAK_GUIDE_BAV_4),
-                            stringResource(StringKey.ASHTAK_GUIDE_BAV_3),
-                            stringResource(StringKey.ASHTAK_GUIDE_BAV_02)
+                            stringResource(StringKeyAnalysis.ASHTAK_GUIDE_BAV_5),
+                            stringResource(StringKeyAnalysis.ASHTAK_GUIDE_BAV_4),
+                            stringResource(StringKeyAnalysis.ASHTAK_GUIDE_BAV_3),
+                            stringResource(StringKeyAnalysis.ASHTAK_GUIDE_BAV_02)
                         )
                     )
 
@@ -721,10 +720,10 @@ private fun InterpretationGuideCard(isExpanded: Boolean, onToggleExpand: (Boolea
                     GuideSection(
                         title = stringResource(StringKeyAnalysis.ASHTAK_GUIDE_TRANSIT_TITLE),
                         points = listOf(
-                            stringResource(StringKey.ASHTAK_GUIDE_TRANSIT_1),
-                            stringResource(StringKey.ASHTAK_GUIDE_TRANSIT_2),
-                            stringResource(StringKey.ASHTAK_GUIDE_TRANSIT_3),
-                            stringResource(StringKey.ASHTAK_GUIDE_TRANSIT_4)
+                            stringResource(StringKeyAnalysis.ASHTAK_GUIDE_TRANSIT_1),
+                            stringResource(StringKeyAnalysis.ASHTAK_GUIDE_TRANSIT_2),
+                            stringResource(StringKeyAnalysis.ASHTAK_GUIDE_TRANSIT_3),
+                            stringResource(StringKeyAnalysis.ASHTAK_GUIDE_TRANSIT_4)
                         )
                     )
                 }

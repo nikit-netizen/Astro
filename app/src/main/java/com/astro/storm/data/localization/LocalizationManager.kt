@@ -91,14 +91,14 @@ class LocalizationManager private constructor(context: Context) {
     /**
      * Get localized string for the current language
      */
-    fun getString(key: StringKey): String {
+    fun getString(key: StringKeyInterface): String {
         return StringResources.get(key, _language.value)
     }
 
     /**
      * Get localized string with format arguments
      */
-    fun getString(key: StringKey, vararg args: Any): String {
+    fun getString(key: StringKeyInterface, vararg args: Any): String {
         return StringResources.get(key, _language.value, *args)
     }
 

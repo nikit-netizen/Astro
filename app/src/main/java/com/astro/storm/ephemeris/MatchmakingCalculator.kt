@@ -1,7 +1,6 @@
 package com.astro.storm.ephemeris
 
 import com.astro.storm.data.localization.Language
-import com.astro.storm.data.localization.StringKey
 import com.astro.storm.data.localization.StringKeyMatch
 import com.astro.storm.data.localization.StringResources
 import com.astro.storm.data.model.*
@@ -320,7 +319,7 @@ object MatchmakingCalculator {
         if (PlanetaryFriendship.getRelationship(bride7thLord, groom7thLord) == "Enemy" &&
             PlanetaryFriendship.getRelationship(groom7thLord, bride7thLord) == "Enemy") {
             considerations.add(
-                StringResources.get(StringKey.SPECIAL_7TH_LORDS_ENEMY, language)
+                StringResources.get(StringKeyMatch.SPECIAL_7TH_LORDS_ENEMY, language)
                     .replace("{lord1}", bride7thLord.getLocalizedName(language))
                     .replace("{lord2}", groom7thLord.getLocalizedName(language))
             )
@@ -349,24 +348,24 @@ object MatchmakingCalculator {
 
         val nadiAnalysis = gunaAnalyses.find { it.name == "Nadi" }
         if (nadiAnalysis != null && nadiAnalysis.obtainedPoints == 0.0) {
-            remedies.add(StringResources.get(StringKey.REMEDY_NADI_1, language))
-            remedies.add(StringResources.get(StringKey.REMEDY_NADI_2, language))
-            remedies.add(StringResources.get(StringKey.REMEDY_NADI_3, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_NADI_1, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_NADI_2, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_NADI_3, language))
         }
 
         val bhakootAnalysis = gunaAnalyses.find { it.name == "Bhakoot" }
         if (bhakootAnalysis != null && bhakootAnalysis.obtainedPoints == 0.0) {
-            remedies.add(StringResources.get(StringKey.REMEDY_BHAKOOT_1, language))
-            remedies.add(StringResources.get(StringKey.REMEDY_BHAKOOT_2, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_BHAKOOT_1, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_BHAKOOT_2, language))
             if (bhakootAnalysis.analysis.contains("6-8")) {
                 remedies.add(StringResources.get(StringKeyMatch.REMEDY_SHADASHTAK, language))
             }
         }
 
         if (brideManglik.effectiveDosha.severity > 0 || groomManglik.effectiveDosha.severity > 0) {
-            remedies.add(StringResources.get(StringKey.REMEDY_MANGLIK_1, language))
-            remedies.add(StringResources.get(StringKey.REMEDY_MANGLIK_2, language))
-            remedies.add(StringResources.get(StringKey.REMEDY_MANGLIK_3, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_MANGLIK_1, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_MANGLIK_2, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_MANGLIK_3, language))
 
             if (brideManglik.effectiveDosha.severity > 0) {
                 remedies.add(StringResources.get(StringKeyMatch.REMEDY_MANGLIK_BRIDE, language))
@@ -383,26 +382,26 @@ object MatchmakingCalculator {
 
         val ganaAnalysis = gunaAnalyses.find { it.name == "Gana" }
         if (ganaAnalysis != null && ganaAnalysis.obtainedPoints <= 1.0) {
-            remedies.add(StringResources.get(StringKey.REMEDY_GANA_1, language))
-            remedies.add(StringResources.get(StringKey.REMEDY_GANA_2, language))
-            remedies.add(StringResources.get(StringKey.REMEDY_GANA_3, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_GANA_1, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_GANA_2, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_GANA_3, language))
         }
 
         val grahaMaitri = gunaAnalyses.find { it.name == "Graha Maitri" }
         if (grahaMaitri != null && grahaMaitri.obtainedPoints <= 1.0) {
-            remedies.add(StringResources.get(StringKey.REMEDY_GRAHA_MAITRI_1, language))
-            remedies.add(StringResources.get(StringKey.REMEDY_GRAHA_MAITRI_2, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_GRAHA_MAITRI_1, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_GRAHA_MAITRI_2, language))
         }
 
         val yoniAnalysis = gunaAnalyses.find { it.name == "Yoni" }
         if (yoniAnalysis != null && yoniAnalysis.obtainedPoints == 0.0) {
-            remedies.add(StringResources.get(StringKey.REMEDY_YONI_1, language))
-            remedies.add(StringResources.get(StringKey.REMEDY_YONI_2, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_YONI_1, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_YONI_2, language))
         }
 
         if (additionalFactors.vedhaPresent) {
-            remedies.add(StringResources.get(StringKey.REMEDY_VEDHA_1, language))
-            remedies.add(StringResources.get(StringKey.REMEDY_VEDHA_2, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_VEDHA_1, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_VEDHA_2, language))
         }
 
         if (!additionalFactors.rajjuCompatible) {
@@ -417,15 +416,15 @@ object MatchmakingCalculator {
         }
 
         if (totalPoints < MatchmakingConstants.AVERAGE_THRESHOLD) {
-            remedies.add(StringResources.get(StringKey.REMEDY_GENERAL_1, language))
-            remedies.add(StringResources.get(StringKey.REMEDY_GENERAL_2, language))
-            remedies.add(StringResources.get(StringKey.REMEDY_GENERAL_3, language))
-            remedies.add(StringResources.get(StringKey.REMEDY_GENERAL_4, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_GENERAL_1, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_GENERAL_2, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_GENERAL_3, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_GENERAL_4, language))
         }
 
         if (totalPoints < MatchmakingConstants.POOR_THRESHOLD) {
-            remedies.add(StringResources.get(StringKey.REMEDY_SERIOUS_1, language))
-            remedies.add(StringResources.get(StringKey.REMEDY_SERIOUS_2, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_SERIOUS_1, language))
+            remedies.add(StringResources.get(StringKeyMatch.REMEDY_SERIOUS_2, language))
         }
 
         if (remedies.isEmpty()) {

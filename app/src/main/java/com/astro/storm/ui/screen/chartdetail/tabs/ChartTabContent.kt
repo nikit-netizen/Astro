@@ -62,8 +62,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.astro.storm.data.localization.StringKey
 import com.astro.storm.data.localization.StringKeyAnalysis
+import com.astro.storm.data.localization.StringKeyDosha
+import com.astro.storm.data.localization.StringKeyInterface
 import com.astro.storm.data.localization.stringResource
 import com.astro.storm.data.model.PlanetPosition
 import com.astro.storm.data.model.VedicChart
@@ -203,25 +204,25 @@ private fun getChartDataForType(
 }
 
 /**
- * Get chart info with StringKey pairs for localization
+ * Get chart info with string keys for localization
  * Returns Triple of (nameKey, descriptionKey, code)
  */
-private fun getChartInfoKeys(type: String): Triple<StringKey?, StringKey?, String> {
+private fun getChartInfoKeys(type: String): Triple<StringKeyInterface?, StringKeyInterface?, String> {
     return when (type) {
-        "D1" -> Triple(StringKey.VARGA_D1_NAME, StringKey.VARGA_D1_DESC, "D1")
-        "D2" -> Triple(StringKey.VARGA_D2_NAME, StringKey.VARGA_D2_DESC, "D2")
-        "D3" -> Triple(StringKey.VARGA_D3_NAME, StringKey.VARGA_D3_DESC_FULL, "D3")
-        "D4" -> Triple(StringKey.VARGA_D4_NAME, StringKey.VARGA_D4_DESC, "D4")
-        "D7" -> Triple(StringKey.VARGA_D7_NAME, StringKey.VARGA_D7_DESC, "D7")
-        "D9" -> Triple(StringKey.VARGA_D9_NAME, StringKey.VARGA_D9_DESC_FULL, "D9")
-        "D10" -> Triple(StringKey.VARGA_D10_NAME, StringKey.VARGA_D10_DESC_FULL, "D10")
-        "D12" -> Triple(StringKey.VARGA_D12_NAME, StringKey.VARGA_D12_DESC_FULL, "D12")
-        "D16" -> Triple(StringKey.VARGA_D16_NAME, StringKey.VARGA_D16_DESC_FULL, "D16")
-        "D20" -> Triple(StringKey.VARGA_D20_NAME, StringKey.VARGA_D20_DESC_FULL, "D20")
-        "D24" -> Triple(StringKey.VARGA_D24_NAME, StringKey.VARGA_D24_DESC_FULL, "D24")
-        "D27" -> Triple(StringKey.VARGA_D27_NAME, StringKey.VARGA_D27_DESC_FULL, "D27")
-        "D30" -> Triple(StringKey.VARGA_D30_NAME, StringKey.VARGA_D30_DESC_FULL, "D30")
-        "D60" -> Triple(StringKey.VARGA_D60_NAME, StringKey.VARGA_D60_DESC_FULL, "D60")
+        "D1" -> Triple(StringKeyAnalysis.VARGA_D1_NAME, StringKeyDosha.VARGA_D1_DESC, "D1")
+        "D2" -> Triple(StringKeyAnalysis.VARGA_D2_NAME, StringKeyDosha.VARGA_D2_DESC, "D2")
+        "D3" -> Triple(StringKeyAnalysis.VARGA_D3_NAME, StringKeyAnalysis.VARGA_D3_DESC_FULL, "D3")
+        "D4" -> Triple(StringKeyAnalysis.VARGA_D4_NAME, StringKeyDosha.VARGA_D4_DESC, "D4")
+        "D7" -> Triple(StringKeyAnalysis.VARGA_D7_NAME, StringKeyDosha.VARGA_D7_DESC, "D7")
+        "D9" -> Triple(StringKeyAnalysis.VARGA_D9_NAME, StringKeyAnalysis.VARGA_D9_DESC_FULL, "D9")
+        "D10" -> Triple(StringKeyAnalysis.VARGA_D10_NAME, StringKeyAnalysis.VARGA_D10_DESC_FULL, "D10")
+        "D12" -> Triple(StringKeyAnalysis.VARGA_D12_NAME, StringKeyAnalysis.VARGA_D12_DESC_FULL, "D12")
+        "D16" -> Triple(StringKeyAnalysis.VARGA_D16_NAME, StringKeyAnalysis.VARGA_D16_DESC_FULL, "D16")
+        "D20" -> Triple(StringKeyAnalysis.VARGA_D20_NAME, StringKeyAnalysis.VARGA_D20_DESC_FULL, "D20")
+        "D24" -> Triple(StringKeyAnalysis.VARGA_D24_NAME, StringKeyAnalysis.VARGA_D24_DESC_FULL, "D24")
+        "D27" -> Triple(StringKeyAnalysis.VARGA_D27_NAME, StringKeyAnalysis.VARGA_D27_DESC_FULL, "D27")
+        "D30" -> Triple(StringKeyAnalysis.VARGA_D30_NAME, StringKeyAnalysis.VARGA_D30_DESC_FULL, "D30")
+        "D60" -> Triple(StringKeyAnalysis.VARGA_D60_NAME, StringKeyAnalysis.VARGA_D60_DESC_FULL, "D60")
         else -> Triple(null, null, type)
     }
 }
@@ -242,24 +243,24 @@ private fun getLocalizedChartInfo(type: String): Triple<String, String, String> 
  */
 private data class ChartTypeChip(
     val code: String,
-    val stringKey: StringKey
+    val stringKey: StringKeyInterface
 )
 
 private val chartTypeChips = listOf(
     ChartTypeChip("D1", StringKeyAnalysis.VARGA_LAGNA),
     ChartTypeChip("D2", StringKeyAnalysis.VARGA_HORA),
     ChartTypeChip("D3", StringKeyAnalysis.VARGA_DREKKANA),
-    ChartTypeChip("D4", StringKey.VARGA_D4_NAME),
+    ChartTypeChip("D4", StringKeyAnalysis.VARGA_D4_NAME),
     ChartTypeChip("D7", StringKeyAnalysis.VARGA_SAPTAMSA),
     ChartTypeChip("D9", StringKeyAnalysis.VARGA_NAVAMSA),
     ChartTypeChip("D10", StringKeyAnalysis.VARGA_DASAMSA),
-    ChartTypeChip("D12", StringKey.VARGA_D12_NAME),
-    ChartTypeChip("D16", StringKey.VARGA_D16_NAME),
-    ChartTypeChip("D20", StringKey.VARGA_D20_NAME),
-    ChartTypeChip("D24", StringKey.VARGA_D24_NAME),
+    ChartTypeChip("D12", StringKeyAnalysis.VARGA_D12_NAME),
+    ChartTypeChip("D16", StringKeyAnalysis.VARGA_D16_NAME),
+    ChartTypeChip("D20", StringKeyAnalysis.VARGA_D20_NAME),
+    ChartTypeChip("D24", StringKeyAnalysis.VARGA_D24_NAME),
     ChartTypeChip("D27", StringKeyAnalysis.VARGA_BHAMSA),
-    ChartTypeChip("D30", StringKey.VARGA_D30_NAME),
-    ChartTypeChip("D60", StringKey.VARGA_D60_NAME)
+    ChartTypeChip("D30", StringKeyAnalysis.VARGA_D30_NAME),
+    ChartTypeChip("D60", StringKeyAnalysis.VARGA_D60_NAME)
 )
 
 @Composable
