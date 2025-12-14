@@ -2,8 +2,8 @@ package com.astro.storm.ephemeris
 
 import android.content.Context
 import com.astro.storm.data.localization.Language
-import com.astro.storm.data.localization.StringKey
 import com.astro.storm.data.localization.StringKeyAnalysis
+import com.astro.storm.data.localization.StringKeyInterface
 import com.astro.storm.data.localization.StringResources
 import com.astro.storm.data.model.*
 import swisseph.SweConst
@@ -230,8 +230,8 @@ class VarshaphalaCalculator(context: Context) {
     }
 
     enum class TajikaAspectType(
-        val displayNameKey: StringKey,
-        val descriptionKey: StringKey,
+        val displayNameKey: StringKeyInterface,
+        val descriptionKey: StringKeyInterface,
         val isPositive: Boolean
     ) {
         ITHASALA(StringKeyAnalysis.TAJIKA_ITHASALA, StringKeyAnalysis.TAJIKA_ITHASALA_DESC, true),
@@ -254,7 +254,7 @@ class VarshaphalaCalculator(context: Context) {
         fun getDescription(language: Language): String = StringResources.get(descriptionKey, language)
     }
 
-    enum class AspectStrength(val displayNameKey: StringKey, val weight: Double) {
+    enum class AspectStrength(val displayNameKey: StringKeyInterface, val weight: Double) {
         VERY_STRONG(StringKeyAnalysis.ASPECT_VERY_STRONG, 1.0),
         STRONG(StringKeyAnalysis.ASPECT_STRONG, 0.8),
         MODERATE(StringKeyAnalysis.ASPECT_MODERATE, 0.6),
@@ -265,9 +265,9 @@ class VarshaphalaCalculator(context: Context) {
     }
 
     enum class SahamType(
-        val displayNameKey: StringKey,
-        val sanskritNameKey: StringKey,
-        val descriptionKey: StringKey
+        val displayNameKey: StringKeyInterface,
+        val sanskritNameKey: StringKeyInterface,
+        val descriptionKey: StringKeyInterface
     ) {
         PUNYA(StringKeyAnalysis.SAHAM_PUNYA, StringKeyAnalysis.SAHAM_PUNYA_SANSKRIT, StringKeyAnalysis.SAHAM_PUNYA_DESC),
         VIDYA(StringKeyAnalysis.SAHAM_VIDYA, StringKeyAnalysis.SAHAM_VIDYA_SANSKRIT, StringKeyAnalysis.SAHAM_VIDYA_DESC),
@@ -295,7 +295,7 @@ class VarshaphalaCalculator(context: Context) {
         fun getDescription(language: Language): String = StringResources.get(descriptionKey, language)
     }
 
-    enum class KeyDateType(val displayNameKey: StringKey) {
+    enum class KeyDateType(val displayNameKey: StringKeyInterface) {
         FAVORABLE(StringKeyAnalysis.KEY_DATE_FAVORABLE),
         CHALLENGING(StringKeyAnalysis.KEY_DATE_CHALLENGING),
         IMPORTANT(StringKeyAnalysis.KEY_DATE_IMPORTANT),

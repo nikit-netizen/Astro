@@ -710,7 +710,10 @@ object MatchmakingCalculator {
             factors.add("Mars in ${ephemerisAnalysis.analysisFromVenus.marsHouse}${VedicAstrologyUtils.getOrdinalSuffix(ephemerisAnalysis.analysisFromVenus.marsHouse)} house from Venus")
         }
 
-        val cancellations = ephemerisAnalysis.cancellationFactors.map { it.titleKey.name }
+        val cancellations = ephemerisAnalysis.cancellationFactors.map { factor ->
+            val key = factor.titleKey
+            if (key is Enum<*>) key.name else key.toString()
+        }
 
         return com.astro.storm.data.model.ManglikAnalysis(
             person = person,

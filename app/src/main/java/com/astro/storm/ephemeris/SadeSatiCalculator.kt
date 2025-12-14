@@ -1,7 +1,6 @@
 package com.astro.storm.ephemeris
 
 import com.astro.storm.data.localization.Language
-import com.astro.storm.data.localization.StringKey
 import com.astro.storm.data.localization.StringKeyDosha
 import com.astro.storm.data.localization.StringResources
 import com.astro.storm.data.model.Planet
@@ -158,8 +157,8 @@ object SadeSatiCalculator {
      */
     data class Remedy(
         val type: RemedyType,
-        val titleKey: StringKey,
-        val descriptionKey: StringKey,
+        val titleKey: com.astro.storm.data.localization.StringKeyInterface,
+        val descriptionKey: com.astro.storm.data.localization.StringKeyInterface,
         val timing: String?,
         val mantra: String?
     ) {

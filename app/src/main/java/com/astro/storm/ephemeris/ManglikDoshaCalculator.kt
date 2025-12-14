@@ -1,7 +1,6 @@
 package com.astro.storm.ephemeris
 
 import com.astro.storm.data.localization.Language
-import com.astro.storm.data.localization.StringKey
 import com.astro.storm.data.localization.StringKeyMatch
 import com.astro.storm.data.localization.StringKeyDosha
 import com.astro.storm.data.localization.StringResources
@@ -149,8 +148,8 @@ object ManglikDoshaCalculator {
      */
     data class ManglikRemedy(
         val type: RemedyType,
-        val titleKey: StringKey,
-        val descriptionKey: StringKey,
+        val titleKey: com.astro.storm.data.localization.StringKeyInterface,
+        val descriptionKey: com.astro.storm.data.localization.StringKeyInterface,
         val effectiveness: String
     ) {
         fun getTitle(language: Language): String = StringResources.get(titleKey, language)
