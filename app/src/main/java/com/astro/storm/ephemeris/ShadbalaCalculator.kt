@@ -735,16 +735,16 @@ object ShadbalaCalculator {
         return diff
     }
 
-    private fun normalizeDegree(degree: Double): Double {
-        var result = degree % DEGREES_PER_CIRCLE
-        if (result < 0) result += DEGREES_PER_CIRCLE
-        return result
-    }
+    /**
+     * Normalize degree using centralized utility.
+     */
+    private fun normalizeDegree(degree: Double): Double = VedicAstrologyUtils.normalizeDegree(degree)
 
-    private fun angularDistance(deg1: Double, deg2: Double): Double {
-        val diff = abs(deg1 - deg2)
-        return if (diff > 180.0) DEGREES_PER_CIRCLE - diff else diff
-    }
+    /**
+     * Calculate angular distance using centralized utility.
+     */
+    private fun angularDistance(deg1: Double, deg2: Double): Double =
+        VedicAstrologyUtils.angularDistance(deg1, deg2)
 
     private val WAR_CAPABLE_PLANETS = setOf(
         Planet.MARS, Planet.MERCURY, Planet.JUPITER, Planet.VENUS, Planet.SATURN

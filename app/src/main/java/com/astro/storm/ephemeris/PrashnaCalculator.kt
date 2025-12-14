@@ -1840,16 +1840,16 @@ class PrashnaCalculator(context: Context) {
         return sweDate.julDay
     }
 
-    private fun normalizeDegrees(degrees: Double): Double {
-        var result = degrees % 360.0
-        if (result < 0) result += 360.0
-        return result
-    }
+    /**
+     * Normalize degrees using centralized utility.
+     */
+    private fun normalizeDegrees(degrees: Double): Double = VedicAstrologyUtils.normalizeDegree(degrees)
 
-    private fun angularDistance(deg1: Double, deg2: Double): Double {
-        val diff = abs(deg1 - deg2)
-        return if (diff > 180) 360 - diff else diff
-    }
+    /**
+     * Calculate angular distance using centralized utility.
+     */
+    private fun angularDistance(deg1: Double, deg2: Double): Double =
+        VedicAstrologyUtils.angularDistance(deg1, deg2)
 
     private fun determineHouse(longitude: Double, houseCusps: List<Double>): Int {
         for (houseNum in 1..12) {

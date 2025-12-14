@@ -359,9 +359,11 @@ object AspectCalculator {
         return mutualAspects
     }
 
-    private fun normalizeAngle(angle: Double): Double {
-        return ((angle % TOTAL_DEGREES) + TOTAL_DEGREES) % TOTAL_DEGREES
-    }
+    /**
+     * Normalize angle to 0-360 range.
+     * Delegates to VedicAstrologyUtils for consistency across codebase.
+     */
+    private fun normalizeAngle(angle: Double): Double = VedicAstrologyUtils.normalizeAngle(angle)
 
     fun getAspectDescription(aspectData: AspectData): String {
         val aspecting = aspectData.aspectingPlanet.displayName

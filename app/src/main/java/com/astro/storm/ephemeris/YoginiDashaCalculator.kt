@@ -304,7 +304,7 @@ object YoginiDashaCalculator {
         val moonPosition = chart.planetPositions.find { it.planet == Planet.MOON }
             ?: throw IllegalArgumentException("Moon position not found in chart")
 
-        val birthDate = chart.birthData.birthDate
+        val birthDate = chart.birthData.dateTime.toLocalDate()
         val moonLongitude = moonPosition.longitude
 
         return calculateYoginiDashaFromMoon(moonLongitude, birthDate, numberOfCycles, chart)
@@ -326,7 +326,7 @@ object YoginiDashaCalculator {
         chart: VedicChart? = null
     ): YoginiDashaResult {
         // Get birth nakshatra
-        val birthNakshatra = VedicAstrologyUtils.getNakshatra(moonLongitude)
+        val (birthNakshatra, _) = Nakshatra.fromLongitude(moonLongitude)
 
         // Calculate position within nakshatra (0-1 range)
         val positionInNakshatra = calculatePositionInNakshatra(moonLongitude)
@@ -682,70 +682,44 @@ object YoginiDashaCalculator {
         // Natural friendship/enmity affects interpretation
         val relationship = getPlanetaryRelationship(mahaPlanet, antarPlanet)
 
-        return when (relationship) {
-            PlanetaryRelationship.FRIEND -> buildString {
+        // Map comprehensive relationship to simplified interpretation categories
+        val isFriendly = relationship == VedicAstrologyUtils.PlanetaryRelationship.FRIEND ||
+                         relationship == VedicAstrologyUtils.PlanetaryRelationship.BEST_FRIEND
+        val isHostile = relationship == VedicAstrologyUtils.PlanetaryRelationship.ENEMY ||
+                        relationship == VedicAstrologyUtils.PlanetaryRelationship.BITTER_ENEMY
+
+        return when {
+            isFriendly -> buildString {
                 append("${mahadashaYogini.displayName}-${antardashaYogini.displayName}: ")
                 append("Harmonious sub-period with complementary energies. ")
                 append("${antarPlanet.displayName}'s significations blend well with ")
                 append("${mahaPlanet.displayName}'s ongoing influence. ")
                 append("Good for collaborative efforts and relationship building.")
             }
-            PlanetaryRelationship.NEUTRAL -> buildString {
-                append("${mahadashaYogini.displayName}-${antardashaYogini.displayName}: ")
-                append("Balanced sub-period requiring conscious integration. ")
-                append("${antarPlanet.displayName}'s themes activate within ")
-                append("${mahaPlanet.displayName}'s framework. ")
-                append("Results depend on individual chart placements.")
-            }
-            PlanetaryRelationship.ENEMY -> buildString {
+            isHostile -> buildString {
                 append("${mahadashaYogini.displayName}-${antardashaYogini.displayName}: ")
                 append("Potentially challenging sub-period with conflicting energies. ")
                 append("${antarPlanet.displayName} may create tension with ")
                 append("${mahaPlanet.displayName}'s ongoing themes. ")
                 append("Requires patience, remedies, and conscious effort for harmony.")
             }
+            else -> buildString {
+                append("${mahadashaYogini.displayName}-${antardashaYogini.displayName}: ")
+                append("Balanced sub-period requiring conscious integration. ")
+                append("${antarPlanet.displayName}'s themes activate within ")
+                append("${mahaPlanet.displayName}'s framework. ")
+                append("Results depend on individual chart placements.")
+            }
         }
     }
 
     /**
-     * Get planetary relationship (simplified)
+     * Get planetary relationship using centralized VedicAstrologyUtils.
+     * Removes duplicate friendship/enmity data that was previously hardcoded here.
      */
-    private fun getPlanetaryRelationship(planet1: Planet, planet2: Planet): PlanetaryRelationship {
-        if (planet1 == planet2) return PlanetaryRelationship.FRIEND
-
-        val friendships = mapOf(
-            Planet.SUN to setOf(Planet.MOON, Planet.MARS, Planet.JUPITER),
-            Planet.MOON to setOf(Planet.SUN, Planet.MERCURY),
-            Planet.MARS to setOf(Planet.SUN, Planet.MOON, Planet.JUPITER),
-            Planet.MERCURY to setOf(Planet.SUN, Planet.VENUS),
-            Planet.JUPITER to setOf(Planet.SUN, Planet.MOON, Planet.MARS),
-            Planet.VENUS to setOf(Planet.MERCURY, Planet.SATURN),
-            Planet.SATURN to setOf(Planet.MERCURY, Planet.VENUS),
-            Planet.RAHU to setOf(Planet.SATURN, Planet.VENUS, Planet.MERCURY),
-            Planet.KETU to setOf(Planet.MARS, Planet.JUPITER)
-        )
-
-        val enemies = mapOf(
-            Planet.SUN to setOf(Planet.SATURN, Planet.VENUS, Planet.RAHU),
-            Planet.MOON to setOf(Planet.RAHU, Planet.KETU),
-            Planet.MARS to setOf(Planet.MERCURY),
-            Planet.MERCURY to setOf(Planet.MOON),
-            Planet.JUPITER to setOf(Planet.MERCURY, Planet.VENUS),
-            Planet.VENUS to setOf(Planet.SUN, Planet.MOON),
-            Planet.SATURN to setOf(Planet.SUN, Planet.MOON, Planet.MARS),
-            Planet.RAHU to setOf(Planet.SUN, Planet.MOON, Planet.MARS),
-            Planet.KETU to setOf(Planet.MOON)
-        )
-
-        return when {
-            friendships[planet1]?.contains(planet2) == true -> PlanetaryRelationship.FRIEND
-            enemies[planet1]?.contains(planet2) == true -> PlanetaryRelationship.ENEMY
-            else -> PlanetaryRelationship.NEUTRAL
-        }
-    }
-
-    private enum class PlanetaryRelationship {
-        FRIEND, NEUTRAL, ENEMY
+    private fun getPlanetaryRelationship(planet1: Planet, planet2: Planet): VedicAstrologyUtils.PlanetaryRelationship {
+        if (planet1 == planet2) return VedicAstrologyUtils.PlanetaryRelationship.FRIEND
+        return VedicAstrologyUtils.getNaturalRelationship(planet1, planet2)
     }
 
     /**
@@ -778,7 +752,7 @@ object YoginiDashaCalculator {
         // Check Moon strength
         val moonPosition = chart.planetPositions.find { it.planet == Planet.MOON }
         if (moonPosition != null) {
-            val moonSign = VedicAstrologyUtils.getZodiacSign(moonPosition.longitude)
+            val moonSign = ZodiacSign.fromLongitude(moonPosition.longitude)
             // Moon strong in Taurus (exalted) or Cancer (own sign)
             if (moonSign == ZodiacSign.TAURUS || moonSign == ZodiacSign.CANCER) {
                 score += 0.15
@@ -788,7 +762,8 @@ object YoginiDashaCalculator {
 
         // Night birth gives preference to Yogini Dasha (simplified check)
         // In production, you would check actual sunrise/sunset times
-        if (chart.birthData.birthTime.hour < 6 || chart.birthData.birthTime.hour >= 18) {
+        val birthHour = chart.birthData.dateTime.hour
+        if (birthHour < 6 || birthHour >= 18) {
             score += 0.1
             reasons.add("Night birth traditionally favors Yogini Dasha")
         }

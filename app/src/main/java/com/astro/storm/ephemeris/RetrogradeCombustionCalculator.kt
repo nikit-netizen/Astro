@@ -482,14 +482,16 @@ object RetrogradeCombustionCalculator {
         return pressure.coerceIn(0.0, 1.0)
     }
 
-    private fun calculateAngularDistance(long1: Double, long2: Double): Double {
-        val diff = abs(normalizeAngle(long1) - normalizeAngle(long2))
-        return if (diff > 180.0) 360.0 - diff else diff
-    }
+    /**
+     * Calculate angular distance using centralized utility.
+     */
+    private fun calculateAngularDistance(long1: Double, long2: Double): Double =
+        VedicAstrologyUtils.angularDistance(long1, long2)
 
-    private fun normalizeAngle(angle: Double): Double {
-        return ((angle % 360.0) + 360.0) % 360.0
-    }
+    /**
+     * Normalize angle using centralized utility.
+     */
+    private fun normalizeAngle(angle: Double): Double = VedicAstrologyUtils.normalizeAngle(angle)
 
     private fun getSignNumber(longitude: Double): Int {
         return ((normalizeAngle(longitude) / DEGREES_PER_SIGN).toInt() % TOTAL_SIGNS) + 1

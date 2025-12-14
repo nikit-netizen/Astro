@@ -1628,11 +1628,10 @@ class MuhurtaCalculator(context: Context) {
         return sweDate.julDay
     }
 
-    private fun normalizeDegrees(degrees: Double): Double {
-        var result = degrees % 360.0
-        if (result < 0) result += 360.0
-        return result
-    }
+    /**
+     * Normalize degrees using centralized utility.
+     */
+    private fun normalizeDegrees(degrees: Double): Double = VedicAstrologyUtils.normalizeDegree(degrees)
 
     fun getTithiEndTime(
         dateTime: LocalDateTime,

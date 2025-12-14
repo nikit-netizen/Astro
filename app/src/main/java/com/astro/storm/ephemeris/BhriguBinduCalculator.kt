@@ -70,6 +70,7 @@ object BhriguBinduCalculator {
         HIGHLY_POSITIVE,
         POSITIVE,
         NEUTRAL,
+        CHALLENGING,
         NEGATIVE,
         HIGHLY_NEGATIVE
     }
@@ -291,12 +292,11 @@ object BhriguBinduCalculator {
         val bhriguBindu = calculateBhriguBinduFromLongitudes(rahuPosition.longitude, moonPosition.longitude)
 
         // Determine sign, nakshatra, and house
-        val bbSign = VedicAstrologyUtils.getZodiacSign(bhriguBindu)
-        val bbNakshatra = VedicAstrologyUtils.getNakshatra(bhriguBindu)
-        val bbPada = VedicAstrologyUtils.getNakshatraPada(bhriguBindu)
+        val bbSign = ZodiacSign.fromLongitude(bhriguBindu)
+        val (bbNakshatra, bbPada) = Nakshatra.fromLongitude(bhriguBindu)
         val bbHouse = calculateBhriguBinduHouse(chart, bhriguBindu)
-        val bbLord = bbSign.rulingPlanet
-        val nakshatraLord = bbNakshatra.rulingPlanet
+        val bbLord = bbSign.ruler
+        val nakshatraLord = bbNakshatra.ruler
 
         // Find aspects and conjunctions
         val aspectingPlanets = findAspectingPlanets(chart, bhriguBindu)
@@ -336,7 +336,7 @@ object BhriguBinduCalculator {
      * Calculate the house placement of Bhrigu Bindu
      */
     private fun calculateBhriguBinduHouse(chart: VedicChart, bhriguBindu: Double): Int {
-        val ascendantLongitude = chart.ascendantLongitude
+        val ascendantLongitude = chart.ascendant
         val distance = normalizeAngle(bhriguBindu - ascendantLongitude)
         return ((distance / 30.0).toInt() % 12) + 1
     }
@@ -455,11 +455,11 @@ object BhriguBinduCalculator {
      * Find planets conjunct with Bhrigu Bindu (within 10 degrees in same sign)
      */
     private fun findConjunctPlanets(chart: VedicChart, bhriguBindu: Double): List<Planet> {
-        val bbSign = VedicAstrologyUtils.getZodiacSign(bhriguBindu)
+        val bbSign = ZodiacSign.fromLongitude(bhriguBindu)
         val conjunctPlanets = mutableListOf<Planet>()
 
         for (position in chart.planetPositions) {
-            val planetSign = VedicAstrologyUtils.getZodiacSign(position.longitude)
+            val planetSign = ZodiacSign.fromLongitude(position.longitude)
             if (planetSign == bbSign) {
                 val distance = calculateAngularDistance(position.longitude, bhriguBindu)
                 if (distance <= 10) {
@@ -486,7 +486,7 @@ object BhriguBinduCalculator {
         var maleficScore = 0.0
 
         // 1. Assess lord strength
-        val lord = bbSign.rulingPlanet
+        val lord = bbSign.ruler
         val lordPosition = chart.planetPositions.find { it.planet == lord }
         val lordStrength = assessPlanetStrength(chart, lord, lordPosition)
 
@@ -505,7 +505,7 @@ object BhriguBinduCalculator {
         )
 
         // 2. Assess nakshatra lord strength
-        val nakshatraLord = bbNakshatra.rulingPlanet
+        val nakshatraLord = bbNakshatra.ruler
         val nakshatraLordPosition = chart.planetPositions.find { it.planet == nakshatraLord }
         val nakshatraLordStrength = assessPlanetStrength(chart, nakshatraLord, nakshatraLordPosition)
 
@@ -633,13 +633,13 @@ object BhriguBinduCalculator {
         var score = 0
 
         // Check dignity
-        val sign = VedicAstrologyUtils.getZodiacSign(position.longitude)
-        if (sign.rulingPlanet == planet) score += 2 // Own sign
+        val sign = ZodiacSign.fromLongitude(position.longitude)
+        if (sign.ruler == planet) score += 2 // Own sign
         if (AstrologicalConstants.EXALTATION_SIGNS[planet] == sign) score += 3 // Exalted
         if (AstrologicalConstants.DEBILITATION_SIGNS[planet] == sign) score -= 2 // Debilitated
 
         // Check house placement
-        val house = ((normalizeAngle(position.longitude - chart.ascendantLongitude) / 30.0).toInt() % 12) + 1
+        val house = ((normalizeAngle(position.longitude - chart.ascendant) / 30.0).toInt() % 12) + 1
         if (house in AstrologicalConstants.KENDRA_HOUSES) score += 1
         if (house in AstrologicalConstants.TRIKONA_HOUSES) score += 1
         if (house in AstrologicalConstants.DUSTHANA_HOUSES) score -= 1
@@ -936,21 +936,17 @@ object BhriguBinduCalculator {
     // ============================================
 
     /**
-     * Normalize angle to 0-360 range
+     * Normalize angle to 0-360 range.
+     * Delegates to VedicAstrologyUtils for consistency across codebase.
      */
-    private fun normalizeAngle(angle: Double): Double {
-        var normalized = angle % 360.0
-        if (normalized < 0) normalized += 360.0
-        return normalized
-    }
+    private fun normalizeAngle(angle: Double): Double = VedicAstrologyUtils.normalizeAngle(angle)
 
     /**
-     * Calculate angular distance between two points
+     * Calculate angular distance between two points.
+     * Delegates to VedicAstrologyUtils for consistency across codebase.
      */
-    private fun calculateAngularDistance(long1: Double, long2: Double): Double {
-        val diff = Math.abs(normalizeAngle(long1) - normalizeAngle(long2))
-        return if (diff > 180) 360 - diff else diff
-    }
+    private fun calculateAngularDistance(long1: Double, long2: Double): Double =
+        VedicAstrologyUtils.angularDistance(long1, long2)
 
     /**
      * Get house placement description

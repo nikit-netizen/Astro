@@ -2024,11 +2024,10 @@ class VarshaphalaCalculator(context: Context) {
         return localZoned.toLocalDateTime()
     }
 
-    private fun normalizeAngle(angle: Double): Double {
-        var result = angle % 360.0
-        if (result < 0) result += 360.0
-        return result
-    }
+    /**
+     * Normalize angle using centralized utility.
+     */
+    private fun normalizeAngle(angle: Double): Double = VedicAstrologyUtils.normalizeAngle(angle)
 
     private fun getZodiacSignFromLongitude(longitude: Double): ZodiacSign {
         val normalizedLong = normalizeAngle(longitude)

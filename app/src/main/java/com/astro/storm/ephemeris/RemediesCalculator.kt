@@ -82,13 +82,8 @@ object RemediesCalculator {
         }
     }
 
-    enum class PlanetaryRelationship {
-        BEST_FRIEND,
-        FRIEND,
-        NEUTRAL,
-        ENEMY,
-        BITTER_ENEMY
-    }
+    // Use VedicAstrologyUtils.PlanetaryRelationship for planetary relationship calculations
+    // This enum has been removed to avoid duplication - use VedicAstrologyUtils.PlanetaryRelationship instead
 
     data class Remedy(
         val id: String = UUID.randomUUID().toString(),
@@ -772,9 +767,9 @@ val ascendantSign: ZodiacSign = ZodiacSign.values()[(ascendantLongitude / 30.0).
         }
 
         val relationship = getPlanetaryRelationship(planet, sign.ruler)
-        val isFriendlySign = relationship in listOf(PlanetaryRelationship.FRIEND, PlanetaryRelationship.BEST_FRIEND)
-        val isEnemySign = relationship in listOf(PlanetaryRelationship.ENEMY, PlanetaryRelationship.BITTER_ENEMY)
-        val isNeutralSign = relationship == PlanetaryRelationship.NEUTRAL
+        val isFriendlySign = relationship in listOf(VedicAstrologyUtils.PlanetaryRelationship.FRIEND, VedicAstrologyUtils.PlanetaryRelationship.BEST_FRIEND)
+        val isEnemySign = relationship in listOf(VedicAstrologyUtils.PlanetaryRelationship.ENEMY, VedicAstrologyUtils.PlanetaryRelationship.BITTER_ENEMY)
+        val isNeutralSign = relationship == VedicAstrologyUtils.PlanetaryRelationship.NEUTRAL
 
         if (isFriendlySign && !isOwnSign && !isExalted) {
             positives.add("In friend's sign (${sign.ruler.displayName})")
@@ -1044,18 +1039,15 @@ val ascendantSign: ZodiacSign = ZodiacSign.values()[(ascendantLongitude / 30.0).
                 signDegree <= info.mooltrikonaEndDegree
     }
 
-    private fun getPlanetaryRelationship(planet1: Planet, planet2: Planet): PlanetaryRelationship {
-        if (planet1 == planet2) return PlanetaryRelationship.BEST_FRIEND
+    /**
+     * Get planetary relationship using centralized VedicAstrologyUtils.
+     * Maps the 3-value relationship to the extended 5-value system for backward compatibility.
+     */
+    private fun getPlanetaryRelationship(planet1: Planet, planet2: Planet): VedicAstrologyUtils.PlanetaryRelationship {
+        if (planet1 == planet2) return VedicAstrologyUtils.PlanetaryRelationship.BEST_FRIEND
 
-        val friendships = naturalFriendships[planet1] ?: return PlanetaryRelationship.NEUTRAL
-        val (friends, neutrals, enemies) = friendships
-
-        return when (planet2) {
-            in friends -> PlanetaryRelationship.FRIEND
-            in enemies -> PlanetaryRelationship.ENEMY
-            in neutrals -> PlanetaryRelationship.NEUTRAL
-            else -> PlanetaryRelationship.NEUTRAL
-        }
+        // Use the comprehensive relationship calculator from VedicAstrologyUtils
+        return VedicAstrologyUtils.getNaturalRelationship(planet1, planet2)
     }
 
     private fun checkNeechaBhangaRajaYoga(

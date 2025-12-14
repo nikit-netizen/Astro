@@ -1,5 +1,6 @@
 package com.astro.storm.ui.screen.chartdetail
 
+import com.astro.storm.ephemeris.VedicAstrologyUtils
 import kotlin.math.abs
 
 /**
@@ -140,21 +141,21 @@ object ChartDetailUtils {
 
     /**
      * Normalizes a degree value to 0-360 range.
+     * Delegates to centralized VedicAstrologyUtils.
      *
      * @param degree The degree value to normalize
      * @return Normalized value between 0 and 360
      */
-    fun normalizeDegree(degree: Double): Double = (degree % 360.0 + 360.0) % 360.0
+    fun normalizeDegree(degree: Double): Double = VedicAstrologyUtils.normalizeDegree(degree)
 
     /**
      * Calculates the shortest angular distance between two points.
+     * Delegates to centralized VedicAstrologyUtils.
      *
      * @param degree1 First degree value
      * @param degree2 Second degree value
      * @return Shortest angular distance (always positive, 0-180)
      */
-    fun angularDistance(degree1: Double, degree2: Double): Double {
-        val diff = abs(normalizeDegree(degree1) - normalizeDegree(degree2))
-        return if (diff > 180) 360 - diff else diff
-    }
+    fun angularDistance(degree1: Double, degree2: Double): Double =
+        VedicAstrologyUtils.angularDistance(degree1, degree2)
 }

@@ -133,12 +133,10 @@ class PanchangaCalculator(context: Context) : Closeable {
         return normalizeDegrees(positions[0])
     }
 
-    private fun normalizeDegrees(degrees: Double): Double {
-        var normalized = degrees % 360.0
-        if (normalized < 0.0) normalized += 360.0
-        if (normalized >= 360.0) normalized = 0.0
-        return normalized
-    }
+    /**
+     * Normalize degrees using centralized utility.
+     */
+    private fun normalizeDegrees(degrees: Double): Double = VedicAstrologyUtils.normalizeDegree(degrees)
 
     private fun calculateLunarElongation(sunLongitude: Double, moonLongitude: Double): Double {
         var elongation = moonLongitude - sunLongitude

@@ -83,9 +83,14 @@ object VedicAstrologyUtils {
      */
     data class MoolatrikonaRange(val sign: ZodiacSign, val startDegree: Double, val endDegree: Double)
 
+    /**
+     * Moolatrikona signs and degree ranges.
+     * Using consolidated values from AstrologicalConstants for consistency.
+     * Moon's Moolatrikona is 4°-30° Taurus per BPHS Chapter 3.
+     */
     private val moolatrikonaSigns = mapOf(
         Planet.SUN to MoolatrikonaRange(ZodiacSign.LEO, 0.0, 20.0),
-        Planet.MOON to MoolatrikonaRange(ZodiacSign.TAURUS, 4.0, 20.0),
+        Planet.MOON to MoolatrikonaRange(ZodiacSign.TAURUS, 4.0, 30.0),
         Planet.MARS to MoolatrikonaRange(ZodiacSign.ARIES, 0.0, 12.0),
         Planet.MERCURY to MoolatrikonaRange(ZodiacSign.VIRGO, 16.0, 20.0),
         Planet.JUPITER to MoolatrikonaRange(ZodiacSign.SAGITTARIUS, 0.0, 10.0),
