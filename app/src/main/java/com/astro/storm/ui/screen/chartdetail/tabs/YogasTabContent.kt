@@ -86,7 +86,7 @@ fun YogasTabContent(chart: VedicChart) {
         }
     }
 
-    val expandedYogaNames = remember { mutableStateListOf<String>() }
+    val expandedYogaKeys = remember { mutableStateListOf<String>() }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -111,15 +111,19 @@ fun YogasTabContent(chart: VedicChart) {
                 EmptyYogasMessage(selectedCategory)
             }
         } else {
-            items(filteredYogas, key = { it.name }) { yoga ->
+            items(
+                items = filteredYogas,
+                key = { yoga -> yoga.stableKey() }
+            ) { yoga ->
+                val yogaKey = remember(yoga) { yoga.stableKey() }
                 YogaCard(
                     yoga = yoga,
-                    isExpanded = yoga.name in expandedYogaNames,
-                    onToggleExpand = {
-                        if (it) {
-                            expandedYogaNames.add(yoga.name)
+                    isExpanded = yogaKey in expandedYogaKeys,
+                    onToggleExpand = { expanded ->
+                        if (expanded) {
+                            expandedYogaKeys.add(yogaKey)
                         } else {
-                            expandedYogaNames.remove(yoga.name)
+                            expandedYogaKeys.remove(yogaKey)
                         }
                     }
                 )
@@ -127,6 +131,21 @@ fun YogasTabContent(chart: VedicChart) {
         }
     }
 }
+
+private fun YogaCalculator.Yoga.stableKey(): String {
+    return buildString {
+        append(category.name)
+        append('|')
+        append(name)
+        append('|')
+        append(sanskritName)
+        append('|')
+        append(planets.joinToString(",") { it.name })
+        append('|')
+        append(houses.sorted().joinToString(","))
+    }
+}
+
 
 @Composable
 private fun YogaSummaryCard(analysis: YogaCalculator.YogaAnalysis) {

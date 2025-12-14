@@ -296,7 +296,7 @@ private fun AnalysisTabBar(
  * Analysis tabs available in the chart analysis screen
  */
 enum class AnalysisTab(
-    val stringKey: StringKey,
+    val stringKey: com.astro.storm.data.localization.StringKeyInterface,
     val icon: ImageVector
 ) {
     CHART(StringKeyAnalysis.ANALYSIS_TAB_CHART, Icons.Outlined.GridView),

@@ -64,7 +64,7 @@ fun LocalizationProvider(
  */
 @Composable
 @ReadOnlyComposable
-fun stringResource(key: StringKey): String {
+fun stringResource(key: StringKeyInterface): String {
     val language = LocalLanguage.current
     return StringResources.get(key, language)
 }
@@ -79,7 +79,7 @@ fun stringResource(key: StringKey): String {
  */
 @Composable
 @ReadOnlyComposable
-fun stringResource(key: StringKey, vararg args: Any): String {
+fun stringResource(key: StringKeyInterface, vararg args: Any): String {
     val language = LocalLanguage.current
     return StringResources.get(key, language, *args)
 }
@@ -113,18 +113,18 @@ fun isNepali(): Boolean = LocalLanguage.current == Language.NEPALI
 fun isBSDateSystem(): Boolean = LocalDateSystem.current == DateSystem.BS
 
 /**
- * Extension function for StringKey to get localized value
+ * Extension function for any StringKeyInterface to get localized value
  */
 @Composable
 @ReadOnlyComposable
-fun StringKey.localized(): String = stringResource(this)
+fun StringKeyInterface.localized(): String = stringResource(this)
 
 /**
- * Extension function for StringKey to get localized value with args
+ * Extension function for any StringKeyInterface to get localized value with args
  */
 @Composable
 @ReadOnlyComposable
-fun StringKey.localized(vararg args: Any): String = stringResource(this, *args)
+fun StringKeyInterface.localized(vararg args: Any): String = stringResource(this, *args)
 
 // ============================================
 // DATE FORMATTING UTILITIES
@@ -280,9 +280,9 @@ private fun convertToNepaliNumerals(text: String): String {
 }
 
 /**
- * Get StringKey for weekday
+ * Get string key for weekday
  */
-private fun getWeekdayKey(dayOfWeek: java.time.DayOfWeek): StringKey {
+private fun getWeekdayKey(dayOfWeek: java.time.DayOfWeek): StringKeyInterface {
     return when (dayOfWeek) {
         java.time.DayOfWeek.SUNDAY -> StringKeyMatch.DAY_SUNDAY
         java.time.DayOfWeek.MONDAY -> StringKeyMatch.DAY_MONDAY

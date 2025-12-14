@@ -460,7 +460,7 @@ object VedicAstrologyUtils {
      */
     data class YoniInfo(
         val animal: String,
-        val animalKey: StringKey,
+        val animalKey: com.astro.storm.data.localization.StringKeyInterface,
         val gender: Gender,
         val groupId: Int
     )

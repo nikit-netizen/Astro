@@ -52,7 +52,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.astro.storm.data.localization.StringKey
 import com.astro.storm.data.localization.StringKeyAnalysis
 import com.astro.storm.data.localization.stringResource
 import com.astro.storm.data.model.Nakshatra
@@ -71,7 +70,7 @@ import com.astro.storm.ui.screen.chartdetail.components.StyledDivider
 import java.text.DecimalFormat
 
 @Immutable
-enum class DignityStatus(val stringKey: StringKey, val displayName: String) {
+enum class DignityStatus(val stringKey: com.astro.storm.data.localization.StringKeyInterface, val displayName: String) {
     EXALTED(StringKeyAnalysis.DIGNITY_EXALTED_STATUS, "Exalted"),
     DEBILITATED(StringKeyAnalysis.DIGNITY_DEBILITATED_STATUS, "Debilitated"),
     OWN_SIGN(StringKeyAnalysis.DIGNITY_OWN_SIGN_STATUS, "Own Sign"),

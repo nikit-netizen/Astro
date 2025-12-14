@@ -1,7 +1,6 @@
 package com.astro.storm.ui.screen.matchmaking
 
 import com.astro.storm.data.localization.Language
-import com.astro.storm.data.localization.StringKey
 import com.astro.storm.data.localization.StringKeyMatch
 import com.astro.storm.data.localization.StringResources
 import com.astro.storm.data.model.CompatibilityRating
@@ -74,7 +73,7 @@ object MatchmakingReportUtils {
             appendLine("${StringResources.get(StringKeyMatch.REPORT_RATING_LABEL, language)} ${result.rating.displayName}")
             appendLine()
 
-            appendLine(StringResources.get(StringKey.REPORT_ASHTAKOOTA_8_GUNA, language))
+            appendLine(StringResources.get(StringKeyMatch.REPORT_ASHTAKOOTA_8_GUNA, language))
             appendLine("─────────────────────────────────────")
             result.gunaAnalyses.forEach { guna ->
                 val status = if (guna.isPositive) "✓" else "✗"

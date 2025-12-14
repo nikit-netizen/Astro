@@ -2792,18 +2792,18 @@ object YogaCalculator {
      */
     fun getLocalizedHouseSignifications(house: Int, language: Language): String {
         val key = when (house) {
-            1 -> StringKey.HOUSE_1_SIGNIFICATION
-            2 -> StringKey.HOUSE_2_SIGNIFICATION
-            3 -> StringKey.HOUSE_3_SIGNIFICATION
-            4 -> StringKey.HOUSE_4_SIGNIFICATION
-            5 -> StringKey.HOUSE_5_SIGNIFICATION
-            6 -> StringKey.HOUSE_6_SIGNIFICATION
-            7 -> StringKey.HOUSE_7_SIGNIFICATION
-            8 -> StringKey.HOUSE_8_SIGNIFICATION
-            9 -> StringKey.HOUSE_9_SIGNIFICATION
-            10 -> StringKey.HOUSE_10_SIGNIFICATION
-            11 -> StringKey.HOUSE_11_SIGNIFICATION
-            12 -> StringKey.HOUSE_12_SIGNIFICATION
+            1 -> StringKeyMatch.HOUSE_1_SIGNIFICATION
+            2 -> StringKeyMatch.HOUSE_2_SIGNIFICATION
+            3 -> StringKeyMatch.HOUSE_3_SIGNIFICATION
+            4 -> StringKeyMatch.HOUSE_4_SIGNIFICATION
+            5 -> StringKeyMatch.HOUSE_5_SIGNIFICATION
+            6 -> StringKeyMatch.HOUSE_6_SIGNIFICATION
+            7 -> StringKeyMatch.HOUSE_7_SIGNIFICATION
+            8 -> StringKeyMatch.HOUSE_8_SIGNIFICATION
+            9 -> StringKeyMatch.HOUSE_9_SIGNIFICATION
+            10 -> StringKeyMatch.HOUSE_10_SIGNIFICATION
+            11 -> StringKeyMatch.HOUSE_11_SIGNIFICATION
+            12 -> StringKeyMatch.HOUSE_12_SIGNIFICATION
             else -> return StringResources.get(StringKeyMatch.VARIOUS_ACTIVITIES, language)
         }
         return StringResources.get(key, language)

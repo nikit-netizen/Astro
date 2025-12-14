@@ -267,7 +267,7 @@ fun SynastryScreen(
     // Chart selector bottom sheets
     if (showChart1Selector) {
         ChartSelectorBottomSheet(
-            title = stringResource(StringKey.SYNASTRY_CHART_1),
+            title = stringResource(StringKeyDosha.SYNASTRY_CHART_1),
             icon = Icons.Filled.Person,
             accentColor = AppTheme.AccentPrimary,
             charts = savedCharts,
@@ -284,7 +284,7 @@ fun SynastryScreen(
 
     if (showChart2Selector) {
         ChartSelectorBottomSheet(
-            title = stringResource(StringKey.SYNASTRY_CHART_2),
+            title = stringResource(StringKeyDosha.SYNASTRY_CHART_2),
             icon = Icons.Filled.PersonOutline,
             accentColor = AppTheme.AccentTeal,
             charts = savedCharts,
@@ -792,7 +792,7 @@ private fun ChartSelectionSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 SynastryChartCard(
-                    label = stringResource(StringKey.SYNASTRY_CHART_1),
+                    label = stringResource(StringKeyDosha.SYNASTRY_CHART_1),
                     chart = chart1,
                     icon = Icons.Filled.Person,
                     color = AppTheme.AccentPrimary,
@@ -821,7 +821,7 @@ private fun ChartSelectionSection(
                 }
 
                 SynastryChartCard(
-                    label = stringResource(StringKey.SYNASTRY_CHART_2),
+                    label = stringResource(StringKeyDosha.SYNASTRY_CHART_2),
                     chart = chart2,
                     icon = Icons.Filled.PersonOutline,
                     color = AppTheme.AccentTeal,
